@@ -49,6 +49,7 @@ nav:
   - Guides:
       - Getting Started: guides/getting-started.md
       - SSH Connection: guides/ssh-connection-guide.md
+      - GPU Power Limiting: guides/gpu-power-limit-guide.md
 
 # Markdown Extensions & Syntax Plugins
 markdown_extensions:

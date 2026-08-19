@@ -187,6 +187,8 @@ Verify after reboot:
 nvidia-smi
 ```
 
+Both GPUs are **power-limited to 300W** via a systemd service to reduce heat and power draw. See the dedicated [GPU Power Limiting guide](../guides/gpu-power-limit-guide.md) for details.
+
 ---
 
 ## Key Files
