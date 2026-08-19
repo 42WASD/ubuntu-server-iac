@@ -41,15 +41,239 @@ theme:
     - content.code.copy
     - content.code.annotate
 
-# Navigation Map
+# >>> nav-autogen (generated) >>>
 nav:
-  - Home: index.md
-  - Setup:
-      - Server Setup Guide: setup/server-setup-guide.md
-  - Guides:
-      - Getting Started: guides/getting-started.md
-      - SSH Connection: guides/ssh-connection-guide.md
-      - GPU Power Limiting: guides/gpu-power-limit-guide.md
+- Home: index.md
+- Setup:
+  - Server Setup Guide: setup/server-setup-guide.md
+- Guides:
+  - Getting Started: guides/getting-started.md
+  - SSH Connection: guides/ssh-connection-guide.md
+  - GPU Power Limiting: guides/gpu-power-limit-guide.md
+  - System Stress Test: guides/stress-test-guide.md
+- Platform:
+  - Platform Overview: platform/index.md
+  - I — Understand the platform before installing anything:
+    - Overview: platform/01-understand-the-platform-before-installing-anything/index.md
+    - The one-sentence idea: platform/01-understand-the-platform-before-installing-anything/00-0-the-one-sentence-idea/index.md
+    - The target architecture: platform/01-understand-the-platform-before-installing-anything/01-1-the-target-architecture/index.md
+    - The trust model: platform/01-understand-the-platform-before-installing-anything/02-2-the-trust-model/index.md
+    - What each developer is allowed to do: platform/01-understand-the-platform-before-installing-anything/03-3-what-each-developer-is-allowed-to-do/index.md
+    - Five control planes, not one: platform/01-understand-the-platform-before-installing-anything/04-4-five-control-planes-not-one/index.md
+    - Linux control plane: platform/01-understand-the-platform-before-installing-anything/05-4-1-linux-control-plane/index.md
+    - Kubernetes platform control plane: platform/01-understand-the-platform-before-installing-anything/06-4-2-kubernetes-platform-control-plane/index.md
+    - Tenant application control plane: platform/01-understand-the-platform-before-installing-anything/07-4-3-tenant-application-control-plane/index.md
+    - Build control plane: platform/01-understand-the-platform-before-installing-anything/08-4-4-build-control-plane/index.md
+    - External edge control plane: platform/01-understand-the-platform-before-installing-anything/09-4-5-external-edge-control-plane/index.md
+    - Why this guide is phased: platform/01-understand-the-platform-before-installing-anything/10-5-why-this-guide-is-phased/index.md
+  - II — Verified stack and current caveats:
+    - Overview: platform/02-verified-stack-and-current-caveats/index.md
+    - Stack selection: platform/02-verified-stack-and-current-caveats/00-6-stack-selection/index.md
+    - Current verification caveats — read before installing: platform/02-verified-stack-and-current-caveats/01-7-current-verification-caveats-read-before-installing/index.md
+    - Version policy: platform/02-verified-stack-and-current-caveats/02-8-version-policy/index.md
+  - III — Build the host:
+    - Overview: platform/03-build-the-host/index.md
+    - Phase 0 — create the infrastructure repository first: platform/03-build-the-host/00-9-phase-0-create-the-infrastructure-repository-first/index.md
+    - Phase 1 — inventory the actual machine: platform/03-build-the-host/01-10-phase-1-inventory-the-actual-machine/index.md
+    - Phase 2 — update Ubuntu and install base administration tools: platform/03-build-the-host/02-11-phase-2-update-ubuntu-and-install-base-administration-tools/index.md
+    - unattended security updates: platform/03-build-the-host/03-11-1-unattended-security-updates/index.md
+    - Phase 3 — hostname, DNS, and local identity: platform/03-build-the-host/04-12-phase-3-hostname-dns-and-local-identity/index.md
+    - Phase 4 — users, groups, and sudo boundaries: platform/03-build-the-host/05-13-phase-4-users-groups-and-sudo-boundaries/index.md
+    - platform groups: platform/03-build-the-host/06-13-1-platform-groups/index.md
+    - no shared human account: platform/03-build-the-host/07-13-2-no-shared-human-account/index.md
+    - sudo policy: platform/03-build-the-host/08-13-3-sudo-policy/index.md
+    - Phase 5 — SSH hardening: platform/03-build-the-host/09-14-phase-5-ssh-hardening/index.md
+    - Phase 6 — Tailscale private management path: platform/03-build-the-host/10-15-phase-6-tailscale-private-management-path/index.md
+    - Tailscale policy concept: platform/03-build-the-host/11-15-1-tailscale-policy-concept/index.md
+    - Phase 7 — host firewall: platform/03-build-the-host/12-16-phase-7-host-firewall/index.md
+    - Phase 8 — system tuning and resource safety: platform/03-build-the-host/13-17-phase-8-system-tuning-and-resource-safety/index.md
+    - disable swap initially: platform/03-build-the-host/14-17-1-disable-swap-initially/index.md
+    - inotify limits: platform/03-build-the-host/15-17-2-inotify-limits/index.md
+    - basic forwarding: platform/03-build-the-host/16-17-3-basic-forwarding/index.md
+    - journald bound: platform/03-build-the-host/17-17-4-journald-bound/index.md
+    - Phase 9 — developer CPU/RAM/PID limits on the host: platform/03-build-the-host/18-18-phase-9-developer-cpu-ram-pid-limits-on-the-host/index.md
+    - Phase 10 — storage architecture: platform/03-build-the-host/19-19-phase-10-storage-architecture/index.md
+    - desired logical layout: platform/03-build-the-host/20-19-1-desired-logical-layout/index.md
+    - fresh-install target: platform/03-build-the-host/21-19-2-fresh-install-target/index.md
+    - existing-install path: platform/03-build-the-host/22-19-3-existing-install-path/index.md
+    - create dedicated RKE2 filesystem only when backing storage is known: platform/03-build-the-host/23-19-4-create-dedicated-rke2-filesystem-only-when-backing-storage-is-known/index.md
+    - Kubernetes fast VG: platform/03-build-the-host/24-19-5-kubernetes-fast-vg/index.md
+    - Kubernetes bulk VG: platform/03-build-the-host/25-19-6-kubernetes-bulk-vg/index.md
+    - required LVM module: platform/03-build-the-host/26-19-7-required-lvm-module/index.md
+    - Phase 11 — filesystem quotas for developer homes: platform/03-build-the-host/27-20-phase-11-filesystem-quotas-for-developer-homes/index.md
+    - Phase 12 — NVIDIA host driver baseline: platform/03-build-the-host/28-21-phase-12-nvidia-host-driver-baseline/index.md
+  - IV — Install RKE2 correctly:
+    - Overview: platform/04-install-rke2-correctly/index.md
+    - Phase 13 — choose and pin the RKE2 release: platform/04-install-rke2-correctly/00-22-phase-13-choose-and-pin-the-rke2-release/index.md
+    - Phase 14 — RKE2 configuration: platform/04-install-rke2-correctly/01-23-phase-14-rke2-configuration/index.md
+    - kubelet configuration: platform/04-install-rke2-correctly/02-23-1-kubelet-configuration/index.md
+    - Phase 15 — configure RKE2's bundled Cilium: platform/04-install-rke2-correctly/03-24-phase-15-configure-rke2-s-bundled-cilium/index.md
+    - Phase 16 — install and start RKE2: platform/04-install-rke2-correctly/04-25-phase-16-install-and-start-rke2/index.md
+    - inspect Cilium: platform/04-install-rke2-correctly/05-25-1-inspect-cilium/index.md
+    - verify RKE2 Secrets encryption: platform/04-install-rke2-correctly/06-25-2-verify-rke2-secrets-encryption/index.md
+    - Phase 17 — admin kubeconfig and CLI convenience: platform/04-install-rke2-correctly/07-26-phase-17-admin-kubeconfig-and-cli-convenience/index.md
+    - Phase 18 — verify reboot recovery now, not later: platform/04-install-rke2-correctly/08-27-phase-18-verify-reboot-recovery-now-not-later/index.md
+  - V — GitOps bootstrap:
+    - Overview: platform/05-gitops-bootstrap/index.md
+    - Phase 19 — install Argo CD exactly once by hand: platform/05-gitops-bootstrap/00-28-phase-19-install-argo-cd-exactly-once-by-hand/index.md
+    - Phase 20 — root GitOps application: platform/05-gitops-bootstrap/01-29-phase-20-root-gitops-application/index.md
+    - AppProjects: platform/05-gitops-bootstrap/02-29-1-appprojects/index.md
+    - Phase 21 — namespace baseline: platform/05-gitops-bootstrap/03-30-phase-21-namespace-baseline/index.md
+    - Phase 22 — PriorityClasses: platform/05-gitops-bootstrap/04-31-phase-22-priorityclasses/index.md
+    - Phase 23 — ResourceQuota: platform/05-gitops-bootstrap/05-32-phase-23-resourcequota/index.md
+    - Phase 24 — LimitRange: platform/05-gitops-bootstrap/06-33-phase-24-limitrange/index.md
+    - Phase 25 — default-deny NetworkPolicy: platform/05-gitops-bootstrap/07-34-phase-25-default-deny-networkpolicy/index.md
+    - Phase 26 — RBAC: platform/05-gitops-bootstrap/08-35-phase-26-rbac/index.md
+    - dev Role: platform/05-gitops-bootstrap/09-35-1-dev-role/index.md
+    - production is intentionally different: platform/05-gitops-bootstrap/10-35-2-production-is-intentionally-different/index.md
+    - Phase 27 — authentication for Kubernetes developers: platform/05-gitops-bootstrap/11-36-phase-27-authentication-for-kubernetes-developers/index.md
+  - VI — Policy enforcement:
+    - Overview: platform/06-policy-enforcement/index.md
+    - Phase 28 — install Kyverno through Argo CD: platform/06-policy-enforcement/00-37-phase-28-install-kyverno-through-argo-cd/index.md
+    - Phase 29 — stage policy before enforcing it: platform/06-policy-enforcement/01-38-phase-29-stage-policy-before-enforcing-it/index.md
+    - "example: deny hostPath": platform/06-policy-enforcement/02-38-1-example-deny-hostpath/index.md
+    - Phase 30 — policy tests: platform/06-policy-enforcement/03-39-phase-30-policy-tests/index.md
+  - VII — Persistent storage:
+    - Overview: platform/07-persistent-storage/index.md
+    - Phase 31 — install OpenEBS through Argo CD: platform/07-persistent-storage/00-40-phase-31-install-openebs-through-argo-cd/index.md
+    - Phase 32 — StorageClasses: platform/07-persistent-storage/01-41-phase-32-storageclasses/index.md
+    - Phase 33 — prove PVC lifecycle before deploying databases: platform/07-persistent-storage/02-42-phase-33-prove-pvc-lifecycle-before-deploying-databases/index.md
+  - VIII — Monitoring and logs:
+    - Overview: platform/08-monitoring-and-logs/index.md
+    - Phase 34 — metrics stack: platform/08-monitoring-and-logs/00-43-phase-34-metrics-stack/index.md
+    - Phase 35 — logs: platform/08-monitoring-and-logs/01-44-phase-35-logs/index.md
+    - Phase 36 — alert before things are full: platform/08-monitoring-and-logs/02-45-phase-36-alert-before-things-are-full/index.md
+  - IX — Registry:
+    - Overview: platform/09-registry/index.md
+    - Phase 37 — install Harbor: platform/09-registry/00-46-phase-37-install-harbor/index.md
+    - Phase 38 — configure RKE2 registry trust: platform/09-registry/01-47-phase-38-configure-rke2-registry-trust/index.md
+  - X — Developer build experience:
+    - Overview: platform/10-developer-build-experience/index.md
+    - Phase 39 — alpha does NOT run a developer Docker daemon: platform/10-developer-build-experience/00-48-phase-39-alpha-does-not-run-a-developer-docker-daemon/index.md
+    - Phase 40 — local developer work on alpha: platform/10-developer-build-experience/01-49-phase-40-local-developer-work-on-alpha/index.md
+    - Phase 41 — build01 architecture: platform/10-developer-build-experience/02-50-phase-41-build01-architecture/index.md
+    - Phase 42 — BuildKit cache policy: platform/10-developer-build-experience/03-51-phase-42-buildkit-cache-policy/index.md
+    - Phase 43 — remote BuildKit: platform/10-developer-build-experience/04-52-phase-43-remote-buildkit/index.md
+    - Phase 44 — continuous dev loop: platform/10-developer-build-experience/05-53-phase-44-continuous-dev-loop/index.md
+    - Phase 45 — CI pipeline: platform/10-developer-build-experience/06-54-phase-45-ci-pipeline/index.md
+  - XI — Public web path:
+    - Overview: platform/11-public-web-path/index.md
+    - Phase 46 — Cloudflare Tunnel: platform/11-public-web-path/00-55-phase-46-cloudflare-tunnel/index.md
+    - Phase 47 — public vs private names: platform/11-public-web-path/01-56-phase-47-public-vs-private-names/index.md
+    - Phase 48 — Traefik routing: platform/11-public-web-path/02-57-phase-48-traefik-routing/index.md
+  - XII — GPU validation phase:
+    - Overview: platform/12-gpu-validation-phase/index.md
+    - Phase 49 — GPU integration is optional until proven: platform/12-gpu-validation-phase/00-58-phase-49-gpu-integration-is-optional-until-proven/index.md
+    - "Phase 50 — first GPU goal: whole-GPU scheduling": platform/12-gpu-validation-phase/01-59-phase-50-first-gpu-goal-whole-gpu-scheduling/index.md
+    - Phase 51 — GPU policy: platform/12-gpu-validation-phase/02-60-phase-51-gpu-policy/index.md
+    - Phase 52 — HAMi validation: platform/12-gpu-validation-phase/03-61-phase-52-hami-validation/index.md
+  - XIII — Game networking foundation:
+    - Overview: platform/13-game-networking-foundation/index.md
+    - Phase 53 — keep game workloads in Kubernetes for now: platform/13-game-networking-foundation/00-62-phase-53-keep-game-workloads-in-kubernetes-for-now/index.md
+    - Phase 54 — why game edge is separate from Cloudflare web: platform/13-game-networking-foundation/01-63-phase-54-why-game-edge-is-separate-from-cloudflare-web/index.md
+    - Phase 55 — relay bring-up: platform/13-game-networking-foundation/02-64-phase-55-relay-bring-up/index.md
+  - XIV — Backups and disaster recovery:
+    - Overview: platform/14-backups-and-disaster-recovery/index.md
+    - Phase 56 — RKE2 etcd snapshots: platform/14-backups-and-disaster-recovery/00-65-phase-56-rke2-etcd-snapshots/index.md
+    - Phase 57 — what must be backed up: platform/14-backups-and-disaster-recovery/01-66-phase-57-what-must-be-backed-up/index.md
+    - Phase 58 — local vs offsite: platform/14-backups-and-disaster-recovery/02-67-phase-58-local-vs-offsite/index.md
+    - Phase 59 — restore tests: platform/14-backups-and-disaster-recovery/03-68-phase-59-restore-tests/index.md
+  - XV — Consolidate and enforce the Ansible source of truth:
+    - Overview: platform/15-consolidate-and-enforce-the-ansible-source-of-truth/index.md
+    - Phase 60 — Ansible control environment: platform/15-consolidate-and-enforce-the-ansible-source-of-truth/00-69-phase-60-ansible-control-environment/index.md
+    - Phase 61 — inventory: platform/15-consolidate-and-enforce-the-ansible-source-of-truth/01-70-phase-61-inventory/index.md
+    - Phase 62 — role ownership: platform/15-consolidate-and-enforce-the-ansible-source-of-truth/02-71-phase-62-role-ownership/index.md
+    - Phase 63 — Ansible must be idempotent: platform/15-consolidate-and-enforce-the-ansible-source-of-truth/03-72-phase-63-ansible-must-be-idempotent/index.md
+  - XVI — Ubuntu Autoinstall:
+    - Overview: platform/16-ubuntu-autoinstall/index.md
+    - Phase 64 — use Autoinstall for future clean rebuilds: platform/16-ubuntu-autoinstall/00-73-phase-64-use-autoinstall-for-future-clean-rebuilds/index.md
+    - Phase 65 — minimal safe autoinstall skeleton: platform/16-ubuntu-autoinstall/01-74-phase-65-minimal-safe-autoinstall-skeleton/index.md
+    - Phase 66 — validate Autoinstall in a VM first: platform/16-ubuntu-autoinstall/02-75-phase-66-validate-autoinstall-in-a-vm-first/index.md
+  - XVII — OpenTofu for external infrastructure:
+    - Overview: platform/17-opentofu-for-external-infrastructure/index.md
+    - Phase 67 — what OpenTofu should own: platform/17-opentofu-for-external-infrastructure/00-76-phase-67-what-opentofu-should-own/index.md
+    - Phase 68 — state is sensitive: platform/17-opentofu-for-external-infrastructure/01-77-phase-68-state-is-sensitive/index.md
+  - XVIII — Day-2 operations:
+    - Overview: platform/18-day-2-operations/index.md
+    - Upgrade order: platform/18-day-2-operations/00-78-upgrade-order/index.md
+    - RKE2 upgrade checklist: platform/18-day-2-operations/01-79-rke2-upgrade-checklist/index.md
+    - Host kernel/NVIDIA update checklist: platform/18-day-2-operations/02-80-host-kernel-nvidia-update-checklist/index.md
+    - Disk-pressure runbook: platform/18-day-2-operations/03-81-disk-pressure-runbook/index.md
+    - Memory-pressure runbook: platform/18-day-2-operations/04-82-memory-pressure-runbook/index.md
+    - CPU-pressure runbook: platform/18-day-2-operations/05-83-cpu-pressure-runbook/index.md
+    - Network-debugging layers: platform/18-day-2-operations/06-84-network-debugging-layers/index.md
+  - XIX — Failure modes you should explicitly design for:
+    - Overview: platform/19-failure-modes-you-should-explicitly-design-for/index.md
+    - Root filesystem fills: platform/19-failure-modes-you-should-explicitly-design-for/00-85-root-filesystem-fills/index.md
+    - Developer gets compromised: platform/19-failure-modes-you-should-explicitly-design-for/01-86-developer-gets-compromised/index.md
+    - Developer has kubectl and tries privilege escalation: platform/19-failure-modes-you-should-explicitly-design-for/02-87-developer-has-kubectl-and-tries-privilege-escalation/index.md
+    - CI runner is compromised: platform/19-failure-modes-you-should-explicitly-design-for/03-88-ci-runner-is-compromised/index.md
+    - Cilium breaks after upgrade: platform/19-failure-modes-you-should-explicitly-design-for/04-89-cilium-breaks-after-upgrade/index.md
+    - Argo CD deletes something unexpectedly: platform/19-failure-modes-you-should-explicitly-design-for/05-90-argo-cd-deletes-something-unexpectedly/index.md
+    - Admission policy locks out platform workloads: platform/19-failure-modes-you-should-explicitly-design-for/06-91-admission-policy-locks-out-platform-workloads/index.md
+    - GPU integration breaks containerd/RKE2: platform/19-failure-modes-you-should-explicitly-design-for/07-92-gpu-integration-breaks-containerd-rke2/index.md
+    - Single server dies: platform/19-failure-modes-you-should-explicitly-design-for/08-93-single-server-dies/index.md
+  - "XX — Observability: how you know the platform works":
+    - Overview: platform/20-observability-how-you-know-the-platform-works/index.md
+    - Host SLO-style checks: platform/20-observability-how-you-know-the-platform-works/00-94-host-slo-style-checks/index.md
+    - Kubernetes checks: platform/20-observability-how-you-know-the-platform-works/01-95-kubernetes-checks/index.md
+    - Tenant checks: platform/20-observability-how-you-know-the-platform-works/02-96-tenant-checks/index.md
+    - Build checks: platform/20-observability-how-you-know-the-platform-works/03-97-build-checks/index.md
+    - External-edge checks: platform/20-observability-how-you-know-the-platform-works/04-98-external-edge-checks/index.md
+  - XXI — Recommended implementation sequence:
+    - Overview: platform/21-recommended-implementation-sequence/index.md
+    - Phase A — host foundation: platform/21-recommended-implementation-sequence/00-99-phase-a-host-foundation/index.md
+    - Phase B — Kubernetes foundation: platform/21-recommended-implementation-sequence/01-100-phase-b-kubernetes-foundation/index.md
+    - Phase C — GitOps + tenancy: platform/21-recommended-implementation-sequence/02-101-phase-c-gitops-tenancy/index.md
+    - Phase D — policy + storage: platform/21-recommended-implementation-sequence/03-102-phase-d-policy-storage/index.md
+    - Phase E — platform services: platform/21-recommended-implementation-sequence/04-103-phase-e-platform-services/index.md
+    - Phase F — developer workflow: platform/21-recommended-implementation-sequence/05-104-phase-f-developer-workflow/index.md
+    - Phase G — external exposure: platform/21-recommended-implementation-sequence/06-105-phase-g-external-exposure/index.md
+    - Phase H — GPU: platform/21-recommended-implementation-sequence/07-106-phase-h-gpu/index.md
+    - Phase I — reproducibility: platform/21-recommended-implementation-sequence/08-107-phase-i-reproducibility/index.md
+  - XXII — Plain-English glossary:
+    - Overview: platform/22-plain-english-glossary/index.md
+    - RKE2: platform/22-plain-english-glossary/00-rke2/index.md
+    - CNI: platform/22-plain-english-glossary/01-cni/index.md
+    - Cilium: platform/22-plain-english-glossary/02-cilium/index.md
+    - Traefik: platform/22-plain-english-glossary/03-traefik/index.md
+    - Gateway API: platform/22-plain-english-glossary/04-gateway-api/index.md
+    - GitOps: platform/22-plain-english-glossary/05-gitops/index.md
+    - Argo CD: platform/22-plain-english-glossary/06-argo-cd/index.md
+    - ResourceQuota: platform/22-plain-english-glossary/07-resourcequota/index.md
+    - LimitRange: platform/22-plain-english-glossary/08-limitrange/index.md
+    - Pod Security Admission: platform/22-plain-english-glossary/09-pod-security-admission/index.md
+    - Kyverno: platform/22-plain-english-glossary/10-kyverno/index.md
+    - LocalPV: platform/22-plain-english-glossary/11-localpv/index.md
+    - OpenEBS LocalPV LVM: platform/22-plain-english-glossary/12-openebs-localpv-lvm/index.md
+    - Harbor: platform/22-plain-english-glossary/13-harbor/index.md
+    - BuildKit: platform/22-plain-english-glossary/14-buildkit/index.md
+    - Buildx: platform/22-plain-english-glossary/15-buildx/index.md
+    - Skaffold: platform/22-plain-english-glossary/16-skaffold/index.md
+    - LXD system container: platform/22-plain-english-glossary/17-lxd-system-container/index.md
+    - KVM VM: platform/22-plain-english-glossary/18-kvm-vm/index.md
+    - Tailscale: platform/22-plain-english-glossary/19-tailscale/index.md
+    - Cloudflare Tunnel: platform/22-plain-english-glossary/20-cloudflare-tunnel/index.md
+    - WireGuard relay: platform/22-plain-english-glossary/21-wireguard-relay/index.md
+    - OpenTofu: platform/22-plain-english-glossary/22-opentofu/index.md
+    - Idempotent: platform/22-plain-english-glossary/23-idempotent/index.md
+    - Reconciliation: platform/22-plain-english-glossary/24-reconciliation/index.md
+  - XXIII — Compact technical reference:
+    - Overview: platform/23-compact-technical-reference/index.md
+    - Host ownership matrix: platform/23-compact-technical-reference/00-108-host-ownership-matrix/index.md
+    - Namespace reference: platform/23-compact-technical-reference/01-109-namespace-reference/index.md
+    - Initial quota reference: platform/23-compact-technical-reference/02-110-initial-quota-reference/index.md
+    - Host developer-limit reference: platform/23-compact-technical-reference/03-111-host-developer-limit-reference/index.md
+    - Network exposure reference: platform/23-compact-technical-reference/04-112-network-exposure-reference/index.md
+    - Storage reference: platform/23-compact-technical-reference/05-113-storage-reference/index.md
+    - Secret rules: platform/23-compact-technical-reference/06-114-secret-rules/index.md
+    - "\"Bad idea\" reference": platform/23-compact-technical-reference/07-115-bad-idea-reference/index.md
+    - First real application acceptance test: platform/23-compact-technical-reference/08-116-first-real-application-acceptance-test/index.md
+  - XXIV — Current verification references:
+    - Overview: platform/24-current-verification-references/index.md
+  - XXV — Final build order:
+    - Overview: platform/25-final-build-order/index.md
+# <<< nav-autogen (generated) <<<
 
 # Markdown Extensions & Syntax Plugins
 markdown_extensions:
