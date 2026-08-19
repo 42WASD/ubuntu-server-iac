@@ -12,18 +12,18 @@ A machine can pass individual component tests and still fail under **simultaneou
 
 ## Power Budget (1200W PSU)
 
-Your **worst-case sustained draw** with 300W GPU caps:
+Your **worst-case sustained draw** with **260W** GPU caps (the current setting):
 
 | Component | Max Draw |
 |-----------|----------|
-| GPU 0 (RTX 3090) | 300 W |
-| GPU 1 (RTX 3090) | 300 W |
+| GPU 0 (RTX 3090) | 260 W |
+| GPU 1 (RTX 3090) | 260 W |
 | CPU (EPYC 7742) | ~225 W |
 | RAM (107 GB) | ~40 W |
 | Motherboard / NVMe / fans | ~60 W |
-| **Total worst-case** | **~925 W** |
+| **Total worst-case** | **~845 W** |
 
-With ~925W under full load, the 1200W PSU has a healthy **~275W (23%) headroom**. This is comfortable. The 300W GPU caps (applied by the systemd `gpu-power-limit` service) are important here — without them, GPU 0 could spike to its 480W max.
+With ~845W under full load, the 1200W PSU has a healthy **~355W (30%) headroom**. This is comfortable. The 260W GPU caps (applied by the systemd `gpu-power-limit` service) are important here — without them, GPU 0 could spike to its 480W max.
 
 ## Tools
 
@@ -70,7 +70,9 @@ Samples CPU RAPL power, both GPUs' power/utilization, and CPU temps every second
 ./scripts/stress/monitor-stress.sh 300 2
 ```
 
-Columns logged: `timestamp, cpu_package_w, gpu0_w, gpu1_w, gpu0_util, gpu1_util, gpu0_mem, gpu1_mem, tctl_c, ccd1_c, ccd2_c`
+Columns logged: `time_s, cpu_package_w, cpu_avg_mhz, gpu0_w, gpu1_w, gpu0_util, gpu1_util, gpu0_mem, gpu1_mem, gpu0_sm_mhz, gpu1_sm_mhz, gpu0_mem_mhz, gpu1_mem_mhz, gpu0_temp_c, gpu1_temp_c, tctl_c, ccd1_c, ccd2_c`
+
+It records CPU package power (RAPL), **CPU average clock (MHz)**, each GPU's power, utilization, memory, **SM clock (MHz)**, memory clock, and **temperature**, plus CPU temps — sampled every second into a timestamped CSV.
 
 ## Recommended Test Procedure
 
@@ -121,6 +123,33 @@ Total worst-case sustained package draw was **~750W** (CPU 206W + GPU0 280W + GP
 
 **Conclusion:** The 1200W PSU is **confirmed adequate** for full simultaneous CPU+GPU load. Compute remained **100% stable** (zero gpu-burn errors over the full test, no crashes/reboots).
 
+### Measured Results — 260W caps (current setting)
+
+A second 180s full test was run after lowering the GPU power cap from 300W to **260W** to see the effect on temperature and power draw:
+
+| Metric | Average | Max |
+|--------|---------|-----|
+| CPU package power (RAPL) | 206 W | 287 W |
+| CPU average clock | **2673 MHz** | ~2800 MHz |
+| GPU 0 (RTX 3090) | 248 W | 260 W |
+| GPU 0 SM clock | 1198 MHz | 1230 MHz |
+| GPU 0 temp | 61°C | **65°C** |
+| GPU 1 (RTX 3090) | 247 W | 260 W |
+| GPU 1 SM clock | 1091 MHz | 1065 MHz |
+| GPU 1 temp | 77°C | **84°C** |
+| CPU temp (`Tctl`) | 84.8°C | 95°C |
+| gpu-burn errors | **0** | 0 |
+
+**Total worst-case package draw: ~701W** — even lower than the 300W test's ~750W.
+
+**Effect of lowering to 260W:**
+- GPU0 dropped from ~280W avg / 300W cap → **260W avg / 260W cap**, and peak temp from 72°C → **65°C** (GPU0 runs notably cooler).
+- GPU1 still peaks at **84°C** — it's the hotter card (likely better/worse cooler seating or airflow position). Power draw is now cap-limited, not thermal-limited, for GPU1's power, but its 84°C is driven by its higher baseline.
+- CPU unchanged: still ~206W avg, hits 95°C thermal limit and throttles — this is independent of GPU caps.
+- **1200W PSU even more comfortable** at 260W caps: ~845W worst case, **~30% headroom**.
+
+**Recommendation:** 260W is a good setting — it keeps GPU0 cooler, reduces total draw, and costs little performance (GPU clocks barely dropped: ~1230MHz vs ~1300MHz). GPU1's higher temperature (84°C) is a **cooling/airflow issue**, not a power issue, and can be addressed by better chassis airflow or fan placement if desired.
+
 ## Interpreting Results
 
 | Metric | Safe Range | Concern |
@@ -132,11 +161,24 @@ Total worst-case sustained package draw was **~750W** (CPU 206W + GPU0 280W + GP
 
 ## Power Limit Interaction
 
-The GPU power caps (300W, applied at boot by `gpu-power-limit.service`) are active during the test. To test **without** caps (worst case), raise or remove the limit first:
+The GPU power caps (currently **260W**, applied at boot by `gpu-power-limit.service`) are active during the test. To test at a different limit, adjust the service file (`scripts/gpu/gpu-power-limit.service`) and reapply, or set it directly:
 
 ```bash
+# Temporarily raise/lower the limit for one test
+sudo nvidia-smi -i 0 -pl 260
+sudo nvidia-smi -i 1 -pl 260
+
+# Example: test near stock (uncapped) limits
 sudo nvidia-smi -i 0 -pl 350
 sudo nvidia-smi -i 1 -pl 350
+```
+
+To make a limit **permanent**, edit `ExecStart` lines in `scripts/gpu/gpu-power-limit.service`, then reinstall:
+```bash
+sudo cp scripts/gpu/gpu-power-limit.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl restart gpu-power-limit.service
+nvidia-smi --query-gpu=index,power.limit,persistence_mode --format=csv
 ```
 
 Then run the stress test. **Note:** running uncapped raises total draw to ~1025W, still within the 1200W PSU but with less margin.

@@ -28,7 +28,7 @@ GPU_KERNEL="${GPU_KERNEL:-/usr/local/bin/compare.fatbin}"
 
 echo "=== STARTING FULL SYSTEM STRESS TEST (${DURATION}s) ==="
 echo "Target: EPYC 7742 (CPU) + 2x RTX 3090 (GPU) on 1200W PSU"
-echo "GPU power caps: 300W each (systemd service applies at boot)"
+echo "GPU power caps: $(nvidia-smi --query-gpu=power.limit --format=csv,noheader | tr '\n' ',') W (systemd service applies at boot)"
 echo ""
 
 # Sanity checks

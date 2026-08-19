@@ -1,5 +1,5 @@
 # GPU power limiter service
-# Sets persistence mode and a 300W power limit on all RTX 3090 GPUs.
+# Sets persistence mode and a 260W power limit on all RTX 3090 GPUs.
 # Power limits reset on driver reload/reboot, so this enforces them at boot.
 #
 # Install:
@@ -10,7 +10,7 @@
 # Verify:
 #   nvidia-smi --query-gpu=index,power.limit,persistence_mode --format=csv
 [Unit]
-Description=Set NVIDIA GPU power limits to 300W and enable persistence mode
+Description=Set NVIDIA GPU power limits to 260W and enable persistence mode
 After=multi-user.target
 StartLimitIntervalSec=0
 
@@ -19,9 +19,9 @@ Type=oneshot
 RemainAfterExit=yes
 # Persistence mode keeps the driver loaded so power limits stay applied.
 ExecStart=/usr/bin/nvidia-smi -pm 1
-# Apply a 300W power limit to both RTX 3090 GPUs.
-ExecStart=/usr/bin/nvidia-smi -i 0 -pl 300
-ExecStart=/usr/bin/nvidia-smi -i 1 -pl 300
+# Apply a 260W power limit to both RTX 3090 GPUs.
+ExecStart=/usr/bin/nvidia-smi -i 0 -pl 260
+ExecStart=/usr/bin/nvidia-smi -i 1 -pl 260
 
 [Install]
 WantedBy=multi-user.target
