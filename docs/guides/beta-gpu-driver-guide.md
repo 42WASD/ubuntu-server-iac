@@ -88,27 +88,39 @@ nvidia-smi --query-gpu=index,name,power.limit,persistence_mode --format=csv
 ## RTX 3070 Mobile — still failing
 
 The `GA104M` (RTX 3070 Mobile / Max-Q) fails to initialize under both 595 and
-580 with:
+580. The failure mode changes depending on the GSP-firmware setting:
 
-```
-NVRM: GPU 0000:06:00.0: RmInitAdapter failed! (0x62:0x55:2674)
-NVRM: GPU 0000:06:00.0: rm_init_adapter failed, device minor number 0
-```
+- **GSP firmware enabled (default)** — `RmInitAdapter failed (0x62:0x55:2674)`
+- **GSP firmware disabled** (`NVreg_EnableGpuFirmware=0`) — the error moves
+  earlier to `RmInitAdapter failed (0x31:0x40:2780)`, but the card still never
+  initializes.
 
-`0x62` is a generic "GPU adapter init failure" — with a **mobile GPU bolted onto
-a desktop board** (a "frankenstein" adapter) it is typically caused by firmware
-or board-support issues rather than the driver. The card never comes up, so it
-cannot be queried or power-limited.
+The GSP-off setting was tried and persisted in `/etc/modprobe.d/nvidia-gsp-off.conf`
+(`options nvidia NVreg_EnableGpuFirmware=0`), but it did **not** make the card work.
 
-Possible next steps (in order of likelihood / ease):
+### Root cause: missing/invalid vBIOS (likely hardware)
 
-1. **vBIOS** — a mobile chip needs a compatible vBIOS; the adapter may carry a
-   mismatched/desktop vBIOS. Flashing a matching mobile vBIOS may help (risky).
-2. **BIOS settings** — check that `Above 4G Decoding` and **Resizable BAR** are
-   enabled for the slot.
-3. **Power delivery** — mobile chips often need a specific power sequencing that
-   the desktop adapter may not provide. Confirm the auxiliary 6/8-pin is seated.
-4. **Open kernel module** — try `nvidia-580-open` in case the closed variant
-   trips on the mismatched firmware.
+Strong evidence points to a vBIOS problem on this "frankenstein" mobile chip
+(mobile GPU bolted onto a desktop adapter):
+
+- `/proc/driver/nvidia/gpus/0000:06:00.0/information` reports
+  `Video BIOS: ??.??.??.??.??` — the driver **cannot read the vBIOS**.
+- The card's subsystem ID is blank/zero (`NVIDIA Corporation Device 0000`),
+  a hallmark of a missing or mismatched vBIOS.
+- The GSP firmware error changes but never resolves, consistent with a card that
+  cannot initialize at the firmware level.
+
+Because the card never comes up, it **cannot be queried or power-limited**.
+
+### Possible next steps (hardware/firmware level)
+
+1. **vBIOS** — flash a matching mobile RTX 3070 vBIOS onto the adapter. This is
+   the most likely fix, but it is risky and requires the card to be flashed
+   (typically via a Windows tool or `nvflash`).
+2. **BIOS settings** — confirm `Above 4G Decoding` and **Resizable BAR** are
+   consistent in the BIOS for the slot.
+3. **Power delivery** — verify the auxiliary 6/8-pin is seated; mobile chips need
+   a specific power sequence a desktop adapter may not provide.
+4. **Seat / reseat** — reinsert the card and confirm the slot link is stable.
 
 Until this is resolved, **only the GTX 1070** is available on `beta`, capped at 75W.
