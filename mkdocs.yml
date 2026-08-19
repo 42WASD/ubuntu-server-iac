@@ -49,6 +49,7 @@ nav:
 - Guides:
   - Getting Started: guides/getting-started.md
   - SSH Connection: guides/ssh-connection-guide.md
+  - Tailscale Setup: guides/tailscale-setup-guide.md
   - GPU Power Limiting: guides/gpu-power-limit-guide.md
   - Beta GPU Driver: guides/beta-gpu-driver-guide.md
   - System Performance: guides/system-performance.md

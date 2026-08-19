@@ -224,7 +224,11 @@ def _write_mkdocs_platform(mkdocs_yml: Path, platform_nav: list) -> None:
             "Guides": [
                 {"Getting Started": "guides/getting-started.md"},
                 {"SSH Connection": "guides/ssh-connection-guide.md"},
+                {"Tailscale Setup": "guides/tailscale-setup-guide.md"},
                 {"GPU Power Limiting": "guides/gpu-power-limit-guide.md"},
+                {"Beta GPU Driver": "guides/beta-gpu-driver-guide.md"},
+                {"System Performance": "guides/system-performance.md"},
+                {"System Test Results": "guides/system-test-results.md"},
                 {"System Stress Test": "guides/stress-test-guide.md"},
             ]
         },
