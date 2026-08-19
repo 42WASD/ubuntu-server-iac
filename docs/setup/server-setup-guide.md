@@ -14,9 +14,10 @@ This guide documents the complete setup of the Ubuntu server (`alpha`) — from 
 6. [SSH Connection Keep-Alive](#ssh-connection-keep-alive)
 7. [Hardware Monitoring](#hardware-monitoring)
 8. [NVIDIA GPU Driver](#nvidia-gpu-driver)
-9. [Key Files](#key-files)
-10. [Verification Checklist](#verification-checklist)
-11. [Troubleshooting](#troubleshooting)
+9. [Kubernetes (MicroK8s) Removal](#kubernetes-microk8s-removal)
+10. [Key Files](#key-files)
+11. [Verification Checklist](#verification-checklist)
+12. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -191,6 +192,26 @@ Both GPUs are **power-limited to 300W** via a systemd service to reduce heat and
 
 ---
 
+## Kubernetes (MicroK8s) Removal
+
+A **MicroK8s** cluster (Canonical's lightweight Kubernetes distribution) was previously installed via snap. It was running `kubelite` (the unified daemon running the kubelet, kube-apiserver, scheduler, controller-manager and kube-proxy) plus its control-plane services. As it was no longer needed and consumed CPU/memory, it was **completely removed including all data**:
+
+```bash
+sudo snap remove --purge microk8s
+```
+
+Verification that it is fully gone:
+
+```bash
+snap list | grep -i microk8s       # nothing
+systemctl list-units | grep -i microk8s   # nothing
+ps aux | grep -iE 'kubelite|k8s-dqlite'   # nothing
+```
+
+This freed **1.8 GB** of snap data and stopped the associated processes (`kubelite`, `k8s-dqlite`, `calico-node`, `containerd`).
+
+---
+
 ## Key Files
 
 | File | Purpose |
@@ -198,6 +219,7 @@ Both GPUs are **power-limited to 300W** via a systemd service to reduce heat and
 | `scripts/vpn/connect-vpn.sh` | Main VPN launcher |
 | `scripts/vpn/vpn-dns-wrapper.sh` | openconnect `--script`: DNS fix |
 | `scripts/vpn/vpn-persist.sh` | VPN persistence loop |
+| `scripts/gpu/gpu-power-limit.service` | systemd GPU 300W power limit service |
 | `~/.config/openconnect/hipreport.sh` | HIP host-report script |
 | `~/.bashrc`, `~/.profile` | `NODE_TLS_REJECT_UNAUTHORIZED=0` |
 

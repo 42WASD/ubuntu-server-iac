@@ -2,8 +2,8 @@
 set -e
 
 # === 1. Resolve paths in the current user context (before sudo is involved) ===
-# Bash expands '~' correctly here, preventing the sudo environment bug.
-DNS_WRAPPER=~/vpn-dns-wrapper.sh
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+DNS_WRAPPER="$SCRIPT_DIR/vpn-dns-wrapper.sh"
 
 # Setup HIP script location (GlobalProtect health check)
 HIP_DIR=~/.config/openconnect
