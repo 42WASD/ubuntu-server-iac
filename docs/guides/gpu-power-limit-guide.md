@@ -1,10 +1,10 @@
 # GPU Power Limiting
 
-This guide documents how the **2 × NVIDIA RTX 3090** GPUs on the server (`alpha`) are power-limited to **260W** each and kept persistent across reboots using a **systemd service**.
+This guide documents how the **2 × NVIDIA RTX 3090** GPUs on the server (`alpha`) are power-limited to **300W** each and kept persistent across reboots using a **systemd service**.
 
 ## Why Limit GPU Power?
 
-The RTX 3090 ships with a **350W** default power limit. In this particular system, GPU 0 was found running at **390W** (above stock — likely from a prior overclock/undervolt tool). Capping both cards at **260W** (the AI efficiency sweet spot) delivers:
+The RTX 3090 ships with a **350W** default power limit. In this particular system, GPU 0 was found running at **390W** (above stock — likely from a prior overclock/undervolt tool). Capping both cards at **300W** delivers:
 
 - **Near-stock performance** (roughly 5–8% loss in the worst case, often less)
 - **Significantly lower power draw and heat** — important for a shared/limited PSU
@@ -20,7 +20,7 @@ Verified via `nvidia-smi` (before applying limits):
 | 0 | 390 W (was 350 stock) | 100 W | 480 W |
 | 1 | 350 W (stock) | 100 W | 365 W |
 
-Both cards support a **260W** target.
+Both cards support a **300W** target.
 
 ## Service File
 
@@ -32,7 +32,7 @@ scripts/gpu/gpu-power-limit.service
 
 ```ini title="scripts/gpu/gpu-power-limit.service"
 [Unit]
-Description=Set NVIDIA GPU power limits to 260W and enable persistence mode
+Description=Set NVIDIA GPU power limits to 300W and enable persistence mode
 After=multi-user.target
 StartLimitIntervalSec=0
 
@@ -41,9 +41,9 @@ Type=oneshot
 RemainAfterExit=yes
 # Persistence mode keeps the driver loaded so power limits stay applied.
 ExecStart=/usr/bin/nvidia-smi -pm 1
-# Apply a 260W power limit to both RTX 3090 GPUs.
-ExecStart=/usr/bin/nvidia-smi -i 0 -pl 260
-ExecStart=/usr/bin/nvidia-smi -i 1 -pl 260
+# Apply a 300W power limit to both RTX 3090 GPUs.
+ExecStart=/usr/bin/nvidia-smi -i 0 -pl 300
+ExecStart=/usr/bin/nvidia-smi -i 1 -pl 300
 
 [Install]
 WantedBy=multi-user.target
@@ -68,7 +68,7 @@ sudo systemctl enable --now gpu-power-limit.service
 
 ## Verification
 
-Check that both GPUs report a **260W** limit and **Enabled** persistence mode:
+Check that both GPUs report a **300W** limit and **Enabled** persistence mode:
 
 ```bash
 nvidia-smi --query-gpu=index,name,power.limit,persistence_mode --format=csv
@@ -78,8 +78,8 @@ Expected output:
 
 ```text
 index, name, power.limit [W], persistence_mode
-0, NVIDIA GeForce RTX 3090, 260.00 W, Enabled
-1, NVIDIA GeForce RTX 3090, 260.00 W, Enabled
+0, NVIDIA GeForce RTX 3090, 300.00 W, Enabled
+1, NVIDIA GeForce RTX 3090, 300.00 W, Enabled
 ```
 
 Confirm the service is active and enabled:
@@ -115,16 +115,32 @@ Independent power-tuning experiments on the RTX 3090 for **LLM, vision, speech-t
 | Limit | Effect | Where 260W sits |
 |-------|--------|-----------------|
 | 350 W | Stock — full power, most heat | Far above the plateau |
-| 300 W | Conservative cap | Just above the plateau |
-| **260 W** | **Active AI sweet spot (current setting)** | **Peak efficiency-per-watt plateau** |
+| 300 W | Conservative cap (current default) | Just above the plateau |
+| **260 W** | **Recommended AI sweet spot** | **Peak efficiency-per-watt plateau** |
 | 250 W | Aggressive — larger perf hit, maximum savings | Bottom of the plateau |
 | 220 W | Heavily capped — biggest savings | Below the plateau, more perf lost |
 
 260W keeps you comfortably inside the efficiency plateau for AI workloads while cutting power and heat well below stock.
 
-### Currently applied
+### Try it
 
-260W is now the **active default**, applied at every boot by the systemd service. The service file in the repo is already set to `-pl 260`.
+Power limits are applied per-reboot by the systemd service. To test 260W:
+
+```bash
+# Apply immediately (validates stability + perf for your workload)
+sudo nvidia-smi -i 0 -pl 260
+sudo nvidia-smi -i 1 -pl 260
+
+# If it looks good, make it persistent
+sudo sed -i 's/ -pl 300/ -pl 260/' /etc/systemd/system/gpu-power-limit.service
+sudo systemctl daemon-reload
+sudo systemctl restart gpu-power-limit.service
+
+# Confirm
+nvidia-smi --query-gpu=index,power.limit --format=csv
+```
+
+Run your benchmark at 350W, 300W, and 260W to confirm the trade-off on the workloads you actually use. Most inference-heavy setups show a near-identical throughput at 260W vs 300W.
 
 !!! note
     GPU 0 supports 100–480W; GPU 1 supports 100–365W. A 260W target is comfortably within both cards' supported ranges.
