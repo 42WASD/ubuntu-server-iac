@@ -24,6 +24,7 @@ set -u
 
 DURATION="${1:-300}"
 GPU_BURN="${GPU_BURN:-/usr/local/bin/gpu_burn}"
+GPU_KERNEL="${GPU_KERNEL:-/usr/local/bin/compare.fatbin}"
 
 echo "=== STARTING FULL SYSTEM STRESS TEST (${DURATION}s) ==="
 echo "Target: EPYC 7742 (CPU) + 2x RTX 3090 (GPU) on 1200W PSU"
@@ -38,12 +39,12 @@ if [ ! -x "$GPU_BURN" ]; then echo "ERROR: gpu_burn not found at $GPU_BURN"; exi
 NCORES=$(nproc)
 echo "Starting stress-ng on ${NCORES} threads..."
 
-# Launch CPU stress (all threads, mix of FPU + cache pressure)
-stress-ng --cpu "$NCORES" --cpu-method matrixprod,fft --timeout "${DURATION}s" &
+# Launch CPU stress (all threads, FPU-heavy method that maximizes power draw)
+stress-ng --cpu "$NCORES" --cpu-method matrixprod --timeout "${DURATION}s" &
 CPU_PID=$!
 
-# Launch GPU stress on all GPUs
-"$GPU_BURN" "$DURATION" &
+# Launch GPU stress on all GPUs (specify compare kernel path explicitly)
+"$GPU_BURN" -c "$GPU_KERNEL" "$DURATION" &
 GPU_PID=$!
 
 # Launch the monitor (samples power + thermals every 2s) in background

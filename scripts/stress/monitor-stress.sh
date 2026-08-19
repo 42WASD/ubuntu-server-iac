@@ -21,11 +21,24 @@ INTERVAL="${2:-1}"
 LOG_FILE="stress-monitor-$(date +%Y%m%d-%H%M%S).csv"
 echo "Logging to: $LOG_FILE"
 
-# Detect RAPL package energy path (EPYC presents as intel-rapl here)
+# Detect RAPL package energy path (EPYC presents as intel-rapl here).
+# Energy counters are root-readable, so we verify via sudo instead of -r.
 RAPL_ENERGY=""
-for cand in /sys/class/powercap/intel-rapl:0/energy_uj /sys/class/powercap/*amd*/energy_uj; do
-  [ -r "$cand" ] && RAPL_ENERGY="$cand" && break
+for cand in /sys/class/powercap/intel-rapl:0/energy_uj /sys/class/powercap/intel-rapl:0:0/energy_uj /sys/class/powercap/*amd*/energy_uj; do
+  if [ -e "$cand" ] && sudo cat "$cand" >/dev/null 2>&1; then
+    RAPL_ENERGY="$cand"
+    break
+  fi
 done
+[ -n "$RAPL_ENERGY" ] || { echo "WARNING: no readable RAPL energy counter found; CPU power will be 0"; }
+echo "Using RAPL counter: ${RAPL_ENERGY:-none}"
+
+# RAPL energy counters wrap (32-bit near 2^32 uJ, ~20s at full CPU load).
+# Read the max range so we can correctly unwrap negative deltas.
+if [ -n "$RAPL_ENERGY" ]; then
+  WRAP_MAX=$(cat "${RAPL_ENERGY%/energy_uj}/max_energy_range_uj" 2>/dev/null)
+fi
+WRAP_MAX="${WRAP_MAX:-4294967296}"   # fallback 2^32 uJ
 
 # CSV header
 echo "time_s,cpu_package_w,gpu0_w,gpu1_w,gpu0_util,gpu1_util,gpu0_mem,gpu1_mem,tctl_c,ccd1_c,ccd2_c" > "$LOG_FILE"
@@ -40,6 +53,10 @@ for (( i=0; i<=DURATION; i+=INTERVAL )); do
   cur_energy=$(sudo cat "$RAPL_ENERGY" 2>/dev/null || echo 0)
   dt=$(awk -v a="$now" -v b="$prev_time" 'BEGIN{print a-b}')
   denergy=$(( cur_energy - prev_energy ))
+  # Correct for 32-bit counter wraparound: if delta is negative, add wrap range.
+  if [ "$denergy" -lt 0 ]; then
+    denergy=$(( denergy + WRAP_MAX ))
+  fi
   cpu_w=$(awk -v de="$denergy" -v dt="$dt" 'BEGIN{if(dt>0) printf "%.2f", de/1000000/dt; else printf "0"}')
   prev_energy=$cur_energy
   prev_time=$now
