@@ -31,30 +31,35 @@ A standardized workflow for initializing, configuring, and automating technical 
 │   ├── guides/
 │   │   └── getting-started.md
 │   └── index.md                  # Site homepage (required)
+├── projects/
+│   └── pyproject.toml            # uv-managed dependencies (mkdocs, theme, plugins)
 ├── .gitignore
-├── mkdocs.yml                    # Main MkDocs configuration
-└── requirements-docs.txt         # Pinned documentation dependencies
+└── mkdocs.yml                    # Main MkDocs configuration
 ```
 
 ## Procedure
 
 ### Step 1 — Virtual Environment & Dependencies (use `uv`)
+This repository uses **uv** with a `pyproject.toml` for dependency management (see `AGENTS.md`). In `projects/pyproject.toml`, include the docs toolchain in the `dependencies` list:
+
+```toml
+[project]
+name = "ubuntu-server-iac-projects"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+    "mkdocs>=1.6.0",
+    "mkdocs-material>=9.5.0",
+    "pymdown-extensions>=10.7.0",
+    "mkdocs-minify-plugin>=0.8.0",
+]
+```
+
+Sync and activate:
 ```bash
-uv venv .venv
+cd projects
+uv sync
 source .venv/bin/activate
-```
-
-Create `requirements-docs.txt`:
-```
-mkdocs>=1.6.0
-mkdocs-material>=9.5.0
-pymdown-extensions>=10.7.0
-mkdocs-minify-plugin>=0.8.0
-```
-
-Install:
-```bash
-uv pip install -r requirements-docs.txt
 ```
 
 ### Step 2 — Update `.gitignore`
@@ -78,8 +83,12 @@ Configure the Material theme with light/dark palettes, navigation features, mark
 - Organize the `nav` section in `mkdocs.yml` to match your file layout.
 
 ### Step 5 — Local Verification
+Build or serve using `uv run` from the `projects` folder (so the venv is used), pointing at the root `mkdocs.yml`:
 ```bash
-mkdocs serve
+cd projects
+uv run mkdocs serve -f ../mkdocs.yml
+# or validate strictly:
+uv run mkdocs build --strict -f ../mkdocs.yml
 ```
 Preview at `http://127.0.0.1:8000`. Verify theme switching, tabs, code copy, and search.
 
