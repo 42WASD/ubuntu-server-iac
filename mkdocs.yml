@@ -1,0 +1,89 @@
+site_name: Ubuntu Server IAC
+site_description: Production-grade system architecture and developer guides for the ubuntu-server-iac project.
+site_author: jyao
+site_url: https://42wasd.github.io/ubuntu-server-iac/
+
+# Repository Integration
+repo_name: 42WASD/ubuntu-server-iac
+repo_url: https://github.com/42WASD/ubuntu-server-iac
+edit_uri: edit/main/docs/
+
+# Theme Configuration
+theme:
+  name: material
+  language: en
+  palette:
+    # Light Mode
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Dark Mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+
+# Navigation Map
+nav:
+  - Home: index.md
+  - Setup:
+      - Server Setup Guide: setup/server-setup-guide.md
+  - Guides:
+      - Getting Started: guides/getting-started.md
+      - SSH Connection: guides/ssh-connection-guide.md
+
+# Markdown Extensions & Syntax Plugins
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - pymdownx.betterem
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.snippets
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+# Plugins
+plugins:
+  - search
+  - minify:
+      minify_html: true

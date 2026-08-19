@@ -1,0 +1,21 @@
+[project]
+name = "ubuntu-server-iac-projects"
+version = "0.1.0"
+description = "Documentation and tooling for the ubuntu-server-iac project"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "mkdocs>=1.6.0",
+    "mkdocs-material>=9.5.0",
+    "pymdown-extensions>=10.7.0",
+    "mkdocs-minify-plugin>=0.8.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.5.0",
+]
+
+[tool.uv]
+package = false

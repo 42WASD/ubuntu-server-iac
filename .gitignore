@@ -1,0 +1,11 @@
+# Python & Virtualenv
+.venv/
+__pycache__/
+*.pyc
+
+# uv Python version (pin is in projects/.python-version)
+.python-version
+
+# MkDocs Local Build Artifacts
+site/
+.cache/

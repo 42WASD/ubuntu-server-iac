@@ -6,17 +6,6 @@
 
 ---
 
-## Table of Contents
-
-1. [Overview](#overview)
-2. [SSH Config Location](#ssh-config-location)
-3. [Keeping the Connection Alive](#keeping-the-connection-alive)
-4. [Other Useful SSH Settings](#other-useful-ssh-settings)
-5. [Verification](#verification)
-6. [Troubleshooting](#troubleshooting)
-
----
-
 ## Overview
 
 This guide documents the SSH client configuration used to connect from the local **macOS** workstation to the remote Linux server (`alpha`). The main goal is to keep SSH connections **stable during inactivity**, which is common when working over a VPN or behind NAT/firewall idle-timeouts.
@@ -91,10 +80,6 @@ Host *
   ControlMaster auto
   ControlPath ~/.ssh/controlmasters/%r@%h:%p
   ControlPersist 10m
-
-  # Avoid prompts about changed host keys
-  # (use with caution — only if you trust the network)
-  # StrictHostKeyChecking accept-new
 ```
 
 | Setting | Purpose |
