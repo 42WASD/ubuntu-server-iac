@@ -102,7 +102,8 @@ driver.
 ## RTX 3070 Mobile — root cause
 
 The `GA104M` (RTX 3070 Mobile / Max-Q) is a mobile chip mounted on a desktop
-adapter ("frankenstein" build). It fails to initialize under **every** driver:
+adapter ("frankenstein" build). It fails to initialize under **every** driver
+tested on this 26.04 / kernel-7.0 host:
 
 - **Proprietary driver** reads a blank vBIOS: `Video BIOS: ??.??.??.??.??`
 - **nouveau** reads the real BIOS but its GSP firmware **times out** (`-110`) and
@@ -112,13 +113,67 @@ adapter ("frankenstein" build). It fails to initialize under **every** driver:
 Because the card never comes up, it **cannot be queried or power-limited**, and
 under nouveau it **must be isolated** (see above) to keep the host stable.
 
+### Note — worked previously on Ubuntu 24.04 LTS (kernel 6.x)
+
+The owner reports this exact card **worked on Ubuntu 24.04 LTS** (kernel 6.x)
+using the older nouveau. It only fails on the newer **26.04 / kernel 7.0** build,
+which reworked Ampere **GSP** handling. This points to a possible **kernel
+regression** (newer nouveau GSP) rather than pure hardware failure. Not yet
+confirmed, but if a fix or older kernel becomes feasible the card may become
+usable again. See "Future outlook" below.
+
 ### Possible fixes (hardware/firmware level, not pursued)
 
 1. **vBIOS flash** — flash a matching mobile RTX 3070 vBIOS (risky; typically via
    a Windows tool or `nvflash`).
-2. **BIOS settings** — confirm `Above 4G Decoding` and **Resizable BAR**.
-3. **Power delivery** — verify the auxiliary 6/8-pin is seated.
-4. **Seat / reseat** — reinsert the card and confirm the slot link.
+2. **Older kernel** — boot a 6.x (24.04) kernel whose nouveau predates the Ampere
+   GSP regression (untested here; would need an ethernet fallback, since the
+   `aic8800` WiFi driver is built only for the 7.0 kernel).
+3. **BIOS settings** — confirm `Above 4G Decoding` and **Resizable BAR**.
+4. **Power delivery** — verify the auxiliary 6/8-pin is seated.
+5. **Seat / reseat** — reinsert the card and confirm the slot link.
 
 Until resolved, **only the GTX 1070** is usable on `beta`, driven by `nouveau`
 with no CUDA and no power-limiting.
+
+## Future outlook — will this be patched?
+
+Findings from upstream nouveau / kernel discussions (searched 2026-08):
+
+**Good news — the nouveau GSP code is actively being fixed, and a closely
+matching regression was already patched.**
+
+- nouveau's GSP path is **relatively new, fast-moving code** (~14,000 lines
+  added for initial GSP-RM support, upstreamed around Linux 6.7). It is actively
+  maintained, and NVIDIA now contributes GSP support directly (e.g., GA100
+  brought up on GSP in Feb 2026).
+- There was a **direct precedent for exactly this class of bug**: a nouveau GSP
+  devinit fix "fixed the Turing but broke Ampere" (RTX 30-series), and David
+  Airlie shipped an urgent fix that landed in 6.9 / 6.8-stable. This confirms the
+  GSP device-init path is an area where regressions occur **and get fixed**.
+
+**Caveats / why it may NOT get fixed for this specific card:**
+
+- The failure here is a **GSP firmware timeout** (`preinit failed -110`) + a
+  nouveau **oops in GSP teardown** (`nvkm_gsp_sg_free` → `iommu_dma_unmap_sg`).
+  The timeout points at the card's **invalid/missing vBIOS**, which no driver
+  change can work around if it is genuinely hardware-level.
+- GSP firmware issues are a **broad, still-open category** (firmware hangs/timeouts
+  reported across Turing→Ampere→Ada→Blackwell). Each is fixed individually;
+  there is no guarantee this exact 3070-Mobile case is prioritized.
+- nouveau's GSP mode is optional (`nouveau.config=NvGspRm=1` for RTX 30). If the
+  Ampere regression is the cause, the fix would come via a kernel update.
+
+**Realistic options to watch:**
+1. Upstream nouveau kernel fixes for GSP + Ampere (check for kernel updates that
+   mention "nouveau GSP Ampere / GA104"). A future kernel update could fix this
+   purely in software.
+2. `nouveau.config=NvGspRm=1` module option (or the reverse) to toggle GSP
+   behavior for RTX 30 — worth re-testing after kernel updates.
+3. If a kernel regression is confirmed, an **older 6.x kernel** (the one that
+   worked on 24.04) remains a fallback.
+
+**Bottom line:** there is a realistic chance a future kernel fixes this if it is
+a nouveau GSP software regression, but **no guarantee** — it may also be a
+genuine hardware/vBIOS failure. Re-test the card after each significant kernel
+upgrade.
