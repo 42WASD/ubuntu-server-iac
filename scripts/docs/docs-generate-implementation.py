@@ -35,6 +35,7 @@ STATUS_ICON = {
     "in-progress": "🔶",
     "not-started": "⬜",
     "blocked": "❌",
+    "deferred": "⏸️",
 }
 STATUS_ORDER = list(STATUS_ICON)
 DEFAULT = "not-started"

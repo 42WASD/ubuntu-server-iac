@@ -1,7 +1,7 @@
 # Implementation progress status.
 #
 # Keys are the build-phase section paths (relative to docs/reference-design/build/),
-# values are one of: done | in-progress | not-started | blocked
+# values are one of: done | in-progress | not-started | blocked | deferred
 #
 # Update this file as work proceeds, then regenerate the page with:
 #   python3 scripts/docs/docs-generate-implementation.py
@@ -15,3 +15,4 @@
 "03-build-the-host/06-13-1-platform-groups": "done"
 "03-build-the-host/07-13-2-no-shared-human-account": "done"
 "03-build-the-host/08-13-3-sudo-policy": "done"
+"03-build-the-host/09-14-phase-5-ssh-hardening": "deferred"

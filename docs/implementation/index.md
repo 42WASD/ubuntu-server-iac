@@ -13,6 +13,14 @@ reference is assigned a status; a generator script renders this page from
 | 🔶 in-progress | Actively being implemented |
 | ⬜ not-started | Not yet touched |
 | ❌ blocked | Blocked on an external dependency |
+| ⏸️ deferred | Intentionally postponed to a later stage |
+
+## Deferred items
+
+These are deliberately skipped for now and scheduled for a later stage:
+
+- **Phase 5 — SSH hardening** — password auth & root login are still enabled.
+  Revisit before any exposure beyond the trusted LAN/Tailscale.
 
 ## How it works
 
@@ -278,8 +286,9 @@ membership), `tasks`, `templates/platform-admin.j2`.
 |--------|-------|
 | ✅ done | 8 |
 | 🔶 in-progress | 0 |
-| ⬜ not-started | 84 |
+| ⬜ not-started | 83 |
 | ❌ blocked | 0 |
+| ⏸️ deferred | 1 |
 
 ## Progress by part
 
@@ -328,7 +337,7 @@ membership), `tasks`, `templates/platform-admin.j2`.
 | ✅ `done` | [platform groups](../reference-design/build/03-build-the-host/06-13-1-platform-groups/index.md) |
 | ✅ `done` | [no shared human account](../reference-design/build/03-build-the-host/07-13-2-no-shared-human-account/index.md) |
 | ✅ `done` | [sudo policy](../reference-design/build/03-build-the-host/08-13-3-sudo-policy/index.md) |
-| ⬜ `not-started` | [Phase 5 — SSH hardening](../reference-design/build/03-build-the-host/09-14-phase-5-ssh-hardening/index.md) |
+| ⏸️ `deferred` | [Phase 5 — SSH hardening](../reference-design/build/03-build-the-host/09-14-phase-5-ssh-hardening/index.md) |
 | ⬜ `not-started` | [Phase 6 — Tailscale private management path](../reference-design/build/03-build-the-host/10-15-phase-6-tailscale-private-management-path/index.md) |
 | ⬜ `not-started` | [Tailscale policy concept](../reference-design/build/03-build-the-host/11-15-1-tailscale-policy-concept/index.md) |
 | ⬜ `not-started` | [Phase 7 — host firewall](../reference-design/build/03-build-the-host/12-16-phase-7-host-firewall/index.md) |
