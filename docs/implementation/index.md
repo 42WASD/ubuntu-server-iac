@@ -40,15 +40,15 @@ edit/correct).
 
 ## Overall progress
 
-**42 / 92** phases/sections complete (**46%**).
+**43 / 92** phases/sections complete (**47%**).
 
-<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:45.7%"></div></div><div class="progress-pct">46%</div></div>
+<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:46.7%"></div></div><div class="progress-pct">47%</div></div>
 
 | Status | Count |
 |--------|-------|
-| ✅ done | 42 |
+| ✅ done | 43 |
 | 🔶 in-progress | 0 |
-| ⬜ not-started | 47 |
+| ⬜ not-started | 46 |
 | ❌ blocked | 1 |
 | ⏸️ deferred | 2 |
 
@@ -2172,9 +2172,9 @@ gate before adding more components.
 </details>
 
 
-### 58% — Part V — GitOps bootstrap
+### 67% — Part V — GitOps bootstrap
 
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:58.0%"></div></div><div class="progress-pct" style="font-size:.85em;">58%</div><div class="tip-box"><strong>Done (7)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:67.0%"></div></div><div class="progress-pct" style="font-size:.85em;">67%</div><div class="tip-box"><strong>Done (8)</strong>
 • Phase 19 — install Argo CD exactly once by hand
 • Phase 20 — root GitOps application
 • AppProjects
@@ -2182,8 +2182,8 @@ gate before adding more components.
 • Phase 22 — PriorityClasses
 • Phase 23 — ResourceQuota
 • Phase 24 — LimitRange
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (5)</strong>
 • Phase 25 — default-deny NetworkPolicy
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (4)</strong>
 • Phase 26 — RBAC
 • dev Role
 • production is intentionally different
@@ -2577,7 +2577,74 @@ now given a bounded default instead of unbounded consumption.
 
 </details>
 
-- ⬜ `not-started` — [Phase 25 — default-deny NetworkPolicy](../reference-design/build/05-gitops-bootstrap/07-34-phase-25-default-deny-networkpolicy/index.md)
+- ✅ `done` — [Phase 25 — default-deny NetworkPolicy](../reference-design/build/05-gitops-bootstrap/07-34-phase-25-default-deny-networkpolicy/index.md)
+
+<details markdown="1" class="runbook">
+<summary>✅ 📜 Build log — Phase 25 — default-deny NetworkPolicy</summary>
+
+# Phase 25 — default-deny NetworkPolicy
+
+Added a `default-deny` NetworkPolicy (Ingress + Egress) to every tenant
+namespace, plus an `allow-cluster-dns` egress rule so workloads can still
+resolve CoreDNS. Additional per-application flows are added later as needed.
+
+## 25.1 Manifests
+
+`infra/kubernetes/platform/networkpolicies/`:
+
+- `jya0.yaml` — `dev-jya0`, `prd-jya0`
+- `42wasd-admin.yaml` — `dev-42wasd-admin`, `prd-42wasd-admin`, `mlops`
+- `games.yaml` — `prd-games-42wasd-admin` (canonical) and
+  `dev-games-42wasd-admin` (ephemeral staging)
+
+Each namespace gets:
+
+```yaml
+# default-deny
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+
+# allow-cluster-dns
+spec:
+  podSelector: {}
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports: [UDP 53, TCP 53]
+```
+
+Enforced by the bundled Cilium CNI (network policy mode on).
+
+Managed by a new Argo child app `platform-networkpolicies` (sync-wave `-5`)
+in `infra/kubernetes/bootstrap/argocd/apps/platform-networkpolicies.yaml`.
+The `platform-root` app auto-discovered it after a hard refresh.
+
+## 25.2 Applied via Argo CD
+
+```bash
+kubectl -n argocd patch application platform-root \
+  --type merge -p '{"metadata":{"annotations":{"argocd.argoproj.io/refresh":"hard"}}}'
+# -> platform-networkpolicies  Synced  Healthy
+```
+
+Verified `default-deny` + `allow-cluster-dns` in every tenant namespace:
+
+```bash
+for ns in dev-jya0 prd-jya0 dev-42wasd-admin prd-42wasd-admin mlops \
+          dev-games-42wasd-admin prd-games-42wasd-admin; do
+  kubectl -n $ns get networkpolicies
+done
+```
+
+The existing `demo-meme` workload lives in a separate non-tenant namespace
+and is unaffected (still Running).
+
+</details>
+
 - ⬜ `not-started` — [Phase 26 — RBAC](../reference-design/build/05-gitops-bootstrap/08-35-phase-26-rbac/index.md)
 - ⬜ `not-started` — [dev Role](../reference-design/build/05-gitops-bootstrap/09-35-1-dev-role/index.md)
 - ⬜ `not-started` — [production is intentionally different](../reference-design/build/05-gitops-bootstrap/10-35-2-production-is-intentionally-different/index.md)
