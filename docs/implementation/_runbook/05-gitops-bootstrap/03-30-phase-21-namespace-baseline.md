@@ -18,7 +18,9 @@ Created the platform and tenant namespace baseline as code, managed by Argo CD
   Security `restricted` (enforce/audit/warn).
 
 `mlops` replaces the earlier per-tenant `ml-jya0`/`gpu-jya0` as a single shared
-ML namespace. The games lane is split into `dev-games-42wasd-admin` (ephemeral
+ML namespace: models are heavy on GPU and are consumed concurrently by any
+namespace that wants to use them, so the model/GPU pool is shared rather than
+duplicated per tenant (see reference namespace reference). The games lane is split into `dev-games-42wasd-admin` (ephemeral
 staging) and `prd-games-42wasd-admin` (canonical) per the deep-copy-on-demand
 methodology in Phase 53.
 
