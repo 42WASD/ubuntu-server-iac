@@ -40,15 +40,15 @@ edit/correct).
 
 ## Overall progress
 
-**35 / 92** phases/sections complete (**38%**).
+**36 / 92** phases/sections complete (**39%**).
 
-<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:38.0%"></div></div><div class="progress-pct">38%</div></div>
+<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:39.1%"></div></div><div class="progress-pct">39%</div></div>
 
 | Status | Count |
 |--------|-------|
-| ✅ done | 35 |
+| ✅ done | 36 |
 | 🔶 in-progress | 0 |
-| ⬜ not-started | 54 |
+| ⬜ not-started | 53 |
 | ❌ blocked | 1 |
 | ⏸️ deferred | 2 |
 
@@ -2172,12 +2172,11 @@ gate before adding more components.
 </details>
 
 
-### 0% — Part V — GitOps bootstrap
+### 8% — Part V — GitOps bootstrap
 
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
-—
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (12)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:8.0%"></div></div><div class="progress-pct" style="font-size:.85em;">8%</div><div class="tip-box"><strong>Done (1)</strong>
 • Phase 19 — install Argo CD exactly once by hand
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (11)</strong>
 • Phase 20 — root GitOps application
 • AppProjects
 • Phase 21 — namespace baseline
@@ -2190,7 +2189,82 @@ gate before adding more components.
 • production is intentionally different
 • Phase 27 — authentication for Kubernetes developers</div></div>
 
-- ⬜ `not-started` — [Phase 19 — install Argo CD exactly once by hand](../reference-design/build/05-gitops-bootstrap/00-28-phase-19-install-argo-cd-exactly-once-by-hand/index.md)
+- ✅ `done` — [Phase 19 — install Argo CD exactly once by hand](../reference-design/build/05-gitops-bootstrap/00-28-phase-19-install-argo-cd-exactly-once-by-hand/index.md)
+
+<details markdown="1" class="runbook">
+<summary>✅ 📜 Build log — Phase 19 — install Argo CD exactly once by hand</summary>
+
+# Phase 19 — install Argo CD exactly once by hand
+
+**Intent:** do the one manual, minimal install of Argo CD that bootstraps
+itself out of the paradox ("Argo cannot install itself before Argo exists").
+Everything managed inside Kubernetes after this point goes through Git + Argo.
+
+## 19.1 Pin the version
+
+Latest release at install time was `v3.5.1` (verified against the GitHub
+releases API). Kubernetes is `v1.36.3`, compatible.
+
+```bash
+export ARGOCD_VERSION="v3.5.1"
+```
+
+## 19.2 Install (server-side apply)
+
+```bash
+export KUBECONFIG=/home/jyao/.kube/config
+kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
+kubectl apply -n argocd --server-side --force-conflicts \
+  -f "https://raw.githubusercontent.com/argoproj/argo-cd/${ARGOCD_VERSION}/manifests/install.yaml"
+```
+
+Applied CRDs, ServiceAccounts, RBAC, ConfigMaps, Secrets, Services,
+Deployments, a StatefulSet (`argocd-application-controller`), and NetworkPolicies.
+
+## 19.3 Wait and verify
+
+```bash
+kubectl -n argocd rollout status deployment/argocd-server --timeout=180s
+kubectl -n argocd get pods
+```
+
+All 7 pods `Running`:
+
+```text
+argocd-application-controller-0            1/1 Running
+argocd-applicationset-controller-...       1/1 Running
+argocd-dex-server-...                      1/1 Running
+argocd-notifications-controller-...        1/1 Running
+argocd-redis-...                           1/1 Running
+argocd-repo-server-...                     1/1 Running
+argocd-server-...                          1/1 Running
+```
+
+## 19.4 Initial admin access
+
+Not exposed publicly (per design). Credentials:
+
+```bash
+kubectl -n argocd get secret argocd-initial-admin-secret \
+  -o jsonpath='{.data.password}' | base64 -d
+```
+
+The `argocd-server` Service is `ClusterIP`, `80/TCP,443/TCP`. Verified reachable:
+
+```bash
+kubectl -n argocd port-forward svc/argocd-server 8443:443 &
+curl -sk -o /dev/null -w 'HTTPS %{http_code}
+' https://127.0.0.1:8443/   # 200
+```
+
+## 19.5 Result
+
+Argo CD v3.5.1 is running as the platform's GitOps owner. It is **not**
+publicly exposed; temporary access is via `kubectl port-forward`. Next: Phase 20
+root GitOps application (App-of-Apps bootstrap).
+
+</details>
+
 - ⬜ `not-started` — [Phase 20 — root GitOps application](../reference-design/build/05-gitops-bootstrap/01-29-phase-20-root-gitops-application/index.md)
 - ⬜ `not-started` — [AppProjects](../reference-design/build/05-gitops-bootstrap/02-29-1-appprojects/index.md)
 - ⬜ `not-started` — [Phase 21 — namespace baseline](../reference-design/build/05-gitops-bootstrap/03-30-phase-21-namespace-baseline/index.md)

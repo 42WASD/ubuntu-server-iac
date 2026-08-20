@@ -47,3 +47,6 @@
 "04-install-rke2-correctly/06-25-2-verify-rke2-secrets-encryption": "done"
 "04-install-rke2-correctly/07-26-phase-17-admin-kubeconfig-and-cli-convenience": "done"
 "04-install-rke2-correctly/08-27-phase-18-verify-reboot-recovery-now-not-later": "done"
+
+# --- Part V — GitOps bootstrap ---
+"05-gitops-bootstrap/00-28-phase-19-install-argo-cd-exactly-once-by-hand": "done"
