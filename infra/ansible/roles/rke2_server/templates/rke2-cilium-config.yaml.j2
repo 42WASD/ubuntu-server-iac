@@ -15,6 +15,9 @@ spec:
     k8sServiceHost: {{ rke2_cilium_k8s_service_host }}
     k8sServicePort: "{{ rke2_cilium_k8s_service_port }}"
 
+    operator:
+      replicas: {{ rke2_cilium_operator_replicas }}
+
     hubble:
       enabled: {{ rke2_cilium_hubble_enabled | lower }}
       relay:

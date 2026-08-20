@@ -89,6 +89,56 @@ sudo /var/lib/rancher/rke2/bin/kubectl \
 Expected critical components settle to `Running` / `Completed`, **not**
 repeated `CrashLoopBackOff`, `ImagePullBackOff`, or `Pending`.
 
+## 16.1.2 Live install results (executed on `alpha`, 2026-08-20)
+
+Bootstrap config files were rendered from the role templates and placed on the
+host (Phase 14 config.yaml, Phase 23.1 kubelet drop-in, Phase 15 Cilium
+HelmChartConfig), then the pinned installer was run as root:
+
+```bash
+# Place bootstrap configs (Phase 14 / 23.1 / 15 prerequisites)
+sudo mkdir -p /etc/rancher/rke2/kubelet.conf.d /var/lib/rancher/rke2/server/manifests
+sudo cp /tmp/rke2-stage/config.yaml /etc/rancher/rke2/config.yaml
+sudo cp /tmp/rke2-stage/kubelet.conf.d/00-platform.conf /etc/rancher/rke2/kubelet.conf.d/00-platform.conf
+sudo cp /tmp/rke2-stage/rke2-cilium-config.yaml /var/lib/rancher/rke2/server/manifests/rke2-cilium-config.yaml
+
+# Install the pinned release (must run as root)
+curl -sfL https://get.rke2.io | sudo INSTALL_RKE2_VERSION='v1.36.3+rke2r1' sh -
+
+# Enable + start
+sudo systemctl enable rke2-server
+sudo systemctl start rke2-server
+```
+
+Observed:
+
+- Installer downloaded `v1.36.3+rke2r1`, verified checksums, unpacked to
+  `/usr/local`.
+- `rke2-server` became `active` and `enabled`.
+- Node `alpha` reached `Ready` (control-plane,etcd, v1.36.3+rke2r1,
+  containerd 2.3.3-k3s1) after a short bootstrap.
+- Core addons all healthy: CoreDNS, metrics-server, Traefik daemonset, Hubble
+  relay, Cilium agent daemonset, snapshot-controller.
+- The 8 `helm-install-*` jobs reached `Completed`.
+
+**Two bootstrap observations worth recording:**
+
+1. **Traefik install CRD race (resolved automatically).** The first
+   `helm-install-rke2-traefik` job briefly errored with
+   `Required CRDs are missing...install the corresponding CRD chart first`.
+   This is the standard RKE2 CRD bootstrap race; RKE2 retried and Traefik then
+   came up `1/1`. No action was needed.
+
+2. **Cilium operator scale-down (single-node optimization).** The bundled
+   Cilium chart defaults the operator to **2 replicas** (HA). On a
+   single-node cluster the second replica requests host ports that can bind
+   only once per node, so it sat `Pending` forever. We set
+   `operator.replicas: 1` in the Cilium HelmChartConfig
+   (`rke2_cilium_operator_replicas: 1` in defaults). RKE2 reconciled the
+   HelmChartConfig and scaled the operator down to 1; the node then had **all
+   pods healthy** (13 Running, 8 Completed, zero Pending/error). When more
+   nodes join, bump this back to 2.
+
 ## 16.2 What was implemented
 
 - `rke2_server` defaults: `rke2_install_script: /tmp/rke2-install.sh`.

@@ -131,3 +131,8 @@ rke2_cilium_k8s_service_port: "6443"
 rke2_cilium_hubble_enabled: true
 rke2_cilium_hubble_relay_enabled: true
 rke2_cilium_hubble_ui_enabled: false
+
+# Cilium operator replicas. Defaults to 2 (HA), but on a SINGLE-node cluster
+# the second replica requests host ports that can bind only once per node, so
+# it sits Pending forever. Scale to 1 explicitly until more nodes join.
+rke2_cilium_operator_replicas: 1

@@ -28,6 +28,9 @@ spec:
     k8sServiceHost: localhost
     k8sServicePort: "6443"
 
+    operator:
+      replicas: 1
+
     hubble:
       enabled: true
       relay:
@@ -35,6 +38,12 @@ spec:
       ui:
         enabled: false
 ```
+
+> **`operator.replicas: 1` note:** the bundled Cilium chart defaults the
+> operator to **2 replicas** (HA). On a single-node cluster the second replica
+> requests host ports that bind only once per node, so it sits `Pending`
+> forever. We set it to **1** (`rke2_cilium_operator_replicas: 1`) until more
+> nodes join; bump back to 2 when they do.
 
 ## 15.2 Why these values
 
@@ -44,6 +53,7 @@ spec:
 <tr><td><code>kubeProxyReplacement</code></td><td><code>true</code></td><td>use Cilium's eBPF kube-proxy replacement; matches <code>disable-kube-proxy: true</code> in <code>config.yaml</code></td></tr>
 <tr><td><code>k8sServiceHost</code></td><td><code>localhost</code></td><td>API server reachable from Cilium agents on this node</td></tr>
 <tr><td><code>k8sServicePort</code></td><td><code>6443</code></td><td>standard RKE2 API server port</td></tr>
+<tr><td><code>operator.replicas</code></td><td><code>1</code></td><td>single-node cluster; the 2nd HA replica can't bind host ports (see note)</td></tr>
 <tr><td><code>hubble.enabled</code></td><td><code>true</code></td><td>start the observability / flow metric path</td></tr>
 <tr><td><code>hubble.relay.enabled</code></td><td><code>true</code></td><td>aggregate Hubble flows for the metrics backend</td></tr>
 <tr><td><code>hubble.ui.enabled</code></td><td><code>false</code></td><td>do NOT expose an admin web UI yet (no private-access policy exists)</td></tr>
