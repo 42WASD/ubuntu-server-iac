@@ -40,15 +40,15 @@ edit/correct).
 
 ## Overall progress
 
-**34 / 92** phases/sections complete (**37%**).
+**35 / 92** phases/sections complete (**38%**).
 
-<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:37.0%"></div></div><div class="progress-pct">37%</div></div>
+<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:38.0%"></div></div><div class="progress-pct">38%</div></div>
 
 | Status | Count |
 |--------|-------|
-| ✅ done | 34 |
+| ✅ done | 35 |
 | 🔶 in-progress | 0 |
-| ⬜ not-started | 55 |
+| ⬜ not-started | 54 |
 | ❌ blocked | 1 |
 | ⏸️ deferred | 2 |
 
@@ -1157,9 +1157,9 @@ through reboot cycles since the driver install.
 </details>
 
 
-### 89% — Part IV — Install RKE2 correctly
+### 100% — Part IV — Install RKE2 correctly
 
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:89.0%"></div></div><div class="progress-pct" style="font-size:.85em;">89%</div><div class="tip-box"><strong>Done (8)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:100.0%"></div></div><div class="progress-pct" style="font-size:.85em;">100%</div><div class="tip-box"><strong>Done (9)</strong>
 • Phase 13 — choose and pin the RKE2 release
 • Phase 14 — RKE2 configuration
 • kubelet configuration
@@ -1168,8 +1168,9 @@ through reboot cycles since the driver install.
 • inspect Cilium
 • verify RKE2 Secrets encryption
 • Phase 17 — admin kubeconfig and CLI convenience
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (1)</strong>
-• Phase 18 — verify reboot recovery now, not later</div></div>
+• Phase 18 — verify reboot recovery now, not later
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (0)</strong>
+—</div></div>
 
 - ✅ `done` — [Phase 13 — choose and pin the RKE2 release](../reference-design/build/04-install-rke2-correctly/00-22-phase-13-choose-and-pin-the-rke2-release/index.md)
 
@@ -2036,7 +2037,140 @@ node port 80 path works before Phase 18's reboot-recovery check.
 
 </details>
 
-- ⬜ `not-started` — [Phase 18 — verify reboot recovery now, not later](../reference-design/build/04-install-rke2-correctly/08-27-phase-18-verify-reboot-recovery-now-not-later/index.md)
+- ✅ `done` — [Phase 18 — verify reboot recovery now, not later](../reference-design/build/04-install-rke2-correctly/08-27-phase-18-verify-reboot-recovery-now-not-later/index.md)
+
+<details markdown="1" class="runbook">
+<summary>✅ 📜 Build log — Phase 18 — verify reboot recovery now, not later</summary>
+
+# Phase 18 — verify reboot recovery now, not later
+
+**Intent:** prove that a normal reboot brings the whole platform back with
+**zero manual intervention** — no manual `docker start`, no manual `kubectl
+apply`, no manual CNI repair (Checkpoint 11). Because the cluster state lives
+in etcd on disk, workloads (like the `demo-meme` Deployment) are recreated by
+the controllers automatically.
+
+## 18.1 Pre-reboot baseline
+
+Captured immediately before rebooting:
+
+```bash
+export KUBECONFIG=/home/jyao/.kube/config
+systemctl is-active rke2-server      # active
+kubectl get nodes                     # alpha Ready control-plane,etcd
+kubectl get pods -A                   # all Running / Completed
+kubectl -n demo-meme get pods         # meme-site-* 1/1 Running
+uptime -p                             # up 23 hours, 49 minutes
+```
+
+Baseline was clean: control plane pods (`kube-apiserver`, `etcd`,
+`kube-scheduler`, `kube-controller-manager`), Cilium + operator, CoreDNS,
+Traefik, metrics-server, snapshot-controller, and the `demo-meme` app were all
+healthy.
+
+## 18.2 Reboot
+
+```bash
+sudo reboot
+```
+
+SSH re-established once the host was back.
+
+## 18.3 Post-reboot recovery check
+
+```bash
+systemctl is-active rke2-server
+kubectl get nodes
+kubectl get pods -A
+kubectl -n demo-meme get pods
+```
+
+Wait for reconciliation, then record boot time:
+
+```bash
+systemd-analyze
+systemd-analyze blame | head -30
+```
+
+## 18.4 Checkpoint 1
+
+Recovery requires:
+
+```text
+zero manual "docker start"
+zero manual "kubectl apply"
+zero manual CNI repair
+```
+
+The `demo-meme` pod must be recreated by the Deployment controller, and the
+node must return to `Ready`.
+
+## 18.5 Post-reboot observations (live)
+
+Verified after the host came back:
+
+```bash
+uptime -p                 # up 19 minutes  -> reboot confirmed
+systemctl is-enabled rke2-server   # enabled
+systemctl is-active rke2-server    # active
+systemctl --failed --no-legend | wc -l   # 0
+kubectl get nodes         # alpha Ready
+kubectl get pods -A       # 14 Running, 8 Completed
+```
+
+- Node `alpha` `Ready`, `containerd://2.3.3-k3s1`, Ubuntu 26.04.
+- `rke2-server` **enabled** and **active**; **0 failed systemd units**.
+
+## 18.6 `demo-meme` survivor probe
+
+```bash
+kubectl -n demo-meme get pods
+```
+
+```text
+NAME-                         READY   STATUS    RESTARTS      AGE
+meme-site-7486bc7c98-cqkg4   1/1     Running   1 (19m ago)   26m
+```
+
+`RESTARTS 1 (19m ago)` matches the reboot window — the kubelet recreated the
+pod by itself. Deployment UID unchanged (`d6104ebf-…`), so it is the same
+Deployment (no manual re-apply). Still serving after reboot:
+
+```bash
+curl -s -o /dev/null -w 'HTTP %{http_code}
+' http://10.43.247.243/
+curl -s -o /dev/null -w 'HTTP %{http_code} %{content_type}
+' http://10.43.247.243/meme.svg
+```
+
+```text
+HTTP 200
+HTTP 200 image/svg+xml
+```
+
+## 18.7 Boot timing
+
+```bash
+systemd-analyze time
+```
+
+```text
+Startup finished in 2min 8.556s (firmware) + 1.515s (loader) + 2.650s (kernel) +
+ 7.480s (initrd) + 9.590s (userspace) = 2min 29.793s
+graphical.target reached after 9.328s in userspace.
+```
+
+Boot ID after reboot: `064aa60d-d349-4258-add6-3a6da3c426c4`.
+
+## 18.8 Result — Checkpoint 11 passed
+
+The reboot required **zero** manual container starts, **zero** manual
+`kubectl apply`, and **zero** manual CNI repair. Node, add-ons, and the
+`demo-meme` tenant all recovered automatically. This closes the reboot-risk
+gate before adding more components.
+
+</details>
+
 
 ### 0% — Part V — GitOps bootstrap
 
