@@ -25,26 +25,26 @@ reference is assigned a status; a generator script renders this page from
 
 ## Overall progress
 
-**2 / 92** phases/sections complete (**2%**).
+**3 / 92** phases/sections complete (**3%**).
 
-<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:2.2%"></div></div><div class="progress-pct">2%</div></div>
+<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:3.3%"></div></div><div class="progress-pct">3%</div></div>
 
 | Status | Count |
 |--------|-------|
-| ✅ done | 2 |
-| 🔶 in-progress | 1 |
+| ✅ done | 3 |
+| 🔶 in-progress | 0 |
 | ⬜ not-started | 89 |
 | ❌ blocked | 0 |
 
 ## Progress by part
 
-### 7% — Part III — Build the host
+### 10% — Part III — Build the host
 
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:7.0%"></div></div><div class="progress-pct" style="font-size:.85em;">7%</div><div class="tip-box"><strong>Done (2)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:10.0%"></div></div><div class="progress-pct" style="font-size:.85em;">10%</div><div class="tip-box"><strong>Done (3)</strong>
 • Phase 0 — create the infrastructure repository first
 • Phase 1 — inventory the actual machine
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (27)</strong>
 • Phase 2 — update Ubuntu and install base administration tools
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (26)</strong>
 • unattended security updates
 • Phase 3 — hostname, DNS, and local identity
 • Phase 4 — users, groups, and sudo boundaries
@@ -76,7 +76,7 @@ reference is assigned a status; a generator script renders this page from
 |--------|-------|
 | ✅ `done` | [Phase 0 — create the infrastructure repository first](../reference-design/build/03-build-the-host/00-9-phase-0-create-the-infrastructure-repository-first/index.md) |
 | ✅ `done` | [Phase 1 — inventory the actual machine](../reference-design/build/03-build-the-host/01-10-phase-1-inventory-the-actual-machine/index.md) |
-| 🔶 `in-progress` | [Phase 2 — update Ubuntu and install base administration tools](../reference-design/build/03-build-the-host/02-11-phase-2-update-ubuntu-and-install-base-administration-tools/index.md) |
+| ✅ `done` | [Phase 2 — update Ubuntu and install base administration tools](../reference-design/build/03-build-the-host/02-11-phase-2-update-ubuntu-and-install-base-administration-tools/index.md) |
 | ⬜ `not-started` | [unattended security updates](../reference-design/build/03-build-the-host/03-11-1-unattended-security-updates/index.md) |
 | ⬜ `not-started` | [Phase 3 — hostname, DNS, and local identity](../reference-design/build/03-build-the-host/04-12-phase-3-hostname-dns-and-local-identity/index.md) |
 | ⬜ `not-started` | [Phase 4 — users, groups, and sudo boundaries](../reference-design/build/03-build-the-host/05-13-phase-4-users-groups-and-sudo-boundaries/index.md) |
