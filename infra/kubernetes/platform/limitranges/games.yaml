@@ -1,0 +1,45 @@
+# Game namespaces LimitRange — conservative defaults matching their quotas.
+
+# prd-games-42wasd-admin (canonical): tune upward once game workloads land.
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: container-defaults
+  namespace: prd-games-42wasd-admin
+spec:
+  limits:
+    - type: Container
+      defaultRequest:
+        cpu: 250m
+        memory: 256Mi
+        ephemeral-storage: 512Mi
+      default:
+        cpu: "1"
+        memory: 1Gi
+        ephemeral-storage: 2Gi
+      max:
+        cpu: "4"
+        memory: 8Gi
+        ephemeral-storage: 20Gi
+---
+# dev-games-42wasd-admin (ephemeral staging): intentionally small.
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: container-defaults
+  namespace: dev-games-42wasd-admin
+spec:
+  limits:
+    - type: Container
+      defaultRequest:
+        cpu: 250m
+        memory: 256Mi
+        ephemeral-storage: 512Mi
+      default:
+        cpu: 500m
+        memory: 512Mi
+        ephemeral-storage: 1Gi
+      max:
+        cpu: "2"
+        memory: 4Gi
+        ephemeral-storage: 10Gi
