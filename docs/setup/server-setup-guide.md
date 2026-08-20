@@ -48,6 +48,41 @@ The working combination uses the **`globalprotect-openconnect`** PPA, which prov
 3. Pipe the cookie into `sudo openconnect --protocol=gp --usergroup=gateway:prelogin-cookie --os=win --passwd-on-stdin`.
 4. Use `--script=$DNS_WRAPPER` (DNS fix) and `--csd-wrapper=$HIP_SCRIPT` (HIP compliance).
 
+### Accessing the remote-browser auth URL over Tailscale
+
+`gpauth --browser remote` binds its one-shot auth server to the **local LAN IP**
+(the IP used to reach 1.1.1.1) and prints `http://<lan-ip>:<port>/<id>`. A
+socket bound to the LAN IP is **not** reachable at the Tailscale IP, so the
+printed link fails if you connect from another machine over Tailscale. There is
+**no `gpauth` flag** to bind `0.0.0.0`.
+
+`connect-vpn.sh` prefers the wrapper `scripts/vpn/gpauth-broadcast.sh` (falling
+back to stock `gpauth`). The wrapper:
+
+- Runs `gpauth --browser remote` unchanged (stdout JSON, stdin pass-through so
+  you can paste the auth callback).
+- Watches stderr for the printed URL and extracts the random port + auth-id.
+- Starts a **`socat` forwarder bound to the Tailscale IP** (`bind=<ts-ip>`) on
+  that same port, relaying to gpauth's LAN-bound `ip:port`. This needs **no
+  root** (unlike the earlier iptables DNAT approach).
+- Prints a Tailscale-friendly URL:
+
+  ```text
+  ================================================================
+  ==== Auth URL (reachable via Tailscale / any interface) ====
+      http://<ts-ip>:<port>/<auth-id>
+  ============================================================
+  ```
+
+**Why bind the Tailscale IP specifically (not `0.0.0.0`):** gpauth's auth server
+already holds that port on the LAN IP, and socat binding `0.0.0.0` (wildcard)
+conflicts with it (`Address already in use`). Binding to the distinct Tailscale
+IP on the same port avoids the conflict and still makes the URL reachable on
+both LAN and Tailscale.
+
+The forwarder is cleaned up automatically when the wrapper exits. Requires
+`socat` to be installed.
+
 ### Running the VPN in the Background
 
 While `tmux` works, **`systemd` is better** for VPN connections:
@@ -219,6 +254,7 @@ This freed **1.8 GB** of snap data and stopped the associated processes (`kubeli
 | `scripts/vpn/connect-vpn.sh` | Main VPN launcher |
 | `scripts/vpn/vpn-dns-wrapper.sh` | openconnect `--script`: DNS fix |
 | `scripts/vpn/vpn-persist.sh` | VPN persistence loop |
+| `scripts/vpn/gpauth-broadcast.sh` | `gpauth --browser remote` wrapper that makes the auth URL reachable via Tailscale (socat, no root) |
 | `scripts/gpu/gpu-power-limit.service` | systemd GPU 300W power limit service |
 | `~/.config/openconnect/hipreport.sh` | HIP host-report script |
 | `~/.bashrc`, `~/.profile` | `NODE_TLS_REJECT_UNAUTHORIZED=0` |
