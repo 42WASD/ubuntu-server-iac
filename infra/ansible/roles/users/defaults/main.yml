@@ -17,8 +17,8 @@ platform_groups:
     comment: "May SSH to platform hosts (AllowGroups ssh-users)"
   - name: tenant-jya0
     comment: "Tenant group for the jya0 project"
-  - name: tenant-42admin
-    comment: "Tenant group for the 42admin project"
+  - name: tenant-42wasd-admin
+    comment: "Tenant group for the 42wasd admin project"
   - name: gpu-approved
     comment: "Approved to request GPUs"
 
@@ -32,7 +32,7 @@ platform_groups:
 #   - jyao-42admin  42admin tenant contributor (password set out-of-band)
 platform_user_membership:
   jyao: [sudo, ssh-users]
-  jyao-42admin: [ssh-users, tenant-42admin]
+  jyao-42admin: [ssh-users, tenant-42wasd-admin]
 
 # Groups that must NOT be granted to normal developers (Phase 4 warning).
 platform_forbidden_groups:

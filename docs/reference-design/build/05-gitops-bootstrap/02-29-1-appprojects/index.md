@@ -5,7 +5,7 @@ Create distinct projects:
 ```text
 platform
 tenant-jya0
-tenant-42admin
+tenant-42wasd-admin
 ```
 
 Platform project can deploy cluster-wide resources.

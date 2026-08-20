@@ -63,11 +63,11 @@ Bind an identity group:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: tenant-42admin-developers
-  namespace: dev-42admin
+  name: tenant-42wasd-admin-developers
+  namespace: dev-42wasd-admin
 subjects:
   - kind: Group
-    name: tenant-42admin
+    name: tenant-42wasd-admin
     apiGroup: rbac.authorization.k8s.io
 roleRef:
   kind: Role

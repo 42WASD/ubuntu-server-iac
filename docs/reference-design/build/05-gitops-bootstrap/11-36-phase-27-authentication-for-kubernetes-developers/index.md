@@ -11,7 +11,7 @@ Target model:
 ```text
 identity provider
     -> group tenant-jya0
-    -> group tenant-42admin
+    -> group tenant-42wasd-admin
     -> group gpu-approved
 ```
 

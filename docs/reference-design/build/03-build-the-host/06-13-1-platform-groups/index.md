@@ -5,7 +5,7 @@ Create:
 ```bash
 sudo groupadd -f ssh-users
 sudo groupadd -f tenant-jya0
-sudo groupadd -f tenant-42admin
+sudo groupadd -f tenant-42wasd-admin
 sudo groupadd -f gpu-approved
 ```
 
@@ -25,7 +25,7 @@ Future 42 contributor:
 
 ```bash
 sudo adduser alice
-sudo usermod -aG ssh-users,tenant-42admin alice
+sudo usermod -aG ssh-users,tenant-42wasd-admin alice
 ```
 
 Do not add normal developers to:

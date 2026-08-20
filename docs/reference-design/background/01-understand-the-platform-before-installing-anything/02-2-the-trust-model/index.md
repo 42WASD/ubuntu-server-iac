@@ -8,7 +8,7 @@ HUMAN
 
 PROJECT / TENANT
   tenant-jya0
-  tenant-42admin
+  tenant-42wasd-admin
 
 AUTOMATION
   Argo CD service accounts
@@ -32,10 +32,10 @@ five humans -> all SSH as 42admin
 Good:
 
 ```text
-alice -> Linux user alice -> member of tenant-42admin
-bob   -> Linux user bob   -> member of tenant-42admin
+alice -> Linux user alice -> member of tenant-42wasd-admin
+bob   -> Linux user bob   -> member of tenant-42wasd-admin
 
-Kubernetes group tenant-42admin
+Kubernetes group tenant-42wasd-admin
     -> dev-42admin permissions
     -> restricted prod visibility
 ```

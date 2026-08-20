@@ -193,7 +193,7 @@ HUMAN
 
 PROJECT / TENANT
   tenant-jya0
-  tenant-42admin
+  tenant-42wasd-admin
 
 AUTOMATION
   Argo CD service accounts
@@ -217,10 +217,10 @@ five humans -> all SSH as 42admin
 Good:
 
 ```text
-alice -> Linux user alice -> member of tenant-42admin
-bob   -> Linux user bob   -> member of tenant-42admin
+alice -> Linux user alice -> member of tenant-42wasd-admin
+bob   -> Linux user bob   -> member of tenant-42wasd-admin
 
-Kubernetes group tenant-42admin
+Kubernetes group tenant-42wasd-admin
     -> dev-42admin permissions
     -> restricted prod visibility
 ```
@@ -1054,7 +1054,7 @@ Create:
 ```bash
 sudo groupadd -f ssh-users
 sudo groupadd -f tenant-jya0
-sudo groupadd -f tenant-42admin
+sudo groupadd -f tenant-42wasd-admin
 sudo groupadd -f gpu-approved
 ```
 
@@ -1074,7 +1074,7 @@ Future 42 contributor:
 
 ```bash
 sudo adduser alice
-sudo usermod -aG ssh-users,tenant-42admin alice
+sudo usermod -aG ssh-users,tenant-42wasd-admin alice
 ```
 
 Do not add normal developers to:
@@ -2602,7 +2602,7 @@ Create distinct projects:
 ```text
 platform
 tenant-jya0
-tenant-42admin
+tenant-42wasd-admin
 ```
 
 Platform project can deploy cluster-wide resources.
@@ -2925,11 +2925,11 @@ Bind an identity group:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: tenant-42admin-developers
-  namespace: dev-42admin
+  name: tenant-42wasd-admin-developers
+  namespace: dev-42wasd-admin
 subjects:
   - kind: Group
-    name: tenant-42admin
+    name: tenant-42wasd-admin
     apiGroup: rbac.authorization.k8s.io
 roleRef:
   kind: Role
@@ -2983,7 +2983,7 @@ Target model:
 ```text
 identity provider
     -> group tenant-jya0
-    -> group tenant-42admin
+    -> group tenant-42wasd-admin
     -> group gpu-approved
 ```
 
