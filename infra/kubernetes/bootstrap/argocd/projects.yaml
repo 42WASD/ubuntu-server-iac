@@ -33,11 +33,7 @@ spec:
     - server: https://kubernetes.default.svc
       namespace: dev-jya0
     - server: https://kubernetes.default.svc
-      namespace: prod-jya0
-    - server: https://kubernetes.default.svc
-      namespace: ml-jya0
-    - server: https://kubernetes.default.svc
-      namespace: gpu-jya0
+      namespace: prd-jya0
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
@@ -53,8 +49,12 @@ spec:
     - 'https://github.com/42WASD/ubuntu-server-iac.git'
   destinations:
     - server: https://kubernetes.default.svc
-      namespace: dev-42admin
+      namespace: dev-42wasd-admin
     - server: https://kubernetes.default.svc
-      namespace: prod-42admin
+      namespace: prd-42wasd-admin
     - server: https://kubernetes.default.svc
-      namespace: games-42admin
+      namespace: mlops
+    - server: https://kubernetes.default.svc
+      namespace: dev-games-42wasd-admin
+    - server: https://kubernetes.default.svc
+      namespace: prd-games-42wasd-admin

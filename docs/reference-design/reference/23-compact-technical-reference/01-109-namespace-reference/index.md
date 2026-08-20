@@ -14,14 +14,18 @@ build
 
 JYA0
 dev-jya0
-prod-jya0
-ml-jya0
-gpu-jya0
+prd-jya0
 
-42
-dev-42admin
-prod-42admin
-games-42admin
+42WASD-ADMIN
+dev-42wasd-admin
+prd-42wasd-admin
+
+ML
+mlops
+
+GAMES (42wasd-admin)
+dev-games-42wasd-admin   (ephemeral staging lane, deep-copy on demand)
+prd-games-42wasd-admin   (canonical game lane)
 ```
 
 ---

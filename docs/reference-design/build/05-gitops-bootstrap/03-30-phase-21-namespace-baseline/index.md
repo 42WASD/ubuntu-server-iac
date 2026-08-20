@@ -17,14 +17,20 @@ Tenant namespaces:
 
 ```text
 dev-jya0
-prod-jya0
-ml-jya0
-gpu-jya0
+prd-jya0
 
-dev-42admin
-prod-42admin
-games-42admin
+dev-42wasd-admin
+prd-42wasd-admin
+
+mlops
+
+dev-games-42wasd-admin   (ephemeral staging lane)
+prd-games-42wasd-admin   (canonical game lane)
 ```
+
+`dev-games-42wasd-admin` is a lightweight, on-demand staging lane for deep-
+copying one game server at a time (see Phase 53); it is throwaway and excluded
+from canonical backups.
 
 For tenant application namespaces, apply Pod Security labels.
 

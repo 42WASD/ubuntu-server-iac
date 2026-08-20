@@ -11,7 +11,7 @@ metadata:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: prod-jya0
+  name: prd-jya0
   labels:
     platform.tier: tenant
     pod-security.kubernetes.io/enforce: restricted
@@ -21,7 +21,7 @@ metadata:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: ml-jya0
+  name: dev-42wasd-admin
   labels:
     platform.tier: tenant
     pod-security.kubernetes.io/enforce: restricted
@@ -31,7 +31,7 @@ metadata:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: gpu-jya0
+  name: prd-42wasd-admin
   labels:
     platform.tier: tenant
     pod-security.kubernetes.io/enforce: restricted
@@ -41,7 +41,7 @@ metadata:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: dev-42admin
+  name: mlops
   labels:
     platform.tier: tenant
     pod-security.kubernetes.io/enforce: restricted
@@ -51,7 +51,7 @@ metadata:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: prod-42admin
+  name: dev-games-42wasd-admin
   labels:
     platform.tier: tenant
     pod-security.kubernetes.io/enforce: restricted
@@ -61,7 +61,7 @@ metadata:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: games-42admin
+  name: prd-games-42wasd-admin
   labels:
     platform.tier: tenant
     pod-security.kubernetes.io/enforce: restricted

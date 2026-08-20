@@ -6,10 +6,10 @@ phase: 05-gitops-bootstrap/02-29-1-appprojects
 Created three AppProjects in `infra/kubernetes/bootstrap/argocd/projects.yaml`:
 
 - **`platform`** — cluster-wide resources (namespaces `*`, kinds `*`).
-- **`tenant-jya0`** — constrained to `dev-jya0`, `prod-jya0`, `ml-jya0`,
-  `gpu-jya0`.
-- **`tenant-42wasd-admin`** — constrained to `dev-42admin`, `prod-42admin`,
-  `games-42admin`.
+- **`tenant-jya0`** — constrained to `dev-jya0`, `prd-jya0`.
+- **`tenant-42wasd-admin`** — constrained to `dev-42wasd-admin`,
+  `prd-42wasd-admin`, `mlops`, `dev-games-42wasd-admin`,
+  `prd-games-42wasd-admin`.
 
 Both tenant projects allow only the single infra repo as a source, and only
 themselves as destinations. This is a second boundary alongside Kubernetes RBAC.
