@@ -24,3 +24,21 @@
     owner: "{{ rke2_config_owner }}"
     group: "{{ rke2_config_group }}"
     mode: "0644"
+
+# --- Phase 14, sub-phase 23.1: kubelet configuration ---
+
+- name: Create kubelet config drop-in directory
+  ansible.builtin.file:
+    path: "{{ rke2_kubelet_conf_dir }}"
+    state: directory
+    owner: "{{ rke2_config_owner }}"
+    group: "{{ rke2_config_group }}"
+    mode: "0755"
+
+- name: Render kubelet config drop-in
+  ansible.builtin.template:
+    src: kubelet.conf.d/00-platform.conf.j2
+    dest: "{{ rke2_kubelet_conf_file }}"
+    owner: "{{ rke2_config_owner }}"
+    group: "{{ rke2_config_group }}"
+    mode: "0644"

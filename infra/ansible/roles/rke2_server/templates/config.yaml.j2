@@ -10,6 +10,10 @@ ingress-controller: "{{ rke2_ingress_controller }}"
 # Use Cilium's kube-proxy replacement instead of the bundled kube-proxy.
 disable-kube-proxy: {{ rke2_disable_kube_proxy | lower }}
 
+# Load kubelet config drop-ins from the platform directory (Phase 14, sub-phase 23.1).
+kubelet-arg:
+  - "config-dir={{ rke2_kubelet_conf_dir }}"
+
 # Keep the API serving certificate usable through the management address.
 tls-san:
 {%- for san in rke2_tls_sans %}

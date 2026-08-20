@@ -1,0 +1,27 @@
+# kubelet config drop-in — rendered by the rke2_server role (Phase 14, sub-phase 23.1).
+# Loaded by RKE2 via `kubelet-arg: config-dir=/etc/rancher/rke2/kubelet.conf.d`.
+# Reserves host capacity and protects against disk/memory exhaustion.
+
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+
+systemReserved:
+  cpu: "{{ rke2_kubelet_system_reserved.cpu }}"
+  memory: "{{ rke2_kubelet_system_reserved.memory }}"
+  ephemeral-storage: "{{ rke2_kubelet_system_reserved['ephemeral-storage'] }}"
+
+kubeReserved:
+  cpu: "{{ rke2_kubelet_kube_reserved.cpu }}"
+  memory: "{{ rke2_kubelet_kube_reserved.memory }}"
+  ephemeral-storage: "{{ rke2_kubelet_kube_reserved['ephemeral-storage'] }}"
+
+evictionHard:
+  memory.available: "{{ rke2_kubelet_eviction_hard['memory.available'] }}"
+  nodefs.available: "{{ rke2_kubelet_eviction_hard['nodefs.available'] }}"
+  imagefs.available: "{{ rke2_kubelet_eviction_hard['imagefs.available'] }}"
+  nodefs.inodesFree: "{{ rke2_kubelet_eviction_hard['nodefs.inodesFree'] }}"
+
+imageGCHighThresholdPercent: {{ rke2_kubelet_image_gc_high_threshold }}
+imageGCLowThresholdPercent: {{ rke2_kubelet_image_gc_low_threshold }}
+
+seccompDefault: {{ rke2_kubelet_seccomp_default | lower }}
