@@ -1,0 +1,44 @@
+# Game namespaces quota — deliberately conservative starting ceilings.
+
+# prd-games-42wasd-admin (canonical): tune upward once game workloads land.
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: namespace-budget
+  namespace: prd-games-42wasd-admin
+spec:
+  hard:
+    requests.cpu: "4"
+    limits.cpu: "8"
+    requests.memory: 8Gi
+    limits.memory: 16Gi
+    requests.ephemeral-storage: 20Gi
+    limits.ephemeral-storage: 40Gi
+    requests.storage: 200Gi
+    pods: "30"
+    services: "10"
+    persistentvolumeclaims: "8"
+    configmaps: "40"
+    secrets: "25"
+---
+# dev-games-42wasd-admin (ephemeral staging): intentionally small. Holds at
+# most one deep-copied game server at a time; throwaway, not canonical.
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: namespace-budget
+  namespace: dev-games-42wasd-admin
+spec:
+  hard:
+    requests.cpu: "2"
+    limits.cpu: "4"
+    requests.memory: 4Gi
+    limits.memory: 8Gi
+    requests.ephemeral-storage: 10Gi
+    limits.ephemeral-storage: 20Gi
+    requests.storage: 50Gi
+    pods: "20"
+    services: "8"
+    persistentvolumeclaims: "5"
+    configmaps: "30"
+    secrets: "20"

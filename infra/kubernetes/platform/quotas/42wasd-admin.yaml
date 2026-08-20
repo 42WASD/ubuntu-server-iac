@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: namespace-budget
+  namespace: dev-42wasd-admin
+spec:
+  hard:
+    requests.cpu: "4"
+    limits.cpu: "8"
+    requests.memory: 8Gi
+    limits.memory: 16Gi
+    requests.ephemeral-storage: 20Gi
+    limits.ephemeral-storage: 40Gi
+    requests.storage: 100Gi
+    pods: "40"
+    services: "15"
+    persistentvolumeclaims: "10"
+    configmaps: "50"
+    secrets: "30"
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: namespace-budget
+  namespace: prd-42wasd-admin
+spec:
+  hard:
+    requests.cpu: "6"
+    limits.cpu: "12"
+    requests.memory: 12Gi
+    limits.memory: 24Gi
+    requests.ephemeral-storage: 30Gi
+    limits.ephemeral-storage: 60Gi
+    requests.storage: 200Gi
+    pods: "50"
+    services: "18"
+    persistentvolumeclaims: "12"
+    configmaps: "70"
+    secrets: "40"
