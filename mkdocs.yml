@@ -289,6 +289,7 @@ nav:
       - Overview: reference-design/reference/25-final-build-order/index.md
 - Implementation:
   - Progress: implementation/index.md
+  - Build Runbook (Command Log): implementation/runbook.md
 # <<< nav-autogen (generated) <<<
 
 # Markdown Extensions & Syntax Plugins
