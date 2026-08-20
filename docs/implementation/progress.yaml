@@ -39,3 +39,4 @@
 
 # --- Part IV — Install RKE2 correctly ---
 "04-install-rke2-correctly/00-22-phase-13-choose-and-pin-the-rke2-release": "done"
+"04-install-rke2-correctly/01-23-phase-14-rke2-configuration": "done"

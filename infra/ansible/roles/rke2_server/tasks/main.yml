@@ -6,3 +6,21 @@
 #   rke2_version -> "v1.36.3+rke2r1"   (exact, tested)
 # Phase 16 will run the installer with this exact version:
 #   curl -sfL https://get.rke2.io | INSTALL_RKE2_VERSION='{{ rke2_version }}' sh -
+
+# --- Phase 14: RKE2 configuration ---
+
+- name: Create RKE2 config directory
+  ansible.builtin.file:
+    path: "{{ rke2_config_dir }}"
+    state: directory
+    owner: "{{ rke2_config_owner }}"
+    group: "{{ rke2_config_group }}"
+    mode: "0755"
+
+- name: Render RKE2 config.yaml
+  ansible.builtin.template:
+    src: config.yaml.j2
+    dest: "{{ rke2_config_file }}"
+    owner: "{{ rke2_config_owner }}"
+    group: "{{ rke2_config_group }}"
+    mode: "0644"

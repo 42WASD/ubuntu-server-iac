@@ -1,0 +1,31 @@
+# RKE2 server config — rendered by the rke2_server role (Phase 14).
+# Manages only fields owned by this role. The cluster token is NOT written
+# here; it is provided at install time and never stored in Git.
+
+node-name: "{{ rke2_server_name }}"
+
+cni: "{{ rke2_cni }}"
+ingress-controller: "{{ rke2_ingress_controller }}"
+
+# Use Cilium's kube-proxy replacement instead of the bundled kube-proxy.
+disable-kube-proxy: {{ rke2_disable_kube_proxy | lower }}
+
+# Keep the API serving certificate usable through the management address.
+tls-san:
+{%- for san in rke2_tls_sans %}
+  - "{{ san }}"
+{%- endfor %}
+
+# Admin kubeconfig remains root/platform-admin controlled.
+write-kubeconfig-mode: "{{ rke2_write_kubeconfig_mode }}"
+
+# etcd snapshots
+etcd-snapshot-schedule-cron: "{{ rke2_etcd_snapshot_schedule }}"
+etcd-snapshot-retention: {{ rke2_etcd_snapshot_retention }}
+etcd-snapshot-compress: {{ rke2_etcd_snapshot_compress | lower }}
+
+# Basic labels for future scheduling.
+node-label:
+{%- for label in rke2_node_labels %}
+  - "{{ label }}"
+{%- endfor %}

@@ -24,3 +24,41 @@ rke2_bundle:
   containerd: "v2.3.3-k3s1"
   etcd: "v3.6.14-k3s1"
   coredns: "v1.14.6"
+
+# ---------------------------------------------------------------------------
+# Phase 14 — RKE2 configuration (rendered to /etc/rancher/rke2/config.yaml)
+# ---------------------------------------------------------------------------
+
+rke2_server_name: "{{ inventory_hostname }}"
+
+# CNI and ingress (bundled components).
+rke2_cni: cilium
+rke2_ingress_controller: traefik
+rke2_disable_kube_proxy: true
+
+# TLS SANs added to the serving certificate. The management VPN IP must be
+# present so kubectl over Tailscale presents a valid cert.
+rke2_tls_sans:
+  - "{{ network.management_tailscale_ipv4 }}"
+
+# Admin kubeconfig stays root/platform-admin controlled (readable by the
+# platform-admin group, not world-readable).
+rke2_write_kubeconfig_mode: "0640"
+
+# etcd snapshots.
+rke2_etcd_snapshot_schedule: "0 */6 * * *"
+rke2_etcd_snapshot_retention: 12
+rke2_etcd_snapshot_compress: true
+
+# Node labels for future scheduling.
+rke2_node_labels:
+  - "platform.example.com/role=core"
+  - "platform.example.com/storage-nvme=true"
+  - "platform.example.com/storage-hdd=true"
+  - "platform.example.com/gpu=true"
+
+# Host config path + file ownership.
+rke2_config_dir: /etc/rancher/rke2
+rke2_config_file: /etc/rancher/rke2/config.yaml
+rke2_config_owner: root
+rke2_config_group: root
