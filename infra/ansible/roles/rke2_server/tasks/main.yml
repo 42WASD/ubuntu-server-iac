@@ -60,3 +60,44 @@
     owner: "{{ rke2_config_owner }}"
     group: "{{ rke2_config_group }}"
     mode: "0644"
+
+# --- Phase 16: install and start RKE2 ---
+
+- name: Check if RKE2 is already installed
+  ansible.builtin.stat:
+    path: /usr/local/bin/rke2
+  register: rke2_bin
+
+- name: Install RKE2 if not already present
+  when: not rke2_bin.stat.exists
+  block:
+    - name: Download the RKE2 installer script
+      ansible.builtin.get_url:
+        url: "{{ rke2_install_url }}"
+        dest: "{{ rke2_install_script }}"
+        mode: "0755"
+        timeout: 60
+
+    - name: Run the pinned RKE2 installer
+      ansible.builtin.command:
+        cmd: "INSTALL_RKE2_VERSION='{{ rke2_version }}' sh {{ rke2_install_script }}"
+      environment:
+        INSTALL_RKE2_TYPE: server
+      register: rke2_install_result
+      changed_when: true
+
+    - name: Remove the installer script
+      ansible.builtin.file:
+        path: "{{ rke2_install_script }}"
+        state: absent
+
+- name: Enable rke2-server on boot
+  ansible.builtin.systemd:
+    name: rke2-server
+    enabled: true
+    daemon_reload: true
+
+- name: Start rke2-server
+  ansible.builtin.systemd:
+    name: rke2-server
+    state: started

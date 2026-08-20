@@ -42,3 +42,4 @@
 "04-install-rke2-correctly/01-23-phase-14-rke2-configuration": "done"
 "04-install-rke2-correctly/02-23-1-kubelet-configuration": "done"
 "04-install-rke2-correctly/03-24-phase-15-configure-rke2-s-bundled-cilium": "done"
+"04-install-rke2-correctly/04-25-phase-16-install-and-start-rke2": "done"

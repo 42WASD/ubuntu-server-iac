@@ -13,6 +13,9 @@ rke2_version: "v1.36.3+rke2r1"
 # Used by tasks/main.yml when running the get.rke2.io bootstrap.
 rke2_install_url: "https://get.rke2.io"
 
+# Where we stash the downloaded installer script (Phase 16). Removed after use.
+rke2_install_script: /tmp/rke2-install.sh
+
 # Bundle versions carried by this exact release (recorded for the runbook /
 # release-note review; see docs/implementation/_runbook/03-build-the-host/phase-13-pin-rke2-release.md)
 rke2_bundle:

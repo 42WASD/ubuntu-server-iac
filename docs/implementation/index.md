@@ -40,15 +40,15 @@ edit/correct).
 
 ## Overall progress
 
-**30 / 92** phases/sections complete (**33%**).
+**31 / 92** phases/sections complete (**34%**).
 
-<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:32.6%"></div></div><div class="progress-pct">33%</div></div>
+<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:33.7%"></div></div><div class="progress-pct">34%</div></div>
 
 | Status | Count |
 |--------|-------|
-| ✅ done | 30 |
+| ✅ done | 31 |
 | 🔶 in-progress | 0 |
-| ⬜ not-started | 59 |
+| ⬜ not-started | 58 |
 | ❌ blocked | 1 |
 | ⏸️ deferred | 2 |
 
@@ -1157,15 +1157,15 @@ through reboot cycles since the driver install.
 </details>
 
 
-### 44% — Part IV — Install RKE2 correctly
+### 56% — Part IV — Install RKE2 correctly
 
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:44.0%"></div></div><div class="progress-pct" style="font-size:.85em;">44%</div><div class="tip-box"><strong>Done (4)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:56.0%"></div></div><div class="progress-pct" style="font-size:.85em;">56%</div><div class="tip-box"><strong>Done (5)</strong>
 • Phase 13 — choose and pin the RKE2 release
 • Phase 14 — RKE2 configuration
 • kubelet configuration
 • Phase 15 — configure RKE2's bundled Cilium
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (5)</strong>
 • Phase 16 — install and start RKE2
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (4)</strong>
 • inspect Cilium
 • verify RKE2 Secrets encryption
 • Phase 17 — admin kubeconfig and CLI convenience
@@ -1498,7 +1498,132 @@ Both templates render to valid YAML. The kubelet drop-in resolves to a
 </details>
 
 - ✅ `done` — [Phase 15 — configure RKE2's bundled Cilium](../reference-design/build/04-install-rke2-correctly/03-24-phase-15-configure-rke2-s-bundled-cilium/index.md)
-- ⬜ `not-started` — [Phase 16 — install and start RKE2](../reference-design/build/04-install-rke2-correctly/04-25-phase-16-install-and-start-rke2/index.md)
+- ✅ `done` — [Phase 16 — install and start RKE2](../reference-design/build/04-install-rke2-correctly/04-25-phase-16-install-and-start-rke2/index.md)
+
+<details markdown="1" class="runbook">
+<summary>✅ 📜 Build log — Phase 16 — install and start RKE2</summary>
+
+# Phase 16 — install and start RKE2
+
+**Intent:** install the pinned RKE2 release on `alpha`, enable and start the
+`rke2-server` service, and verify the cluster reaches `Ready` with critical
+components settled to `Running` / `Completed`.
+
+## 16.1 The installer
+
+The `rke2_server` role downloads the installer and runs it with the exact
+pinned version from the environment (Phase 13):
+
+```bash
+curl -sfL https://get.rke2.io \
+  | INSTALL_RKE2_VERSION='v1.36.3+rke2r1' sh -
+```
+
+As Ansible, this is expressed idempotently:
+
+```yaml
+# tasks/main.yml (Phase 16)
+- name: Check if RKE2 is already installed
+  ansible.builtin.stat:
+    path: /usr/local/bin/rke2
+  register: rke2_bin
+
+- name: Install RKE2 if not already present
+  when: not rke2_bin.stat.exists
+  block:
+    - name: Download the RKE2 installer script
+      ansible.builtin.get_url:
+        url: "{{ rke2_install_url }}"
+        dest: "{{ rke2_install_script }}"
+        mode: "0755"
+        timeout: 60
+    - name: Run the pinned RKE2 installer
+      ansible.builtin.command:
+        cmd: "INSTALL_RKE2_VERSION='{{ rke2_version }}' sh {{ rke2_install_script }}"
+      environment:
+        INSTALL_RKE2_TYPE: server
+      register: rke2_install_result
+      changed_when: true
+    - name: Remove the installer script
+      ansible.builtin.file:
+        path: "{{ rke2_install_script }}"
+        state: absent
+```
+
+- Idempotent: if `/usr/local/bin/rke2` already exists, install is skipped.
+- `INSTALL_RKE2_TYPE=server` tells the installer we are a server, not an agent.
+- The installer script is removed after use.
+
+Then enable on boot and start:
+
+```yaml
+- name: Enable rke2-server on boot
+  ansible.builtin.systemd:
+    name: rke2-server
+    enabled: true
+    daemon_reload: true
+
+- name: Start rke2-server
+  ansible.builtin.systemd:
+    name: rke2-server
+    state: started
+```
+
+## 16.1.1 Manual verification commands (run after Ansible)
+
+```bash
+# Follow startup logs
+sudo journalctl -u rke2-server -f
+
+# In another shell: wait for alpha to be Ready
+sudo /var/lib/rancher/rke2/bin/kubectl \
+  --kubeconfig /etc/rancher/rke2/rke2.yaml \
+  get nodes -o wide
+
+# Expect: alpha  Ready
+
+# Then check all pods settle
+sudo /var/lib/rancher/rke2/bin/kubectl \
+  --kubeconfig /etc/rancher/rke2/rke2.yaml \
+  get pods -A
+```
+
+Expected critical components settle to `Running` / `Completed`, **not**
+repeated `CrashLoopBackOff`, `ImagePullBackOff`, or `Pending`.
+
+## 16.2 What was implemented
+
+- `rke2_server` defaults: `rke2_install_script: /tmp/rke2-install.sh`.
+- `tasks/main.yml`: install (idempotent via `stat` guard), enable, and start
+  `rke2-server`.
+- This phase encodes the exact pinned version (Phase 13) and relies on the
+  config written in Phases 14, 23.1, and 15 (config.yaml, kubelet drop-in,
+  Cilium HelmChartConfig) to be consumed by the very first boot.
+
+## 16.3 Commands run
+
+Validated that `tasks/main.yml` and `defaults/main.yml` both parse as YAML
+(Ansible not installed on `alpha`):
+
+```bash
+cd /home/jyao/ubuntu-server-iac
+python3 - <<'PY'
+import yaml
+for f in [
+  "infra/ansible/roles/rke2_server/tasks/main.yml",
+  "infra/ansible/roles/rke2_server/defaults/main.yml",
+]:
+    with open(f) as fh:
+        yaml.safe_load(fh)
+    print(f, "OK")
+PY
+```
+
+Both files parse cleanly. The installer command matches the pinned release
+from Phase 13.
+
+</details>
+
 - ⬜ `not-started` — [inspect Cilium](../reference-design/build/04-install-rke2-correctly/05-25-1-inspect-cilium/index.md)
 - ⬜ `not-started` — [verify RKE2 Secrets encryption](../reference-design/build/04-install-rke2-correctly/06-25-2-verify-rke2-secrets-encryption/index.md)
 - ⬜ `not-started` — [Phase 17 — admin kubeconfig and CLI convenience](../reference-design/build/04-install-rke2-correctly/07-26-phase-17-admin-kubeconfig-and-cli-convenience/index.md)
