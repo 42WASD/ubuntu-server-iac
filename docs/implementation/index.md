@@ -40,15 +40,15 @@ edit/correct).
 
 ## Overall progress
 
-**41 / 92** phases/sections complete (**45%**).
+**42 / 92** phases/sections complete (**46%**).
 
-<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:44.6%"></div></div><div class="progress-pct">45%</div></div>
+<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:45.7%"></div></div><div class="progress-pct">46%</div></div>
 
 | Status | Count |
 |--------|-------|
-| ✅ done | 41 |
+| ✅ done | 42 |
 | 🔶 in-progress | 0 |
-| ⬜ not-started | 48 |
+| ⬜ not-started | 47 |
 | ❌ blocked | 1 |
 | ⏸️ deferred | 2 |
 
@@ -2172,17 +2172,17 @@ gate before adding more components.
 </details>
 
 
-### 50% — Part V — GitOps bootstrap
+### 58% — Part V — GitOps bootstrap
 
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:50.0%"></div></div><div class="progress-pct" style="font-size:.85em;">50%</div><div class="tip-box"><strong>Done (6)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:58.0%"></div></div><div class="progress-pct" style="font-size:.85em;">58%</div><div class="tip-box"><strong>Done (7)</strong>
 • Phase 19 — install Argo CD exactly once by hand
 • Phase 20 — root GitOps application
 • AppProjects
 • Phase 21 — namespace baseline
 • Phase 22 — PriorityClasses
 • Phase 23 — ResourceQuota
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (6)</strong>
 • Phase 24 — LimitRange
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (5)</strong>
 • Phase 25 — default-deny NetworkPolicy
 • Phase 26 — RBAC
 • dev Role
@@ -2513,7 +2513,70 @@ GPU is governed by quota + admission, not namespace splitting.
 
 </details>
 
-- ⬜ `not-started` — [Phase 24 — LimitRange](../reference-design/build/05-gitops-bootstrap/06-33-phase-24-limitrange/index.md)
+- ✅ `done` — [Phase 24 — LimitRange](../reference-design/build/05-gitops-bootstrap/06-33-phase-24-limitrange/index.md)
+
+<details markdown="1" class="runbook">
+<summary>✅ 📜 Build log — Phase 24 — LimitRange</summary>
+
+# Phase 24 — LimitRange
+
+Added a `container-defaults` LimitRange to every tenant namespace so that a
+container with `resources: {}` is not silently unbounded. The LimitRange
+supplies sensible `defaultRequest` / `default` / `max` per container that fit
+inside each namespace's `namespace-budget` ResourceQuota ceiling.
+
+## 24.1 Manifests
+
+`infra/kubernetes/platform/limitranges/`:
+
+- `jya0.yaml` — `dev-jya0`, `prd-jya0`
+- `42wasd-admin.yaml` — `dev-42wasd-admin`, `prd-42wasd-admin`
+- `mlops.yaml` — `mlops` (higher defaults; GPU-backed serving)
+- `games.yaml` — `prd-games-42wasd-admin` (canonical) and
+  `dev-games-42wasd-admin` (ephemeral staging, intentionally small)
+
+Per-container shape (varies by namespace):
+
+```yaml
+defaultRequest: cpu 250m / memory 256Mi / eph 512Mi
+default:        cpu 1    / memory 1Gi  / eph 2Gi
+max:            cpu 4    / memory 8Gi  / eph 20Gi
+```
+
+`prd-jya0` example (verified on cluster):
+
+```json
+defaultRequest: {"cpu":"500m","memory":"512Mi","ephemeral-storage":"1Gi"}
+default:        {"cpu":"2","memory":"2Gi","ephemeral-storage":"4Gi"}
+max:            {"cpu":"8","memory":"16Gi","ephemeral-storage":"30Gi"}
+```
+
+Managed by a new Argo child app `platform-limitranges` (sync-wave `-10`) in
+`infra/kubernetes/bootstrap/argocd/apps/platform-limitranges.yaml`. The
+`platform-root` app auto-discovered it after a hard refresh.
+
+## 24.2 Applied via Argo CD
+
+```bash
+kubectl -n argocd patch application platform-root \
+  --type merge -p '{"metadata":{"annotations":{"argocd.argoproj.io/refresh":"hard"}}}'
+# -> platform-limitranges  Synced  Healthy
+```
+
+Verified a `container-defaults` LimitRange in every tenant namespace:
+
+```bash
+for ns in dev-jya0 prd-jya0 dev-42wasd-admin prd-42wasd-admin mlops \
+          dev-games-42wasd-admin prd-games-42wasd-admin; do
+  kubectl -n $ns get limitrange container-defaults --no-headers
+done
+```
+
+Together with Phase 23's quota, a container that omits resource limits is
+now given a bounded default instead of unbounded consumption.
+
+</details>
+
 - ⬜ `not-started` — [Phase 25 — default-deny NetworkPolicy](../reference-design/build/05-gitops-bootstrap/07-34-phase-25-default-deny-networkpolicy/index.md)
 - ⬜ `not-started` — [Phase 26 — RBAC](../reference-design/build/05-gitops-bootstrap/08-35-phase-26-rbac/index.md)
 - ⬜ `not-started` — [dev Role](../reference-design/build/05-gitops-bootstrap/09-35-1-dev-role/index.md)

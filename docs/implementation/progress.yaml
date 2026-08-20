@@ -55,3 +55,4 @@
 "05-gitops-bootstrap/03-30-phase-21-namespace-baseline": "done"
 "05-gitops-bootstrap/04-31-phase-22-priorityclasses": "done"
 "05-gitops-bootstrap/05-32-phase-23-resourcequota": "done"
+"05-gitops-bootstrap/06-33-phase-24-limitrange": "done"
