@@ -4,7 +4,7 @@
 # Idempotent, safe on existing installs:
 #   - create the dedicated `rke2` LV on the OS VG (NVMe) from free extents
 #   - format + mount /var/lib/rancher/rke2
-#   - create the bulk K8s VG on the HDD partition
+#   - create the fast NVMe + bulk HDD K8s VGs
 #   - ensure the LVM module OpenEBS needs is loaded and persisted
 #
 # The fast NVMe VG (vg_k8s_nvme) is deliberately NOT created here: it would
@@ -57,4 +57,11 @@
   community.general.lvg:
     vg: "{{ storage_bulk_vg }}"
     pvs: "{{ storage_bulk_device }}"
+    state: present
+
+# --- fast VG on the NVMe partition ---
+- name: Create fast Kubernetes volume group if absent
+  community.general.lvg:
+    vg: "{{ storage_fast_vg }}"
+    pvs: "{{ storage_fast_device }}"
     state: present

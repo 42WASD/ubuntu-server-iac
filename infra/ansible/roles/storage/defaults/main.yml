@@ -5,11 +5,9 @@
 # design intent is version-controlled and reusable across reinstalls.
 #
 # On alpha today:
-#   - ubuntu-vg   (NVMe, 1.86T, free extents) holds OS + a dedicated `rke2` LV
-#   - vg_k8s_hdd  (HDD sda1, 3.27T bulk) for OpenEBS LocalPV LVM
-#   - vg_k8s_nvme (fast NVMe K8s VG) NOT yet created: NVMe PV fully consumed by
-#     ubuntu-vg; creating a separate fast VG needs a repartition/shrink of a
-#     live filesystem, which is deliberately deferred (existing-install path).
+#   - ubuntu-vg   (NVMe p3, 1.12T, 730G free) holds OS + a dedicated `rke2` LV
+#   - vg_k8s_nvme  (NVMe p4, 754.6G fast) for OpenEBS LocalPV LVM
+#   - vg_k8s_hdd   (HDD sda1, 3.27T bulk)  for OpenEBS LocalPV LVM
 
 # --- Logical volume groups ---
 storage_rke2_lv: rke2
@@ -17,7 +15,8 @@ storage_rke2_vg: ubuntu-vg
 storage_rke2_mount: /var/lib/rancher/rke2
 
 # Kubernetes storage volume groups (consumed by OpenEBS LocalPV LVM).
-storage_fast_vg: vg_k8s_nvme     # fast (NVMe) — deferred, not yet created
+storage_fast_vg: vg_k8s_nvme     # fast (NVMe) — created on /dev/nvme0n1p4
+storage_fast_device: /dev/nvme0n1p4
 storage_bulk_vg: vg_k8s_hdd      # bulk (HDD) — created on /dev/sda1
 storage_bulk_device: /dev/sda1
 

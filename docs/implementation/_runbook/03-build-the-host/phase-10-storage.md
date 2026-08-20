@@ -70,12 +70,45 @@ sudo vgcreate vg_k8s_hdd /dev/sda1
 **Verified:** `vgs vg_k8s_hdd` → `3.27t`, `3.27t` free. ~2.2T left unallocated
 on the HDD as emergency reserve.
 
-## 10.4 Fast NVMe VG (deferred)
+## 10.4 Fast NVMe VG (created after owner override)
 
-`vg_k8s_nvme` is **not** created: the NVMe's only PV (`nvme0n1p3`) fully
-belongs to `ubuntu-vg`. Splitting it would require shrinking a live XFS/ext4
-filesystem — explicitly forbidden by the design on an existing install.
-Recorded as **deferred**; can be done at the next clean reinstall.
+**Why override:** the owner decided a fast NVMe VG for Kubernetes is important
+for workload performance, and since this is a brand-new server, reallocating
+now is low-risk. The design's "don't shrink a live filesystem" rule exists to
+protect production data; on a fresh box with plenty of headroom we can do it
+safely.
+
+Migration steps (all sizes verified first with `pvs/vgs/lvs` and
+`parted unit MiB print`):
+
+```bash
+# 1) Shrink the LVM PV metadata FIRST (only free extents are removed —
+#    this is safe; it never touches data in the existing LVs).
+sudo pvresize --setphysicalvolumesize 1150G /dev/nvme0n1p3
+#    -> PV now 1150G, ubuntu-vg still has 730G free
+
+# 2) Shrink the physical partition p3 to match the PV (from ~1905G to 1150G).
+sudo parted /dev/nvme0n1 unit MiB resizepart 3 1180800
+
+# 3) Create a new partition p4 for the fast VG (1180800 -> 100%)
+sudo parted /dev/nvme0n1 unit MiB mkpart primary 1180800MiB 100%
+sudo parted /dev/nvme0n1 name 4 k8s_fast
+sudo partprobe /dev/nvme0n1
+
+# 4) Create the fast PV + VG
+sudo pvcreate /dev/nvme0n1p4
+sudo vgcreate vg_k8s_nvme /dev/nvme0n1p4
+```
+
+**Why this exact order:** shrink the PV metadata before the partition, so LVM
+is never "pretending" the PV is bigger than the partition. `partprobe` makes
+the kernel see the new partition. We verify health immediately after.
+
+**Verified after migration** (all intact):
+- `/` ext4 98G (66G free), `/var/lib/rancher/rke2` xfs 320G (314G free) — both
+  still mounted, no failed units.
+- `ubuntu-vg` → 730G free
+- `vg_k8s_nvme` → **754.6G fast NVMe** (was deferred, now created)
 
 ## 10.5 Enable OpenEBS-required LVM module
 
@@ -93,12 +126,12 @@ file makes it load at every boot.
 |-------------|--------|
 | root filesystem with free headroom | ✅ 66G free (30% used) |
 | `/var/lib/rancher/rke2` on fast storage | ✅ 320G NVMe, 314G free |
-| `vg_k8s_nvme` visible | ⏸️ deferred (needs repartition) |
+| `vg_k8s_nvme` visible | ✅ 754.6G fast NVMe |
 | `vg_k8s_hdd` visible | ✅ 3.27T |
 | meaningful emergency reserve | ✅ ~2.2T unallocated on HDD |
 | `dm_snapshot` loaded + persisted | ✅ |
 
 **Infra encoding:** `infra/ansible/roles/storage/` — `defaults/main.yml`
 commits the intended VG names (`rke2`, `vg_k8s_nvme`, `vg_k8s_hdd`), not device
-serials; `tasks` idempotently create the rke2 LV, mount it, create `vg_k8s_hdd`,
-and load/persist `dm_snapshot`. The fast NVMe VG is intentionally absent there.
+serials; `tasks` idempotently create the rke2 LV, mount it, create the fast +
+bulk VGs, and load/persist `dm_snapshot`. Both K8s VGs now exist on alpha.

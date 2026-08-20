@@ -30,6 +30,6 @@
 "03-build-the-host/21-19-2-fresh-install-target": "not-started"
 "03-build-the-host/22-19-3-existing-install-path": "done"
 "03-build-the-host/23-19-4-create-dedicated-rke2-filesystem-only-when-backing-storage-is-known": "done"
-"03-build-the-host/24-19-5-kubernetes-fast-vg": "deferred"
+"03-build-the-host/24-19-5-kubernetes-fast-vg": "done"
 "03-build-the-host/25-19-6-kubernetes-bulk-vg": "done"
 "03-build-the-host/26-19-7-required-lvm-module": "done"
