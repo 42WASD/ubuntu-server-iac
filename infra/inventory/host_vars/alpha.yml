@@ -47,6 +47,10 @@ network:
   lan_ipv4: 192.168.8.132
   lan_gateway: 192.168.8.1
   management_tailscale_ipv4: 100.112.202.47
+  # Stable MagicDNS name (from `tailscale status --json` -> Self.DNSName).
+  # Prefer this over the 100.x IP for tls-san: Tailscale can reallocate the
+  # IP, but the MagicDNS name stays tied to this node.
+  management_tailscale_dnsname: alpha.taild82ced.ts.net
   management_interface: tailscale0
   # Second wired NIC and the wireless adapter are present but not in use.
   spare_nic: enp194s0

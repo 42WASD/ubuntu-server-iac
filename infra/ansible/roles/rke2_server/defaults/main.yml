@@ -36,10 +36,14 @@ rke2_cni: cilium
 rke2_ingress_controller: traefik
 rke2_disable_kube_proxy: true
 
-# TLS SANs added to the serving certificate. The management VPN IP must be
-# present so kubectl over Tailscale presents a valid cert.
+# TLS SANs added to the serving certificate. The management address must be
+# present so kubectl over Tailscale presents a valid cert. Prefer the stable
+# MagicDNS hostname over the raw 100.x IP (Tailscale can reallocate the IP;
+# the DNS name stays tied to the node).
 rke2_tls_sans:
-  - "{{ network.management_tailscale_ipv4 }}"
+  - "{{ network.management_tailscale_dnsname
+        if network.management_tailscale_dnsname is defined
+        else network.management_tailscale_ipv4 }}"
 
 # Admin kubeconfig stays root/platform-admin controlled (readable by the
 # platform-admin group, not world-readable).

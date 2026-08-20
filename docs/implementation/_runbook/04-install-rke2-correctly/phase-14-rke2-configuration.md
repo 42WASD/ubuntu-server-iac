@@ -17,7 +17,7 @@ backups, and node labels from day one.
 <tr><td><code>cni</code></td><td><code>cilium</code></td><td>bundled CNI; needed for kube-proxy replacement</td></tr>
 <tr><td><code>ingress-controller</code></td><td><code>traefik</code></td><td>default for new v1.36 clusters (ingress-nginx retired upstream)</td></tr>
 <tr><td><code>disable-kube-proxy</code></td><td><code>true</code></td><td>use Cilium's kube-proxy replacement (kube-proxy disabled)</td></tr>
-<tr><td><code>tls-san</code></td><td><code>100.112.202.47</code></td><td>API serving cert valid through the Tailscale management IP</td></tr>
+<tr><td><code>tls-san</code></td><td><code>alpha.taild82ced.ts.net</code></td><td>API serving cert valid through the stable Tailscale MagicDNS name</td></tr>
 <tr><td><code>write-kubeconfig-mode</code></td><td><code>0640</code></td><td>admin kubeconfig readable by root/platform-admin group only</td></tr>
 <tr><td><code>etcd-snapshot-schedule-cron</code></td><td><code>0 */6 * * *</code></td><td>etcd snapshot every 6 hours</td></tr>
 <tr><td><code>etcd-snapshot-retention</code></td><td><code>12</code></td><td>keep 12 snapshots</td></tr>
@@ -36,6 +36,11 @@ platform.example.com/gpu=true
 
 **Security boundary:** the cluster token is deliberately **NOT** in this file or in
 Git. It is generated at install time and stored only on the host.
+
+> **Why the MagicDNS name, not the IP:** the raw `100.x` Tailscale IP can be
+> reallocated, but the MagicDNS hostname (`alpha.taild82ced.ts.net`) stays tied
+> to the node. Using it in `tls-san` keeps the serving cert valid across Tailscale
+> address changes. The raw IP is retained in host_vars as a fallback.
 
 ## 14.2 Files on the host
 
