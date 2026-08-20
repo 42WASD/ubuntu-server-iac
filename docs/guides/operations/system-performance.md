@@ -13,7 +13,7 @@ This page documents the **measured real-world performance** of the server (`alph
 | PSU | 1200 W |
 | Motherboard | HUANANZHI H12D-8D (single socket populated) |
 
-The GPUs are power-capped at **260W each** (see the [GPU Power Limiting guide](gpu-power-limit-guide.md)) to sit on the AI efficiency sweet spot.
+The GPUs are power-capped at **260W each** (see the [GPU Power Limiting guide](../hardware/gpu-power-limit-guide.md)) to sit on the AI efficiency sweet spot.
 
 ## Measured Performance Under Full Load
 
@@ -66,7 +66,7 @@ Because the GPUs were capped at both 300 W and 260 W in separate tests, we have 
 Lowering the cap to 260 W:
 - Cut GPU0's temperature from 72 °C → **65 °C** (the coolest card got much cooler once power-limited).
 - Reduced total package draw from ~750 W → **~701 W**, giving the PSU more headroom.
-- Cost very little performance — GPU clocks only dropped slightly (~1190 vs ~1230 MHz), and AI inference is memory-bandwidth-bound anyway (see [GPU Power Limiting](gpu-power-limit-guide.md)).
+- Cost very little performance — GPU clocks only dropped slightly (~1190 vs ~1230 MHz), and AI inference is memory-bandwidth-bound anyway (see [GPU Power Limiting](../hardware/gpu-power-limit-guide.md)).
 - GPU1 stays at ~84 °C at both settings — it's the warmer card regardless, a cooling/airflow characteristic rather than a power/limit issue.
 
 **Recommendation:** 260 W is the right long-term setting — it keeps GPU0 cooler, trims total draw, and barely costs any performance.

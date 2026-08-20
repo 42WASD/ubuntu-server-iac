@@ -85,17 +85,37 @@ def yaml_scalar(s: str) -> str:
 def main() -> int:
     static = [
         {"Home": "index.md"},
-        {"Setup": [{"Server Setup Guide": "setup/server-setup-guide.md"}]},
+        {
+            "Setup": [
+                {"Getting Started": "setup/getting-started.md"},
+                {"Server Setup Guide": "setup/server-setup-guide.md"},
+            ]
+        },
         {
             "Guides": [
-                {"Getting Started": "guides/getting-started.md"},
-                {"SSH Connection": "guides/ssh-connection-guide.md"},
-                {"Tailscale Setup": "guides/tailscale-setup-guide.md"},
-                {"GPU Power Limiting": "guides/gpu-power-limit-guide.md"},
-                {"Beta GPU Driver": "guides/beta-gpu-driver-guide.md"},
-                {"System Performance": "guides/system-performance.md"},
-                {"System Test Results": "guides/system-test-results.md"},
-                {"System Stress Test": "guides/stress-test-guide.md"},
+                {
+                    "Connectivity": [
+                        {"Overview": "guides/connectivity/index.md"},
+                        {"SSH Connection": "guides/connectivity/ssh-connection-guide.md"},
+                        {"Tailscale Setup": "guides/connectivity/tailscale-setup-guide.md"},
+                        {"VPN Connection": "guides/connectivity/vpn-guide.md"},
+                    ]
+                },
+                {
+                    "Hardware": [
+                        {"Overview": "guides/hardware/index.md"},
+                        {"GPU Power Limiting": "guides/hardware/gpu-power-limit-guide.md"},
+                        {"Beta GPU Driver": "guides/hardware/beta-gpu-driver-guide.md"},
+                    ]
+                },
+                {
+                    "Operations & Testing": [
+                        {"Overview": "guides/operations/index.md"},
+                        {"System Stress Test": "guides/operations/stress-test-guide.md"},
+                        {"System Performance": "guides/operations/system-performance.md"},
+                        {"System Test Results": "guides/operations/system-test-results.md"},
+                    ]
+                },
             ]
         },
         {"Reference Design": [{"Overview": "reference-design/index.md"}, *build_nav()]},

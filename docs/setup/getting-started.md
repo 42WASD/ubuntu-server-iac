@@ -5,7 +5,7 @@ Follow this onboarding workflow to set up your local development environment and
 ## Prerequisites
 
 - macOS or Linux workstation.
-- SSH access to `alpha` (see the [SSH Connection guide](ssh-connection-guide.md)).
+- SSH access to `alpha` (see the [SSH Connection guide](../guides/connectivity/ssh-connection-guide.md)).
 - Corporate VPN access for internal endpoints.
 
 ## Connect to the Server
@@ -32,7 +32,7 @@ ssh alpha
 
 ## The VPN
 
-To connect to the corporate VPN (see the full setup guide):
+To connect to the corporate VPN (see the full [VPN Connection guide](../guides/connectivity/vpn-guide.md)):
 
 ```bash
 tmux new-session -d -s vpn "cd ~ && ./connect-vpn.sh"
@@ -47,4 +47,4 @@ docker compose up -d
 
 ---
 
-Now that you're connected, explore the [Server Setup Guide](../setup/server-setup-guide.md) for full configuration details.
+Now that you're connected, explore the [Server Setup Guide](server-setup-guide.md) for full configuration details.

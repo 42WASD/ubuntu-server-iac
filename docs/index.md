@@ -20,8 +20,9 @@ Use the top navigation tabs to explore the setup guide, SSH configuration, and o
 
 ## Quick Links
 
+- [Getting Started](setup/getting-started.md)
 - [Server Setup Guide](setup/server-setup-guide.md)
-- [SSH Connection Guide](guides/ssh-connection-guide.md)
+- [SSH Connection Guide](guides/connectivity/ssh-connection-guide.md)
 - [Source Code Repository](https://github.com/42WASD/ubuntu-server-iac)
 
 ## Operations Summary

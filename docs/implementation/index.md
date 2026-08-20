@@ -27,7 +27,7 @@ reference is assigned a status; a generator script renders this page from
 
 **1 / 92** phases/sections complete (**1%**).
 
-<div style="display:flex;align-items:center;gap:12px;max-width:720px;padding:8px 0;"><div style="flex:1;height:22px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-progress-fill imp-shimmer" style="--imp-w:1.1%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-weight:700;min-width:52px;text-align:right;">1%</div></div>
+<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:1.1%"></div></div><div class="progress-pct">1%</div></div>
 
 | Status | Count |
 |--------|-------|
@@ -40,7 +40,7 @@ reference is assigned a status; a generator script renders this page from
 
 ### 3% — Part III — Build the host
 
-<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:3.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">3%</div></div><div class="imp-tooltip"><strong>Done (1)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:3.0%"></div></div><div class="progress-pct" style="font-size:.85em;">3%</div><div class="tip-box"><strong>Done (1)</strong>
 • Phase 0 — create the infrastructure repository first
 <hr style="opacity:.3;margin:6px 0;"><strong>Pending (28)</strong>
 • Phase 1 — inventory the actual machine
@@ -106,7 +106,7 @@ reference is assigned a status; a generator script renders this page from
 
 ### 0% — Part IV — Install RKE2 correctly
 
-<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
 —
 <hr style="opacity:.3;margin:6px 0;"><strong>Pending (9)</strong>
 • Phase 13 — choose and pin the RKE2 release
@@ -133,7 +133,7 @@ reference is assigned a status; a generator script renders this page from
 
 ### 0% — Part V — GitOps bootstrap
 
-<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
 —
 <hr style="opacity:.3;margin:6px 0;"><strong>Pending (12)</strong>
 • Phase 19 — install Argo CD exactly once by hand
@@ -166,7 +166,7 @@ reference is assigned a status; a generator script renders this page from
 
 ### 0% — Part VI — Policy enforcement
 
-<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
 —
 <hr style="opacity:.3;margin:6px 0;"><strong>Pending (4)</strong>
 • Phase 28 — install Kyverno through Argo CD
@@ -183,7 +183,7 @@ reference is assigned a status; a generator script renders this page from
 
 ### 0% — Part VII — Persistent storage
 
-<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
 —
 <hr style="opacity:.3;margin:6px 0;"><strong>Pending (3)</strong>
 • Phase 31 — install OpenEBS through Argo CD
@@ -198,7 +198,7 @@ reference is assigned a status; a generator script renders this page from
 
 ### 0% — Part VIII — Monitoring and logs
 
-<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
 —
 <hr style="opacity:.3;margin:6px 0;"><strong>Pending (3)</strong>
 • Phase 34 — metrics stack
@@ -213,7 +213,7 @@ reference is assigned a status; a generator script renders this page from
 
 ### 0% — Part IX — Registry
 
-<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
 —
 <hr style="opacity:.3;margin:6px 0;"><strong>Pending (2)</strong>
 • Phase 37 — install Harbor
@@ -226,7 +226,7 @@ reference is assigned a status; a generator script renders this page from
 
 ### 0% — Part X — Developer build experience
 
-<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
 —
 <hr style="opacity:.3;margin:6px 0;"><strong>Pending (7)</strong>
 • Phase 39 — alpha does NOT run a developer Docker daemon
@@ -249,7 +249,7 @@ reference is assigned a status; a generator script renders this page from
 
 ### 0% — Part XI — Public web path
 
-<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
 —
 <hr style="opacity:.3;margin:6px 0;"><strong>Pending (3)</strong>
 • Phase 46 — Cloudflare Tunnel
@@ -264,7 +264,7 @@ reference is assigned a status; a generator script renders this page from
 
 ### 0% — Part XII — GPU validation phase
 
-<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
 —
 <hr style="opacity:.3;margin:6px 0;"><strong>Pending (4)</strong>
 • Phase 49 — GPU integration is optional until proven
@@ -281,7 +281,7 @@ reference is assigned a status; a generator script renders this page from
 
 ### 0% — Part XIII — Game networking foundation
 
-<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
 —
 <hr style="opacity:.3;margin:6px 0;"><strong>Pending (3)</strong>
 • Phase 53 — keep game workloads in Kubernetes for now
@@ -296,7 +296,7 @@ reference is assigned a status; a generator script renders this page from
 
 ### 0% — Part XIV — Backups and disaster recovery
 
-<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
 —
 <hr style="opacity:.3;margin:6px 0;"><strong>Pending (4)</strong>
 • Phase 56 — RKE2 etcd snapshots
@@ -313,7 +313,7 @@ reference is assigned a status; a generator script renders this page from
 
 ### 0% — Part XV — Consolidate and enforce the Ansible source of truth
 
-<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
 —
 <hr style="opacity:.3;margin:6px 0;"><strong>Pending (4)</strong>
 • Phase 60 — Ansible control environment
@@ -330,7 +330,7 @@ reference is assigned a status; a generator script renders this page from
 
 ### 0% — Part XVI — Ubuntu Autoinstall
 
-<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
 —
 <hr style="opacity:.3;margin:6px 0;"><strong>Pending (3)</strong>
 • Phase 64 — use Autoinstall for future clean rebuilds
@@ -345,7 +345,7 @@ reference is assigned a status; a generator script renders this page from
 
 ### 0% — Part XVII — OpenTofu for external infrastructure
 
-<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
 —
 <hr style="opacity:.3;margin:6px 0;"><strong>Pending (2)</strong>
 • Phase 67 — what OpenTofu should own
@@ -355,27 +355,5 @@ reference is assigned a status; a generator script renders this page from
 |--------|-------|
 | ⬜ `not-started` | [Phase 67 — what OpenTofu should own](../reference-design/build/17-opentofu-for-external-infrastructure/00-76-phase-67-what-opentofu-should-own/index.md) |
 | ⬜ `not-started` | [Phase 68 — state is sensitive](../reference-design/build/17-opentofu-for-external-infrastructure/01-77-phase-68-state-is-sensitive/index.md) |
-
-<style>
-@keyframes imp-fill { from { width: 0; } to { width: var(--imp-w); } }
-@keyframes imp-shimmer { from { background-position: 0 0; } to { background-position: 200% 0; } }
-.imp-progress-fill { animation: imp-fill 1.6s cubic-bezier(.22,1,.36,1) forwards; }
-.imp-part-fill { animation: imp-fill 1.2s cubic-bezier(.22,1,.36,1) forwards; }
-.imp-progress-fill.imp-shimmer { animation: imp-fill 1.6s cubic-bezier(.22,1,.36,1) forwards, imp-shimmer 2s linear infinite; }
-.imp-tip { position: relative; }
-.imp-tooltip {
-  visibility: hidden; opacity: 0; position: absolute; z-index: 30;
-  left: 0; top: calc(100% + 8px); width: 320px; max-height: 260px;
-  overflow: auto; background: var(--md-default-bg-color);
-  color: var(--md-default-fg-color);
-  border: 1px solid var(--md-default-fg-color--lightest);
-  border-radius: 8px; box-shadow: 0 6px 24px rgba(0,0,0,.25);
-  padding: 10px 12px; font-size: .8em; line-height: 1.5;
-  transition: opacity .15s ease, visibility .15s ease; white-space: pre-wrap;
-}
-.imp-tip:hover .imp-tooltip, .imp-tip:focus-within .imp-tooltip {
-  visibility: visible; opacity: 1;
-}
-</style>
 
 <!-- END_GENERATED_IMPLEMENTATION -->

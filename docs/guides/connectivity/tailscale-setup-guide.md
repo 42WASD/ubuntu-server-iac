@@ -183,4 +183,4 @@ On `beta` this currently reports `2027-02-15`, so no action is needed for severa
 ## Related
 
 - [SSH Connection Guide](ssh-connection-guide.md) — stable SSH over the tailnet / VPN.
-- [Beta GPU Driver Guide](beta-gpu-driver-guide.md) — hardware status of `beta`.
+- [Beta GPU Driver Guide](../hardware/beta-gpu-driver-guide.md) — hardware status of `beta`.

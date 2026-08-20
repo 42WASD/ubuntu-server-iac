@@ -39,33 +39,6 @@ STATUS_ICON = {
 STATUS_ORDER = list(STATUS_ICON)
 DEFAULT = "not-started"
 
-GRADIENT = ("background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);"
-            "background-size:200% 100%;")
-
-CSS = """
-<style>
-@keyframes imp-fill { from { width: 0; } to { width: var(--imp-w); } }
-@keyframes imp-shimmer { from { background-position: 0 0; } to { background-position: 200% 0; } }
-.imp-progress-fill { animation: imp-fill 1.6s cubic-bezier(.22,1,.36,1) forwards; }
-.imp-part-fill { animation: imp-fill 1.2s cubic-bezier(.22,1,.36,1) forwards; }
-.imp-progress-fill.imp-shimmer { animation: imp-fill 1.6s cubic-bezier(.22,1,.36,1) forwards, imp-shimmer 2s linear infinite; }
-.imp-tip { position: relative; }
-.imp-tooltip {
-  visibility: hidden; opacity: 0; position: absolute; z-index: 30;
-  left: 0; top: calc(100% + 8px); width: 320px; max-height: 260px;
-  overflow: auto; background: var(--md-default-bg-color);
-  color: var(--md-default-fg-color);
-  border: 1px solid var(--md-default-fg-color--lightest);
-  border-radius: 8px; box-shadow: 0 6px 24px rgba(0,0,0,.25);
-  padding: 10px 12px; font-size: .8em; line-height: 1.5;
-  transition: opacity .15s ease, visibility .15s ease; white-space: pre-wrap;
-}
-.imp-tip:hover .imp-tooltip, .imp-tip:focus-within .imp-tooltip {
-  visibility: visible; opacity: 1;
-}
-</style>
-"""
-
 
 def display_title(index_md: Path) -> str:
     """Return the first H1 of an index.md, else the dir name."""
@@ -101,19 +74,18 @@ def status_of(progress: dict, path: str) -> str:
     return progress.get(path, DEFAULT)
 
 
-def bar(pct: float, height: str, anim: str) -> str:
-    """Return an animated gradient bar div."""
-    return (f'<div style="flex:1;height:{height};'
-            f'background:rgba(127,127,127,0.15);border-radius:999px;'
-            f'overflow:hidden;"><div class="{anim}" style="--imp-w:{pct}%;'
-            f'width:0%;height:100%;border-radius:999px;{GRADIENT}"></div></div>')
+def bar(pct: float, anim: str = "") -> str:
+    """Return an animated gradient bar div (sizing handled by CSS)."""
+    fill = (f'<div class="progress-fill{anim}" '
+            f'style="--w:{pct:.1f}%"></div>')
+    return f'<div class="progress-track">{fill}</div>'
 
 
 def tooltip(done: list[str], pending: list[str]) -> str:
     """Return a hover tooltip summarizing done vs pending titles."""
     def fmt(items: list[str]) -> str:
         return "\n".join(f"• {t}" for t in items) or "—"
-    return ('<div class="imp-tooltip">'
+    return ('<div class="tip-box">'
             f'<strong>Done ({len(done)})</strong>\n{fmt(done)}'
             f'\n<hr style="opacity:.3;margin:6px 0;">'
             f'<strong>Pending ({len(pending)})</strong>\n{fmt(pending)}'
@@ -123,10 +95,9 @@ def tooltip(done: list[str], pending: list[str]) -> str:
 def overall_bar(pct: float) -> str:
     """Return the large animated overall progress bar."""
     return (
-        f'<div style="display:flex;align-items:center;gap:12px;'
-        f'max-width:720px;padding:8px 0;">'
-        f'{bar(f"{pct:.1f}", "22px", "imp-progress-fill imp-shimmer")}'
-        f'<div style="font-weight:700;min-width:52px;text-align:right;">'
+        f'<div class="progress-row" style="max-width:720px;padding:8px 0;">'
+        f'{bar(pct, " progress-fill--shimmer")}'
+        f'<div class="progress-pct">'
         f'{pct:.0f}%</div></div>'
     )
 
@@ -142,12 +113,11 @@ def part_bar(p: dict, progress: dict) -> tuple[str, str]:
     total = len(p["sections"]) or 1
     pct = round(counts["done"] / total * 100)
     bar_html = (
-        f'<div class="imp-tip" style="display:flex;align-items:center;'
-        f'gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;">'
-        f'<div style="display:flex;align-items:center;gap:8px;flex:1;">'
-        f'{bar(f"{pct:.1f}", "8px", "imp-part-fill")}'
-        f'<div style="font-size:.85em;font-weight:600;min-width:36px;'
-        f'text-align:right;">{pct}%</div></div>'
+        f'<div class="tip" style="display:flex;align-items:center;'
+        f'gap:8px;max-width:520px;padding:2px 0 10px;">'
+        f'{bar(pct)}'
+        f'<div class="progress-pct" style="font-size:.85em;">'
+        f'{pct}%</div>'
         f'{tooltip(done, pending)}</div>'
     )
     return f"{pct}%", bar_html
@@ -180,7 +150,7 @@ def render(parts: list[dict], progress: dict) -> str:
             lines.append(f"| {icon} `{st}` | [{s['title']}]({link}) |")
         lines.append("")
 
-    return "\n".join(lines).rstrip() + "\n" + CSS
+    return "\n".join(lines).rstrip() + "\n"
 
 
 def main() -> int:

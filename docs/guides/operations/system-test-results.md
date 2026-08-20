@@ -128,7 +128,7 @@ Full **simultaneous** CPU (128 threads) + GPU (both 3090s) stress at **260 W** G
 Lowering to 260 W:
 - Cut GPU0's temperature 72 → **65°C**.
 - Reduced total package draw ~750 → **~701 W** (more PSU headroom).
-- Cost little performance — AI inference is memory-bandwidth-bound (see [GPU Power Limiting](gpu-power-limit-guide.md)).
+- Cost little performance — AI inference is memory-bandwidth-bound (see [GPU Power Limiting](../hardware/gpu-power-limit-guide.md)).
 
 **260 W is the recommended long-term setting.**
 
