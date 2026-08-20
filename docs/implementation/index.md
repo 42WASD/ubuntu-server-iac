@@ -40,15 +40,15 @@ edit/correct).
 
 ## Overall progress
 
-**43 / 92** phases/sections complete (**47%**).
+**44 / 92** phases/sections complete (**48%**).
 
-<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:46.7%"></div></div><div class="progress-pct">47%</div></div>
+<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:47.8%"></div></div><div class="progress-pct">48%</div></div>
 
 | Status | Count |
 |--------|-------|
-| ✅ done | 43 |
+| ✅ done | 44 |
 | 🔶 in-progress | 0 |
-| ⬜ not-started | 46 |
+| ⬜ not-started | 45 |
 | ❌ blocked | 1 |
 | ⏸️ deferred | 2 |
 
@@ -2172,9 +2172,9 @@ gate before adding more components.
 </details>
 
 
-### 67% — Part V — GitOps bootstrap
+### 75% — Part V — GitOps bootstrap
 
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:67.0%"></div></div><div class="progress-pct" style="font-size:.85em;">67%</div><div class="tip-box"><strong>Done (8)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:75.0%"></div></div><div class="progress-pct" style="font-size:.85em;">75%</div><div class="tip-box"><strong>Done (9)</strong>
 • Phase 19 — install Argo CD exactly once by hand
 • Phase 20 — root GitOps application
 • AppProjects
@@ -2183,8 +2183,8 @@ gate before adding more components.
 • Phase 23 — ResourceQuota
 • Phase 24 — LimitRange
 • Phase 25 — default-deny NetworkPolicy
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (4)</strong>
 • Phase 26 — RBAC
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (3)</strong>
 • dev Role
 • production is intentionally different
 • Phase 27 — authentication for Kubernetes developers</div></div>
@@ -2645,7 +2645,70 @@ and is unaffected (still Running).
 
 </details>
 
-- ⬜ `not-started` — [Phase 26 — RBAC](../reference-design/build/05-gitops-bootstrap/08-35-phase-26-rbac/index.md)
+- ✅ `done` — [Phase 26 — RBAC](../reference-design/build/05-gitops-bootstrap/08-35-phase-26-rbac/index.md)
+
+<details markdown="1" class="runbook">
+<summary>✅ 📜 Build log — Phase 26 — RBAC</summary>
+
+# Phase 26 — RBAC
+
+Added namespace-scoped Roles and RoleBindings so tenant groups can work in
+their own namespaces, with dev namespaces allowing writes and prod (and
+`mlops`) read-only — application writes in prod come from Argo CD, not from
+developer credentials.
+
+## 26.1 Manifests
+
+`infra/kubernetes/platform/rbac/`:
+
+- `jya0.yaml` — `dev-jya0` (writer), `prd-jya0` (reader) for group `tenant-jya0`
+- `42wasd-admin.yaml` — `dev-42wasd-admin` (writer),
+  `prd-42wasd-admin` (reader), `mlops` (reader) for group `tenant-42wasd-admin`
+- `games.yaml` — `dev-games-42wasd-admin` (writer),
+  `prd-games-42wasd-admin` (reader) for group `tenant-42wasd-admin`
+
+Roles:
+
+- `tenant-developer` — full CRUD on pods/services/endpoints/configmaps/PVCs,
+  deployments/replicasets/statefulsets, jobs/cronjobs, plus exec/portforward.
+- `tenant-reader` — `get`/`list`/`watch` on the same resource set.
+
+Prod is read-only on purpose: a principal that can create arbitrary prod
+Pods can mount Secrets from that namespace even if RBAC denies direct
+`get secret`, so writes are confined to Argo CD.
+
+Managed by a new Argo child app `platform-rbac` (sync-wave `-5`) in
+`infra/kubernetes/bootstrap/argocd/apps/platform-rbac.yaml`.
+
+## 26.2 Applied via Argo CD
+
+```bash
+kubectl -n argocd patch application platform-root \
+  --type merge -p '{"metadata":{"annotations":{"argocd.argoproj.io/refresh":"hard"}}}'
+# -> platform-rbac  Synced  Healthy
+```
+
+Verified every tenant namespace has the expected Role + RoleBinding.
+
+## 26.3 Verified with `kubectl auth can-i`
+
+```bash
+kubectl auth can-i create deployments -n dev-42wasd-admin \
+  --as=system:serviceaccount --as-group=tenant-42wasd-admin   # yes
+kubectl auth can-i create deployments -n prd-42wasd-admin \
+  --as=system:serviceaccount --as-group=tenant-42wasd-admin   # no
+kubectl auth can-i get pods -n prd-42wasd-admin \
+  --as=system:serviceaccount --as-group=tenant-42wasd-admin   # yes
+kubectl auth can-i get secrets -n prd-42wasd-admin \
+  --as=system:serviceaccount --as-group=tenant-42wasd-admin   # no
+```
+
+Dev group gets writes; prod/`mlops` get read-only and no secret access.
+Authentication (Phase 27) is handled separately via OIDC later; this phase is
+authorization only.
+
+</details>
+
 - ⬜ `not-started` — [dev Role](../reference-design/build/05-gitops-bootstrap/09-35-1-dev-role/index.md)
 - ⬜ `not-started` — [production is intentionally different](../reference-design/build/05-gitops-bootstrap/10-35-2-production-is-intentionally-different/index.md)
 - ⬜ `not-started` — [Phase 27 — authentication for Kubernetes developers](../reference-design/build/05-gitops-bootstrap/11-36-phase-27-authentication-for-kubernetes-developers/index.md)
