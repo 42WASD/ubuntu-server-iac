@@ -1,0 +1,18 @@
+---
+# Production inventory for the platform hosts.
+# Groups reference roles in ansible/site.yml. Populate host membership as
+# hosts are built (see host_vars/ for per-host detail).
+
+all:
+  children:
+    rke2_servers:
+      hosts:
+        alpha:
+    build_nodes:
+      hosts:
+        build01:
+    # Convenience group combining all Linux platform nodes.
+    linux_platform:
+      children:
+        rke2_servers:
+        build_nodes:

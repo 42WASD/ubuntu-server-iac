@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Split ubuntu-26.04-rke2-platform-proper-stack.md into a phase-based docs tree.
 
-Output layout under docs/platform/:
+Output layout under docs/reference-design/:
 
-    docs/platform/
+    docs/reference-design/
         index.md                    <- overview page
         <NN>-<part-slug>/           <- one folder per "Part"
             index.md                <- part landing page
@@ -27,7 +27,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 SRC = REPO / "sources" / "ubuntu-26.04-rke2-platform-proper-stack.md"
-OUT = REPO / "docs" / "platform"
+OUT = REPO / "docs" / "reference-design"
 
 TITLE = "Ubuntu 26.04 LTS Production-Like Hosting Platform"
 PART_RE = re.compile(r"^Part\s+(\S+)\s*[—-]?\s*(.*)$")
@@ -97,7 +97,7 @@ def main() -> int:
     overview = re.sub(r"^# .*$", f"# {TITLE}", overview, count=1, flags=re.M)
     (OUT / "index.md").write_text(overview + "\n")
 
-    nav = [{"Platform Overview": "platform/index.md"}]
+    nav = [{"Reference Design Overview": "reference-design/index.md"}]
     part_summary: list[tuple[str, str, str]] = []  # (roman, title, slug)
 
     for p_idx, b in enumerate(part_idxs):
@@ -125,7 +125,7 @@ def main() -> int:
             part_intro = f"# Part {roman}"
         (part_dir / "index.md").write_text(part_intro + "\n")
 
-        part_nav = [{"Overview": f"platform/{part_slug}/index.md"}]
+        part_nav = [{"Overview": f"reference-design/{part_slug}/index.md"}]
 
         # Precompute section display titles for the TOC
         sec_display: list[tuple[str, str]] = []
@@ -161,7 +161,7 @@ def main() -> int:
             sec_dir.mkdir()
             (sec_dir / "index.md").write_text(f"# {display_title}\n\n{body}\n")
 
-            part_nav.append({display_title: f"platform/{part_slug}/{sec_slug}/index.md"})
+            part_nav.append({display_title: f"reference-design/{part_slug}/{sec_slug}/index.md"})
 
         # Append a generated table of contents to the part landing page
         if sec_display:
@@ -181,7 +181,7 @@ def main() -> int:
         for roman, part_title, part_slug in part_summary:
             fh.write(f"- [{roman} — {part_title}]({part_slug}/index.md)\n")
 
-    # Regenerate the "Platform" section in mkdocs.yml between markers
+    # Regenerate the "Reference Design" section in mkdocs.yml between markers
     _write_mkdocs_platform(REPO / "mkdocs.yml", nav)
     print(f"Split {len(lines)} lines into {len(nav)} top-level entries under {OUT}")
     return 0
@@ -232,7 +232,14 @@ def _write_mkdocs_platform(mkdocs_yml: Path, platform_nav: list) -> None:
                 {"System Stress Test": "guides/stress-test-guide.md"},
             ]
         },
-        {"Platform": platform_nav},
+        {
+            "Reference Design": platform_nav,
+        },
+        {
+            "Implementation": [
+                {"Progress": "implementation/index.md"},
+            ]
+        },
     ]
     lines: list[str] = ["nav:"]
     for entry in static:

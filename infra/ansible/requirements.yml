@@ -1,0 +1,7 @@
+---
+# Ansible Galaxy requirements — add collections/roles here as needed.
+# Example:
+#   collections:
+#     - name: community.general
+#   roles:
+#    - name: geerlingguy.docker

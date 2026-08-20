@@ -1,0 +1,10 @@
+# Implementation progress status.
+#
+# Keys are the reference section paths (relative to docs/reference-design/),
+# values are one of: done | in-progress | not-started | blocked
+#
+# Update this file as work proceeds, then regenerate the page with:
+#   python3 scripts/docs-generate-implementation.py
+
+# --- Part III — Build the host ---
+"03-build-the-host/00-9-phase-0-create-the-infrastructure-repository-first": "done"

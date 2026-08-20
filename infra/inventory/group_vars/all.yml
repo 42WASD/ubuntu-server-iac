@@ -1,0 +1,3 @@
+---
+# Variables applied to all hosts.
+# Populate as phases progress (users, tailscale, firewall, limits, etc.).

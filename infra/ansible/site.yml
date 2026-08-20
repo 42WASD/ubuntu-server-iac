@@ -1,0 +1,29 @@
+# Ansible entry point — the ownership model for configuring platform hosts.
+#
+# During early phases, roles that are not implemented yet can be commented out.
+# The point is to establish the ownership model before configuration spreads
+# across ad-hoc scripts.
+
+- name: Configure all Linux platform nodes
+  hosts: all
+  become: true
+  roles:
+    - base
+    - users
+    - tailscale
+    - firewall
+    - developer_limits
+
+- name: Configure RKE2 servers
+  hosts: rke2_servers
+  become: true
+  roles:
+    - storage
+    - nvidia_host
+    - rke2_server
+
+- name: Configure build nodes
+  hosts: build_nodes
+  become: true
+  roles:
+    - build_node

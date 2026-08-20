@@ -1,0 +1,28 @@
+# secrets
+*.key
+*.pem
+*.p12
+*.pfx
+.env
+.env.*
+!*.example
+
+# Ansible
+*.retry
+.vault-password
+ansible/.venv/
+
+# OpenTofu / Terraform
+**/.terraform/
+**/.tofu/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+
+# kubeconfig
+kubeconfig
+*.kubeconfig
+
+# generated secrets
+secrets.generated/
