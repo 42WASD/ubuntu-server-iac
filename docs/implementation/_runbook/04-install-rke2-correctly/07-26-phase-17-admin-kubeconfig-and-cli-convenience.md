@@ -84,3 +84,33 @@ alpha   Ready    control-plane,etcd   16m   v1.36.3+rke2r1   containerd://2.3.3-
 
 Admin access over Tailscale with a valid serving certificate is confirmed.
 Developers keep their own identities per Phase 26.
+
+## 17.7 Live ingress validation — `demo-meme` tenant app
+
+Used the working admin kubeconfig to deploy a throwaway tenant app that
+exercises the Traefik ingress path end to end (Deployment → Service →
+Ingress → node port 80). This is a hand-applied smoke test, **not** yet
+GitOps-managed; it will be adopted into the GitOps source of truth during the
+Part V bootstrap.
+
+Manifests live under `infra/kubernetes/tenants/demo-meme/`:
+
+```bash
+cd /home/jyao/ubuntu-server-iac/infra/kubernetes/tenants/demo-meme
+export KUBECONFIG=/home/jyao/.kube/config
+kubectl apply -f namespace.yaml -f configmap.yaml -f deployment.yaml -f service.yaml -f ingress.yaml
+kubectl -n demo-meme rollout status deploy/meme-site --timeout=120s
+```
+
+Verified:
+
+- `pod/meme-site-*` reached `1/1 Running`.
+- `service/meme-site` ClusterIP `10.43.247.243:80` targeting the pod.
+- Ingress `meme-site` (class `traefik`) routes `meme.alpha.taild82ced.ts.net`
+  to the service.
+- `curl -H 'Host: meme.alpha.taild82ced.ts.net' http://127.0.0.1` returns
+  `HTTP/1.1 200 OK` with the meme homepage HTML.
+- The page loads `https://http.cat/200` (reachable, HTTP 200).
+
+This confirms the bundled Traefik ingress controller is serving traffic and the
+node port 80 path works before Phase 18's reboot-recovery check.

@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: meme-site-index
+  namespace: demo-meme
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>demo-meme</title>
+      <style>
+        body { background:#10121a; color:#e6e8ef; font-family:system-ui,sans-serif;
+               display:flex; flex-direction:column; align-items:center; justify-content:center;
+               min-height:100vh; margin:0; text-align:center; padding:1rem; }
+        h1 { font-size:2.4rem; margin:.4em 0; }
+        p  { color:#9aa1b5; max-width:640px; line-height:1.5; }
+        img { max-width:min(90vw, 640px); border-radius:12px; box-shadow:0 10px 40px rgba(0,0,0,.5); }
+        .node { font-family:ui-monospace,monospace; color:#6f86ff; font-size:.95rem; }
+        em { color:#ff7ac3; }
+      </style>
+    </head>
+    <body>
+      <h1>It's not much, but it's <em>honest work</em> 🐳</h1>
+      <img src="https://http.cat/200" alt="200 OK cat" width="640">
+      <p>This page is served by nginx:alpine running on the RKE2 cluster.</p>
+    </body>
+    </html>
