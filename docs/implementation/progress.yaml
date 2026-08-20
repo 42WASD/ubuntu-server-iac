@@ -1,6 +1,6 @@
 # Implementation progress status.
 #
-# Keys are the reference section paths (relative to docs/reference-design/),
+# Keys are the build-phase section paths (relative to docs/reference-design/build/),
 # values are one of: done | in-progress | not-started | blocked
 #
 # Update this file as work proceeds, then regenerate the page with:

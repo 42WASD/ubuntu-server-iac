@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Generate the implementation progress page from reference design + progress.yaml.
 
-Scans docs/reference-design/ (the reference spec) and docs/implementation/progress.yaml
-(the implementation status source of truth), then writes the progress chart +
-table into docs/implementation/index.md between the generated markers.
+Scans docs/reference-design/build/ (the actionable build phases) and
+docs/implementation/progress.yaml (the implementation status source of truth),
+then writes the progress chart + table into docs/implementation/index.md between
+the generated markers.
 
 Run:
     python3 scripts/docs/docs-generate-implementation.py
@@ -25,7 +26,7 @@ except ImportError:
     sys.exit(1)
 
 REPO = Path(__file__).resolve().parent.parent.parent
-REF = REPO / "docs" / "reference-design"
+REF = REPO / "docs" / "reference-design" / "build"
 PROGRESS = REPO / "docs" / "implementation" / "progress.yaml"
 OUT = REPO / "docs" / "implementation" / "index.md"
 
@@ -175,7 +176,7 @@ def render(parts: list[dict], progress: dict) -> str:
             path = f"{p['slug']}/{s['slug']}"
             st = status_of(progress, path)
             icon = STATUS_ICON[st]
-            link = f"../reference-design/{path}/index.md"
+            link = f"../reference-design/build/{path}/index.md"
             lines.append(f"| {icon} `{st}` | [{s['title']}]({link}) |")
         lines.append("")
 
