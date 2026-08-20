@@ -31,11 +31,13 @@ spec:
     - 'https://github.com/42WASD/ubuntu-server-iac.git'
   destinations:
     - server: https://kubernetes.default.svc
-      namespaces:
-        - dev-jya0
-        - prod-jya0
-        - ml-jya0
-        - gpu-jya0
+      namespace: dev-jya0
+    - server: https://kubernetes.default.svc
+      namespace: prod-jya0
+    - server: https://kubernetes.default.svc
+      namespace: ml-jya0
+    - server: https://kubernetes.default.svc
+      namespace: gpu-jya0
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
@@ -51,7 +53,8 @@ spec:
     - 'https://github.com/42WASD/ubuntu-server-iac.git'
   destinations:
     - server: https://kubernetes.default.svc
-      namespaces:
-        - dev-42admin
-        - prod-42admin
-        - games-42admin
+      namespace: dev-42admin
+    - server: https://kubernetes.default.svc
+      namespace: prod-42admin
+    - server: https://kubernetes.default.svc
+      namespace: games-42admin

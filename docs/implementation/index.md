@@ -40,15 +40,15 @@ edit/correct).
 
 ## Overall progress
 
-**36 / 92** phases/sections complete (**39%**).
+**39 / 92** phases/sections complete (**42%**).
 
-<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:39.1%"></div></div><div class="progress-pct">39%</div></div>
+<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:42.4%"></div></div><div class="progress-pct">42%</div></div>
 
 | Status | Count |
 |--------|-------|
-| ✅ done | 36 |
+| ✅ done | 39 |
 | 🔶 in-progress | 0 |
-| ⬜ not-started | 53 |
+| ⬜ not-started | 50 |
 | ❌ blocked | 1 |
 | ⏸️ deferred | 2 |
 
@@ -2172,14 +2172,14 @@ gate before adding more components.
 </details>
 
 
-### 8% — Part V — GitOps bootstrap
+### 33% — Part V — GitOps bootstrap
 
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:8.0%"></div></div><div class="progress-pct" style="font-size:.85em;">8%</div><div class="tip-box"><strong>Done (1)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:33.0%"></div></div><div class="progress-pct" style="font-size:.85em;">33%</div><div class="tip-box"><strong>Done (4)</strong>
 • Phase 19 — install Argo CD exactly once by hand
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (11)</strong>
 • Phase 20 — root GitOps application
 • AppProjects
 • Phase 21 — namespace baseline
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (8)</strong>
 • Phase 22 — PriorityClasses
 • Phase 23 — ResourceQuota
 • Phase 24 — LimitRange
@@ -2265,9 +2265,133 @@ root GitOps application (App-of-Apps bootstrap).
 
 </details>
 
-- ⬜ `not-started` — [Phase 20 — root GitOps application](../reference-design/build/05-gitops-bootstrap/01-29-phase-20-root-gitops-application/index.md)
-- ⬜ `not-started` — [AppProjects](../reference-design/build/05-gitops-bootstrap/02-29-1-appprojects/index.md)
-- ⬜ `not-started` — [Phase 21 — namespace baseline](../reference-design/build/05-gitops-bootstrap/03-30-phase-21-namespace-baseline/index.md)
+- ✅ `done` — [Phase 20 — root GitOps application](../reference-design/build/05-gitops-bootstrap/01-29-phase-20-root-gitops-application/index.md)
+
+<details markdown="1" class="runbook">
+<summary>✅ 📜 Build log — Phase 20 — root GitOps application</summary>
+
+# Phase 20 — root GitOps application
+
+**Intent:** stand up the **App-of-Apps** bootstrap so Argo CD owns Kubernetes
+configuration from here on. One root Application (`platform-root`) watches a
+directory of child `Application` objects.
+
+## 20.1 Manifests
+
+Created under `infra/kubernetes/bootstrap/argocd/`:
+
+- `platform-root.yaml` — root App-of-Apps Application pointing at
+  `infra/kubernetes/bootstrap/argocd/apps` (recurse).
+- `apps/platform-namespaces.yaml` — child Application for the namespace
+  baseline, `sync-wave -20` so namespaces exist first.
+- `projects.yaml` — AppProjects: `platform`, `tenant-jya0`,
+  `tenant-42wasd-admin`.
+
+The repo is public, so Argo CD clones it over HTTPS with no stored credential.
+
+```bash
+kubectl apply -f infra/kubernetes/bootstrap/argocd/projects.yaml
+kubectl apply -f infra/kubernetes/bootstrap/argocd/platform-root.yaml
+```
+
+## 20.2 Result
+
+```bash
+kubectl -n argocd get applications
+```
+
+```text
+NAME                  SYNC STATUS   HEALTH STATUS
+platform-namespaces   Synced        Healthy
+platform-root         Synced        Healthy
+```
+
+Both synced automatically (automated sync, prune + selfHeal, server-side
+apply). The child `platform-namespaces` app was created by the root app with no
+manual `kubectl apply`.
+
+## 20.3 From here on
+
+```text
+if it belongs inside Kubernetes
+    -> prefer Git + Argo
+```
+
+not manual `kubectl apply`. This was the last hand-applied piece of platform
+config (besides Argo CD itself, Phase 19).
+
+</details>
+
+- ✅ `done` — [AppProjects](../reference-design/build/05-gitops-bootstrap/02-29-1-appprojects/index.md)
+
+<details markdown="1" class="runbook">
+<summary>✅ 📜 Build log — AppProjects</summary>
+
+# AppProjects (29.1)
+
+Created three AppProjects in `infra/kubernetes/bootstrap/argocd/projects.yaml`:
+
+- **`platform`** — cluster-wide resources (namespaces `*`, kinds `*`).
+- **`tenant-jya0`** — constrained to `dev-jya0`, `prod-jya0`, `ml-jya0`,
+  `gpu-jya0`.
+- **`tenant-42wasd-admin`** — constrained to `dev-42admin`, `prod-42admin`,
+  `games-42admin`.
+
+Both tenant projects allow only the single infra repo as a source, and only
+themselves as destinations. This is a second boundary alongside Kubernetes RBAC.
+
+Applied:
+
+```bash
+kubectl apply -f infra/kubernetes/bootstrap/argocd/projects.yaml
+# appproject.argoproj.io/platform created
+# appproject.argoproj.io/tenant-jya0 created
+# appproject.argoproj.io/tenant-42wasd-admin created
+```
+
+Note: the AppProject `destinations` field uses the singular `namespace` key
+(not `namespaces`), which strict decoding rejects.
+
+</details>
+
+- ✅ `done` — [Phase 21 — namespace baseline](../reference-design/build/05-gitops-bootstrap/03-30-phase-21-namespace-baseline/index.md)
+
+<details markdown="1" class="runbook">
+<summary>✅ 📜 Build log — Phase 21 — namespace baseline</summary>
+
+# Phase 21 — namespace baseline
+
+Created the platform and tenant namespace baseline as code, managed by Argo CD
+(the `platform-namespaces` child app from Phase 20).
+
+## 21.1 Manifests
+
+`infra/kubernetes/platform/namespaces/`:
+
+- `platform.yaml` — `kyverno`, `openebs`, `monitoring`, `registry`, `security`,
+  `ingress`, `build` (label `platform.tier: platform`).
+- `tenants.yaml` — `dev-jya0`, `prod-jya0`, `ml-jya0`, `gpu-jya0`,
+  `dev-42admin`, `prod-42admin`, `games-42admin`, each labelled with
+  `platform.tier: tenant` and Pod Security `restricted` (enforce/audit/warn).
+
+Infrastructure namespaces (`kube-system`, CNI, `argocd`) are **not** labelled
+`restricted` — their trusted controllers need a less restrictive policy, per the
+reference note.
+
+## 21.2 Verified
+
+```bash
+kubectl get ns -l platform.tier=platform   # 7 platform namespaces Active
+kubectl get ns -l platform.tier=tenant     # 7 tenant + demo-meme
+kubectl get ns dev-42admin -o jsonpath='{.metadata.labels}'
+# pod-security.kubernetes.io/{enforce,audit,warn}=restricted
+```
+
+The tenant namespaces carry the `restricted` Pod Security labels; platform
+namespaces do not.
+
+</details>
+
 - ⬜ `not-started` — [Phase 22 — PriorityClasses](../reference-design/build/05-gitops-bootstrap/04-31-phase-22-priorityclasses/index.md)
 - ⬜ `not-started` — [Phase 23 — ResourceQuota](../reference-design/build/05-gitops-bootstrap/05-32-phase-23-resourcequota/index.md)
 - ⬜ `not-started` — [Phase 24 — LimitRange](../reference-design/build/05-gitops-bootstrap/06-33-phase-24-limitrange/index.md)
