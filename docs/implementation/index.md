@@ -32,8 +32,8 @@ reference is assigned a status; a generator script renders this page from
 | Status | Count |
 |--------|-------|
 | ✅ done | 2 |
-| 🔶 in-progress | 0 |
-| ⬜ not-started | 90 |
+| 🔶 in-progress | 1 |
+| ⬜ not-started | 89 |
 | ❌ blocked | 0 |
 
 ## Progress by part
@@ -76,7 +76,7 @@ reference is assigned a status; a generator script renders this page from
 |--------|-------|
 | ✅ `done` | [Phase 0 — create the infrastructure repository first](../reference-design/build/03-build-the-host/00-9-phase-0-create-the-infrastructure-repository-first/index.md) |
 | ✅ `done` | [Phase 1 — inventory the actual machine](../reference-design/build/03-build-the-host/01-10-phase-1-inventory-the-actual-machine/index.md) |
-| ⬜ `not-started` | [Phase 2 — update Ubuntu and install base administration tools](../reference-design/build/03-build-the-host/02-11-phase-2-update-ubuntu-and-install-base-administration-tools/index.md) |
+| 🔶 `in-progress` | [Phase 2 — update Ubuntu and install base administration tools](../reference-design/build/03-build-the-host/02-11-phase-2-update-ubuntu-and-install-base-administration-tools/index.md) |
 | ⬜ `not-started` | [unattended security updates](../reference-design/build/03-build-the-host/03-11-1-unattended-security-updates/index.md) |
 | ⬜ `not-started` | [Phase 3 — hostname, DNS, and local identity](../reference-design/build/03-build-the-host/04-12-phase-3-hostname-dns-and-local-identity/index.md) |
 | ⬜ `not-started` | [Phase 4 — users, groups, and sudo boundaries](../reference-design/build/03-build-the-host/05-13-phase-4-users-groups-and-sudo-boundaries/index.md) |

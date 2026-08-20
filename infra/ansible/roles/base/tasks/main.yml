@@ -1,2 +1,61 @@
 ---
-# base
+# base — Phase 2: update OS + install base administration tools.
+#
+# Idempotent:
+#   - apt update is cached (no-op when fresh within cache_valid_time)
+#   - full-upgrade runs only when the cache is stale or packages are held back
+#   - package installation is declarative (state: present)
+
+- name: Update package index
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Perform full safe upgrade
+  ansible.builtin.apt:
+    upgrade: full
+    update_cache: false
+
+- name: Remove orphaned auto-installed packages
+  ansible.builtin.apt:
+    autoremove: yes
+    purge: yes
+
+- name: Install base administration packages
+  ansible.builtin.apt:
+    name: "{{ base_packages }}"
+    state: present
+
+# --- unattended-upgrades (Phase 2.1) ---
+
+- name: Deploy unattended-upgrades policy
+  ansible.builtin.template:
+    src: 50unattended-upgrades.j2
+    dest: /etc/apt/apt.conf.d/50unattended-upgrades
+    owner: root
+    group: root
+    mode: "0644"
+  notify: restart unattended-upgrades
+
+- name: Enable unattended-upgrades service
+  ansible.builtin.systemd:
+    name: unattended-upgrades
+    enabled: yes
+    state: started
+
+# --- core services ---
+
+- name: Enable and start core services
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  loop: "{{ base_services_enable }}"
+
+- name: Disable services not yet owned by a platform role
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: no
+    state: stopped
+  loop: "{{ base_services_disabled }}"
+  ignore_errors: yes

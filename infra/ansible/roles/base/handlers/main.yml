@@ -1,0 +1,6 @@
+---
+# Handlers for the `base` role.
+- name: restart unattended-upgrades
+  ansible.builtin.systemd:
+    name: unattended-upgrades
+    state: restarted

@@ -1,0 +1,16 @@
+// 50unattended-upgrades.j2 — platform policy (managed by the `base` role).
+// Automatic security upgrades; reboots are controlled, not blind.
+
+Unattended-Upgrade::Allowed-Origins {
+	"${distro_id}:${distro_codename}-security";
+	"${distro_id}:${distro_codename}-updates";
+};
+
+// Do not automatically reboot outside of the maintenance window.
+Unattended-Upgrade::Automatic-Reboot "true";
+Unattended-Upgrade::Automatic-Reboot-Time "{{ unattended_reboot_time }}";
+Unattended-Upgrade::Remove-Unused-Dependencies "{{ 'true' if unattended_remove_unused_dependencies else 'false' }}";
+
+// Never shut down (we only allow reboot).
+Unattended-Upgrade::Automatic-Reboot-WithUsers "false";
+Unattended-Upgrade::Automatic-Reboot-At-Timeout "false";
