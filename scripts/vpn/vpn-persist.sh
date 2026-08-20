@@ -47,9 +47,27 @@ case "${1:-}" in
       echo "[-] VPN session '$SESSION' is NOT running."
     fi
     ;;
+
+  connect|single)
+    # Run ONE connection in the foreground in the CURRENT terminal.
+    # This does NOT touch or restart the persistent tmux '$SESSION'.
+    # Useful for testing (e.g. the Tailscale auth URL) alongside the
+    # persistent session. Exit when the tunnel drops.
+    echo "[+] Running a single VPN connection (foreground, tmux '$SESSION' untouched)..."
+    if [ ! -x "$CONNECT_SCRIPT" ]; then
+        echo "[-] Error: $CONNECT_SCRIPT not found or not executable."
+        exit 1
+    fi
+    exec "$CONNECT_SCRIPT"
+    ;;
     
   *)
-    echo "Usage: $0 {start|attach|stop|status}"
+    echo "Usage: $0 {start|attach|stop|status|connect}"
+    echo "  start      Run persistent VPN loop in tmux session '$SESSION'"
+    echo "  attach     Attach to the tmux session"
+    echo "  stop       Stop the tmux session and openconnect"
+    echo "  status     Show whether the tmux session is running"
+    echo "  connect    Run a single VPN connection in this terminal (no tmux)"
     exit 1
     ;;
 esac

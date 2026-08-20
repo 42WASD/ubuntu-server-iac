@@ -30,6 +30,9 @@ LOG_FILE="$(mktemp)"         # gpauth's stderr is teed here so we can parse the 
 SOCAT_PID_FILE="$(mktemp)"   # lets cleanup kill the forwarder
 SOCAT_PID=""
 HELPER_PID=""
+PERSIST_LOG="$HOME/.cache/vpn/gpauth-auth.log"   # stable log to diagnose auth issues
+
+mkdir -p "$(dirname "$PERSIST_LOG")"
 
 cleanup() {
   if [ -n "$SOCAT_PID" ]; then
@@ -38,6 +41,13 @@ cleanup() {
     kill "$(cat "$SOCAT_PID_FILE")" 2>/dev/null || true
   fi
   [ -n "$HELPER_PID" ] && kill "$HELPER_PID" 2>/dev/null || true
+  # Persist the gpauth stderr (incl. "received request" lines) for diagnosis.
+  if [ -f "$LOG_FILE" ] && [ -s "$LOG_FILE" ]; then
+    {
+      echo "===== $(date -Is) gpauth session ====="
+      cat "$LOG_FILE"
+    } >>"$PERSIST_LOG" 2>/dev/null || true
+  fi
   rm -f "$LOG_FILE" "$SOCAT_PID_FILE"
 }
 trap cleanup EXIT
@@ -70,4 +80,5 @@ HELPER_PID=$!
 # Run gpauth in the foreground so its stdin stays on the terminal (the user
 # pastes the auth callback there). Its stderr is teed so the helper can read
 # the URL. Its stdout (the auth JSON) flows through to the caller unchanged.
+
 "$GPAUTH" "$@" 2> >(tee "$LOG_FILE" >&2)
