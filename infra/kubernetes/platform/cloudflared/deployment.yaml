@@ -23,7 +23,6 @@ spec:
             - run
             - --protocol
             - http2
-            - --no-autoupdate
             - --token
             - "$(TUNNEL_TOKEN)"
           env:
