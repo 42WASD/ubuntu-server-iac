@@ -25,32 +25,32 @@ reference is assigned a status; a generator script renders this page from
 
 ## Overall progress
 
-**4 / 92** phases/sections complete (**4%**).
+**8 / 92** phases/sections complete (**9%**).
 
-<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:4.3%"></div></div><div class="progress-pct">4%</div></div>
+<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:8.7%"></div></div><div class="progress-pct">9%</div></div>
 
 | Status | Count |
 |--------|-------|
-| ✅ done | 4 |
+| ✅ done | 8 |
 | 🔶 in-progress | 0 |
-| ⬜ not-started | 88 |
+| ⬜ not-started | 84 |
 | ❌ blocked | 0 |
 
 ## Progress by part
 
-### 14% — Part III — Build the host
+### 28% — Part III — Build the host
 
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:14.0%"></div></div><div class="progress-pct" style="font-size:.85em;">14%</div><div class="tip-box"><strong>Done (4)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:28.0%"></div></div><div class="progress-pct" style="font-size:.85em;">28%</div><div class="tip-box"><strong>Done (8)</strong>
 • Phase 0 — create the infrastructure repository first
 • Phase 1 — inventory the actual machine
 • Phase 2 — update Ubuntu and install base administration tools
 • Phase 3 — hostname, DNS, and local identity
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (25)</strong>
-• unattended security updates
 • Phase 4 — users, groups, and sudo boundaries
 • platform groups
 • no shared human account
 • sudo policy
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (21)</strong>
+• unattended security updates
 • Phase 5 — SSH hardening
 • Phase 6 — Tailscale private management path
 • Tailscale policy concept
@@ -79,10 +79,10 @@ reference is assigned a status; a generator script renders this page from
 | ✅ `done` | [Phase 2 — update Ubuntu and install base administration tools](../reference-design/build/03-build-the-host/02-11-phase-2-update-ubuntu-and-install-base-administration-tools/index.md) |
 | ⬜ `not-started` | [unattended security updates](../reference-design/build/03-build-the-host/03-11-1-unattended-security-updates/index.md) |
 | ✅ `done` | [Phase 3 — hostname, DNS, and local identity](../reference-design/build/03-build-the-host/04-12-phase-3-hostname-dns-and-local-identity/index.md) |
-| ⬜ `not-started` | [Phase 4 — users, groups, and sudo boundaries](../reference-design/build/03-build-the-host/05-13-phase-4-users-groups-and-sudo-boundaries/index.md) |
-| ⬜ `not-started` | [platform groups](../reference-design/build/03-build-the-host/06-13-1-platform-groups/index.md) |
-| ⬜ `not-started` | [no shared human account](../reference-design/build/03-build-the-host/07-13-2-no-shared-human-account/index.md) |
-| ⬜ `not-started` | [sudo policy](../reference-design/build/03-build-the-host/08-13-3-sudo-policy/index.md) |
+| ✅ `done` | [Phase 4 — users, groups, and sudo boundaries](../reference-design/build/03-build-the-host/05-13-phase-4-users-groups-and-sudo-boundaries/index.md) |
+| ✅ `done` | [platform groups](../reference-design/build/03-build-the-host/06-13-1-platform-groups/index.md) |
+| ✅ `done` | [no shared human account](../reference-design/build/03-build-the-host/07-13-2-no-shared-human-account/index.md) |
+| ✅ `done` | [sudo policy](../reference-design/build/03-build-the-host/08-13-3-sudo-policy/index.md) |
 | ⬜ `not-started` | [Phase 5 — SSH hardening](../reference-design/build/03-build-the-host/09-14-phase-5-ssh-hardening/index.md) |
 | ⬜ `not-started` | [Phase 6 — Tailscale private management path](../reference-design/build/03-build-the-host/10-15-phase-6-tailscale-private-management-path/index.md) |
 | ⬜ `not-started` | [Tailscale policy concept](../reference-design/build/03-build-the-host/11-15-1-tailscale-policy-concept/index.md) |

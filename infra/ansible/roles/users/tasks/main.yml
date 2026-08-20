@@ -1,2 +1,45 @@
 ---
-# users
+# users — Phase 4: users, groups, and sudo boundaries.
+#
+# Encodes the platform GROUP design + sudo policy. It does NOT create new
+# human accounts (see defaults: platform_user_membership only modifies accounts
+# that already exist). New developers are onboarded later by adding them to
+# `platform_users` with their tenant group.
+
+# --- 13.1 platform groups ---
+
+- name: Create platform groups
+  ansible.builtin.group:
+    name: "{{ item.name }}"
+    state: present
+  loop: "{{ platform_groups }}"
+
+# --- existing-account membership (no new users) ---
+
+- name: Ensure existing users belong to their platform groups
+  ansible.builtin.user:
+    name: "{{ item.key }}"
+    groups: "{{ item.value | join(',') }}"
+    append: yes
+  loop: "{{ platform_user_membership | dict2items }}"
+
+# --- 13.2 no shared human account ---
+# If a 42admin service account is ever created, force its shell to nologin so
+# it can never be used as a shared interactive login.
+
+- name: Ensure service/project accounts cannot be used as shared human logins
+  ansible.builtin.user:
+    name: "{{ item }}"
+    shell: /usr/sbin/nologin
+  loop: "{{ platform_service_accounts | default([]) }}"
+
+# --- 13.3 sudo policy ---
+
+- name: Deploy minimal platform-admin sudoers drop-in
+  ansible.builtin.template:
+    src: platform-admin.j2
+    dest: /etc/sudoers.d/platform-admin
+    owner: root
+    group: root
+    mode: "0440"
+    validate: /usr/sbin/visudo -cf %s

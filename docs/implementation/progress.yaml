@@ -11,3 +11,7 @@
 "03-build-the-host/01-10-phase-1-inventory-the-actual-machine": "done"
 "03-build-the-host/02-11-phase-2-update-ubuntu-and-install-base-administration-tools": "done"
 "03-build-the-host/04-12-phase-3-hostname-dns-and-local-identity": "done"
+"03-build-the-host/05-13-phase-4-users-groups-and-sudo-boundaries": "done"
+"03-build-the-host/06-13-1-platform-groups": "done"
+"03-build-the-host/07-13-2-no-shared-human-account": "done"
+"03-build-the-host/08-13-3-sudo-policy": "done"

@@ -1,0 +1,47 @@
+---
+# Defaults for the `users` role — Phase 4: users, groups, and sudo boundaries.
+#
+# NOTE: This phase encodes the PLATFORM GROUP DESIGN (tenant groups) and the
+# sudo policy. It does NOT create new human user accounts — those are added
+# explicitly per person via `platform_users` when a real developer is onboarded.
+#
+# A person is granted access by listing them (and their tenant group) here.
+# Human access should NEVER collapse into a shared account (see
+# 07-no-shared-human-account).
+
+# --- Platform groups (Phase 4 / 13.1) ---
+# Each group's Linux membership is the source of truth that later feeds both
+# filesystem access AND Kubernetes RBAC (tenant group name is reused).
+platform_groups:
+  - name: ssh-users
+    comment: "May SSH to platform hosts (AllowGroups ssh-users)"
+  - name: tenant-jya0
+    comment: "Tenant group for the jya0 project"
+  - name: tenant-42admin
+    comment: "Tenant group for the 42admin project"
+  - name: gpu-approved
+    comment: "Approved to request GPUs"
+
+# --- Existing-account membership ---
+# Map username -> list of groups. These are accounts created outside this
+# role (by the installer, or explicitly onboarded per person) whose GROUP
+# membership is enforced here. This role does NOT create the accounts.
+#
+# Human accounts present on alpha:
+#   - jyao          owner/admin (also in sudo)
+#   - jyao-42admin  42admin tenant contributor (password set out-of-band)
+platform_user_membership:
+  jyao: [sudo, ssh-users]
+  jyao-42admin: [ssh-users, tenant-42admin]
+
+# Groups that must NOT be granted to normal developers (Phase 4 warning).
+platform_forbidden_groups:
+  - docker
+  - lxd
+  - libvirt
+  - disk
+  - root
+
+# --- sudo policy (Phase 4 / 13.3) ---
+# Keep /etc/sudoers minimal: only platform-admins get a rule here.
+platform_admin_user: jyao

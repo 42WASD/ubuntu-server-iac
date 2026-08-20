@@ -1,0 +1,4 @@
+# Managed by the `users` Ansible role (Phase 4 — sudo policy).
+# Keep sudo minimal: only the platform admin gets a rule. Normal developers
+# get no convenience rules (that would negate the isolation controls).
+{{ platform_admin_user }} ALL=(ALL:ALL) ALL
