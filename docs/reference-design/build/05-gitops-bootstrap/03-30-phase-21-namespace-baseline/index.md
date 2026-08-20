@@ -40,7 +40,7 @@ Start dev namespaces with:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: dev-42admin
+  name: dev-42wasd-admin
   labels:
     pod-security.kubernetes.io/enforce: restricted
     pod-security.kubernetes.io/audit: restricted

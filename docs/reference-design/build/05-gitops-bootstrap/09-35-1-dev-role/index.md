@@ -7,7 +7,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: tenant-developer
-  namespace: dev-42admin
+  namespace: dev-42wasd-admin
 rules:
   - apiGroups: [""]
     resources:

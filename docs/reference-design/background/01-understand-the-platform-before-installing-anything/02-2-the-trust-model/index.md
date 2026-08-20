@@ -36,7 +36,7 @@ alice -> Linux user alice -> member of tenant-42wasd-admin
 bob   -> Linux user bob   -> member of tenant-42wasd-admin
 
 Kubernetes group tenant-42wasd-admin
-    -> dev-42admin permissions
+    -> dev-42wasd-admin permissions
     -> restricted prod visibility
 ```
 

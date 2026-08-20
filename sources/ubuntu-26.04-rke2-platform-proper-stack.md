@@ -221,7 +221,7 @@ alice -> Linux user alice -> member of tenant-42wasd-admin
 bob   -> Linux user bob   -> member of tenant-42wasd-admin
 
 Kubernetes group tenant-42wasd-admin
-    -> dev-42admin permissions
+    -> dev-42wasd-admin permissions
     -> restricted prod visibility
 ```
 
@@ -2632,14 +2632,20 @@ Tenant namespaces:
 
 ```text
 dev-jya0
-prod-jya0
-ml-jya0
-gpu-jya0
+prd-jya0
 
-dev-42admin
-prod-42admin
-games-42admin
+dev-42wasd-admin
+prd-42wasd-admin
+
+mlops
+
+dev-games-42wasd-admin   (ephemeral staging lane)
+prd-games-42wasd-admin   (canonical game lane)
 ```
+
+`dev-games-42wasd-admin` is a lightweight, on-demand staging lane for deep-
+copying one game server at a time (see Phase 53); it is throwaway and excluded
+from canonical backups.
 
 For tenant application namespaces, apply Pod Security labels.
 
@@ -2649,7 +2655,7 @@ Start dev namespaces with:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: dev-42admin
+  name: dev-42wasd-admin
   labels:
     pod-security.kubernetes.io/enforce: restricted
     pod-security.kubernetes.io/audit: restricted
@@ -2712,14 +2718,14 @@ Kyverno/RBAC should restrict who may use elevated classes.
 
 # 32. Phase 23 — ResourceQuota
 
-Example `dev-42admin`:
+Example `dev-42wasd-admin`:
 
 ```yaml
 apiVersion: v1
 kind: ResourceQuota
 metadata:
   name: namespace-budget
-  namespace: dev-42admin
+  namespace: dev-42wasd-admin
 spec:
   hard:
     requests.cpu: "4"
@@ -2762,7 +2768,7 @@ apiVersion: v1
 kind: LimitRange
 metadata:
   name: container-defaults
-  namespace: dev-42admin
+  namespace: dev-42wasd-admin
 spec:
   limits:
     - type: Container
@@ -2802,7 +2808,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: default-deny
-  namespace: dev-42admin
+  namespace: dev-42wasd-admin
 spec:
   podSelector: {}
   policyTypes:
@@ -2819,7 +2825,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: allow-cluster-dns
-  namespace: dev-42admin
+  namespace: dev-42wasd-admin
 spec:
   podSelector: {}
   policyTypes:
@@ -2869,7 +2875,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: tenant-developer
-  namespace: dev-42admin
+  namespace: dev-42wasd-admin
 rules:
   - apiGroups: [""]
     resources:
@@ -3125,8 +3131,8 @@ Example validation:
 
 ```bash
 kubectl auth can-i create clusterrole --as <developer-identity>
-kubectl auth can-i create pods -n dev-42admin --as <developer-identity>
-kubectl auth can-i create pods -n prod-42admin --as <developer-identity>
+kubectl auth can-i create pods -n dev-42wasd-admin --as <developer-identity>
+kubectl auth can-i create pods -n prd-42wasd-admin --as <developer-identity>
 ```
 
 Expected:
@@ -3923,13 +3929,9 @@ Only approved namespaces may request GPU resources.
 Example namespace intent:
 
 ```text
-gpu-jya0
+mlops
   gpu-approved=true
   gpu-tier=shared
-
-prod-jya0
-  gpu-approved=true
-  gpu-tier=prod
 ```
 
 Kyverno rejects GPU resources elsewhere.
@@ -3986,7 +3988,8 @@ Do not solve individual game stacks yet.
 Platform-level decision:
 
 ```text
-games-42admin
+prd-games-42wasd-admin
+dev-games-42wasd-admin   (ephemeral staging, deep-copy on demand)
 ```
 
 gets:
@@ -5410,15 +5413,24 @@ build
 
 JYA0
 dev-jya0
-prod-jya0
-ml-jya0
-gpu-jya0
+prd-jya0
 
-42
-dev-42admin
-prod-42admin
-games-42admin
+42WASD-ADMIN
+dev-42wasd-admin
+prd-42wasd-admin
+
+ML
+mlops
+
+GAMES (42wasd-admin)
+dev-games-42wasd-admin   (ephemeral staging lane)
+prd-games-42wasd-admin   (canonical game lane)
 ```
+
+`mlops` is a single shared lane (not per-tenant `ml-jya0`/`gpu-jya0`) because
+models are a shared, GPU-heavy resource consumed concurrently by any
+namespace. GPU allocation inside it is governed by quota and admission, not
+by namespace splitting.
 
 ---
 
@@ -5429,12 +5441,12 @@ Use these as starting ceilings, then tune from monitoring.
 | Namespace | CPU request | CPU limit | RAM request | RAM limit | Ephemeral | PVC | GPU |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | `dev-jya0` | 4 | 8 | 8Gi | 16Gi | 40Gi | 150Gi | 0 |
-| `prod-jya0` | 8 | 12 | 16Gi | 24Gi | 60Gi | 300Gi | approved |
-| `ml-jya0` | 6 | 12 | 12Gi | 24Gi | 100Gi | 500Gi | 0 initially |
-| `gpu-jya0` | 8 | 16 | 16Gi | 32Gi | 120Gi | 500Gi | shared approved |
-| `dev-42admin` | 4 | 8 | 8Gi | 16Gi | 40Gi | 100Gi | 0 |
-| `prod-42admin` | 6 | 12 | 12Gi | 24Gi | 60Gi | 200Gi | 0 |
-| `games-42admin` | tune after games | tune | tune | tune | tune | game-world needs | 0 |
+| `prd-jya0` | 8 | 12 | 16Gi | 24Gi | 60Gi | 300Gi | approved |
+| `mlops` | 8 | 16 | 16Gi | 32Gi | 120Gi | 500Gi | 1 shared |
+| `dev-42wasd-admin` | 4 | 8 | 8Gi | 16Gi | 40Gi | 100Gi | 0 |
+| `prd-42wasd-admin` | 6 | 12 | 12Gi | 24Gi | 60Gi | 200Gi | 0 |
+| `prd-games-42wasd-admin` | 4 | 8 | 8Gi | 16Gi | 40Gi | 200Gi | 0 |
+| `dev-games-42wasd-admin` | 2 | 4 | 4Gi | 8Gi | 20Gi | 50Gi | 0 |
 | future dev | 2 | 4 | 4Gi | 8Gi | 20Gi | 50Gi | 0 |
 | future prod | 4 | 8 | 8Gi | 16Gi | 40Gi | 100Gi | 0 |
 

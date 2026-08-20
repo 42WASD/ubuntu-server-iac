@@ -7,7 +7,7 @@ apiVersion: v1
 kind: LimitRange
 metadata:
   name: container-defaults
-  namespace: dev-42admin
+  namespace: dev-42wasd-admin
 spec:
   limits:
     - type: Container

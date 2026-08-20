@@ -25,8 +25,8 @@ Example validation:
 
 ```bash
 kubectl auth can-i create clusterrole --as <developer-identity>
-kubectl auth can-i create pods -n dev-42admin --as <developer-identity>
-kubectl auth can-i create pods -n prod-42admin --as <developer-identity>
+kubectl auth can-i create pods -n dev-42wasd-admin --as <developer-identity>
+kubectl auth can-i create pods -n prd-42wasd-admin --as <developer-identity>
 ```
 
 Expected:

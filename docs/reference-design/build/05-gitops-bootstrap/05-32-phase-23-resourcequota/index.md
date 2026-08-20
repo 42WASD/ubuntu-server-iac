@@ -1,13 +1,13 @@
 # Phase 23 — ResourceQuota
 
-Example `dev-42admin`:
+Example `dev-42wasd-admin`:
 
 ```yaml
 apiVersion: v1
 kind: ResourceQuota
 metadata:
   name: namespace-budget
-  namespace: dev-42admin
+  namespace: dev-42wasd-admin
 spec:
   hard:
     requests.cpu: "4"

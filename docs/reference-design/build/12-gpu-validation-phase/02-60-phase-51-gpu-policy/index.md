@@ -17,13 +17,9 @@ Only approved namespaces may request GPU resources.
 Example namespace intent:
 
 ```text
-gpu-jya0
+mlops
   gpu-approved=true
   gpu-tier=shared
-
-prod-jya0
-  gpu-approved=true
-  gpu-tier=prod
 ```
 
 Kyverno rejects GPU resources elsewhere.

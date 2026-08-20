@@ -7,7 +7,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: default-deny
-  namespace: dev-42admin
+  namespace: dev-42wasd-admin
 spec:
   podSelector: {}
   policyTypes:
@@ -24,7 +24,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: allow-cluster-dns
-  namespace: dev-42admin
+  namespace: dev-42wasd-admin
 spec:
   podSelector: {}
   policyTypes:
