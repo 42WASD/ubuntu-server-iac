@@ -171,6 +171,31 @@ def main() -> int:
         )
     else:
         content = content.rstrip() + "\n\n" + replacement + "\n"
+
+    # Inject the runbook into its collapsible placeholder so developers can see
+    # the command log inline on this page without navigating away. runbook.md
+    # stays the single source of truth. `md_in_html` + `markdown="1"` lets the
+    # inner markdown (headings, lists, code fences) render properly.
+    rb_start = "<!-- BEGIN_GENERATED_RUNBOOK -->"
+    rb_end = "<!-- END_GENERATED_RUNBOOK -->"
+    rb = REPO / "docs" / "implementation" / "runbook.md"
+    if rb.exists() and rb_start in content and rb_end in content:
+        inner = rb.read_text().strip()
+        rb_block = (
+            f"{rb_start}\n\n"
+            f"<details markdown=\"1\">\n"
+            f"<summary>📜 Show build commands (Phases 0–4)</summary>\n\n"
+            f"{inner}\n\n"
+            f"</details>\n\n"
+            f"{rb_end}"
+        )
+        content = re.sub(
+            re.escape(rb_start) + r".*?" + re.escape(rb_end),
+            lambda m: rb_block,
+            content,
+            flags=re.S,
+        )
+
     OUT.write_text(content)
     print(f"Generated implementation progress: {len(parts)} parts, {len(parts) and sum(len(p['sections']) for p in parts)} sections -> {OUT}")
     return 0
