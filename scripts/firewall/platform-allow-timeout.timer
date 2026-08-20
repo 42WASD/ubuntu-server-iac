@@ -1,0 +1,13 @@
+# platform-allow-timeout.timer — runs the one-time allow cleanup on a schedule.
+# Enables the "allow-once" expiry in scripts/firewall/firewall-approval.sh.
+# Default: every 10 minutes, clean up temporary allow rules.
+[Unit]
+Description=Periodically clean up one-time firewall allow rules
+
+[Timer]
+OnBootSec=10min
+OnUnitActiveSec=10min
+Unit=platform-allow-timeout.service
+
+[Install]
+WantedBy=timers.target

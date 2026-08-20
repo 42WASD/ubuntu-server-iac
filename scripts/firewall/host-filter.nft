@@ -1,0 +1,41 @@
+# host-filter.nft — Phase 7 host firewall (LEARN mode: accept + log)
+#
+# MODE: "accept + learn". Inbound policy is ACCEPT so nothing is ever blocked
+# (Tailscale and everything else keep working), but every NEW inbound connection
+# is logged so we can learn which ports are actually in use. This is the safe
+# first step before tightening to a default-drop policy.
+#
+# When you later tighten to default-drop, approved ports go into the "allowed"
+# chain and the final rule becomes policy drop. This file is the single source
+# of truth rendered from the `firewall` Ansible role / deployed via
+# platform-nftables.service.
+
+table inet host_filter {
+    chain input {
+        type filter hook input priority filter; policy accept;
+
+        # Drop packets in an invalid state — safe, not "blocking".
+        ct state invalid drop
+
+        # Loopback always allowed.
+        iifname "lo" accept
+
+        # Allow established/related (return traffic etc.) without logging.
+        ct state established,related accept
+
+        # --- LEARN mode: log every NEW inbound connection (with its port) ---
+        # prefix HOST-NEW so the monitor daemon can tail journald.
+        ct state new log prefix "HOST-NEW " limit rate 5/second accept
+
+        # Approved ports (managed by firewall-approval.sh allow <port>):
+        include "/etc/nftables.d/approved-ports.nft"
+    }
+
+    chain forward {
+        type filter hook forward priority filter; policy accept;
+    }
+
+    chain output {
+        type filter hook output priority filter; policy accept;
+    }
+}

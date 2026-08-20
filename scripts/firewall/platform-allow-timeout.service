@@ -1,0 +1,15 @@
+# platform-allow-timeout.service — remove a "allow-once" temporary firewall rule.
+# Companion to scripts/firewall/firewall-approval.sh `allow-once <port>`.
+#
+# firewall-approval.sh allow-once inserts an accept rule in inet host_filter.
+# This unit deletes ALL host_filter input rules that are temporary approvals
+# by re-loading the table from the versioned ruleset (which only contains the
+# LEARN-mode log rule + approved-ports.nft permanent rules). Running it via the
+# timer below enforces the "one-time" expiry.
+[Unit]
+Description=Clean up one-time firewall allow rules
+
+[Service]
+Type=oneshot
+ExecStartPre=-/usr/sbin/nft delete table inet host_filter
+ExecStart=/usr/sbin/nft -f /etc/nftables.d/host-filter.nft

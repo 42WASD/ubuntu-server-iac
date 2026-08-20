@@ -1,0 +1,25 @@
+# platform-nftables.service — load the Phase 7 host filter (accept + learn mode)
+#
+# Owns ONLY the inet host_filter table. On start/reload/stop it deletes just that
+# table, never touching Cilium/Kubernetes-owned tables (never run `nft flush
+# ruleset` once K8s exists). This file is deployed from the `firewall` Ansible
+# role; source of truth in scripts/firewall/.
+
+[Unit]
+Description=Platform host nftables policy
+After=network-pre.target
+Before=network.target
+Wants=network-pre.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+# Delete only our own table, then (re)load from the versioned ruleset file.
+ExecStartPre=-/usr/sbin/nft delete table inet host_filter
+ExecStart=/usr/sbin/nft -f /etc/nftables.d/host-filter.nft
+ExecReload=-/usr/sbin/nft delete table inet host_filter
+ExecReload=/usr/sbin/nft -f /etc/nftables.d/host-filter.nft
+ExecStop=-/usr/sbin/nft delete table inet host_filter
+
+[Install]
+WantedBy=multi-user.target

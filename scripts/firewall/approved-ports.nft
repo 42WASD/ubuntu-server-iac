@@ -1,0 +1,5 @@
+# approved-ports.nft - permanent allow rules for Phase 7 host_filter.
+# Managed by scripts/firewall/firewall-approval.sh (allow <port> appends here).
+# This file is included into host-filter.nft input chain. Each line is a
+# nftables rule fragment, e.g.:
+#   tcp dport 5432 accept
