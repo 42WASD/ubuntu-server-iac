@@ -6,7 +6,7 @@ Scans docs/reference-design/ (the reference spec) and docs/implementation/progre
 table into docs/implementation/index.md between the generated markers.
 
 Run:
-    python3 scripts/docs-generate-implementation.py
+    python3 scripts/docs/docs-generate-implementation.py
 
 The generated region is delimited by:
     <!-- BEGIN_GENERATED_IMPLEMENTATION --> ... <!-- END_GENERATED_IMPLEMENTATION -->
@@ -24,7 +24,7 @@ except ImportError:
     print("PyYAML is required. Install with: uv add pyyaml (in projects/)", file=sys.stderr)
     sys.exit(1)
 
-REPO = Path(__file__).resolve().parent.parent
+REPO = Path(__file__).resolve().parent.parent.parent
 REF = REPO / "docs" / "reference-design"
 PROGRESS = REPO / "docs" / "implementation" / "progress.yaml"
 OUT = REPO / "docs" / "implementation" / "index.md"

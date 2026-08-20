@@ -25,7 +25,7 @@ import shutil
 import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parent.parent
+REPO = Path(__file__).resolve().parent.parent.parent
 SRC = REPO / "sources" / "ubuntu-26.04-rke2-platform-proper-stack.md"
 OUT = REPO / "docs" / "reference-design"
 

@@ -17,8 +17,8 @@ reference is assigned a status; a generator script renders this page from
 ## How it works
 
 - Source of truth for status: `docs/implementation/progress.yaml`
-- Generator: `scripts/docs-generate-implementation.py`
-- Regenerate: `python3 scripts/docs-generate-implementation.py`
+- Generator: `scripts/docs/docs-generate-implementation.py`
+- Regenerate: `python3 scripts/docs/docs-generate-implementation.py`
 - The generated output overwrites this `index.md` between markers.
 
 <!-- BEGIN_GENERATED_IMPLEMENTATION -->

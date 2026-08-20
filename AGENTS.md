@@ -1,5 +1,16 @@
 # Agent Instructions
 
+## Repository Layout & File Placement (Overarching Rule)
+
+- **Whenever creating or adding any new file, always stop and consider whether
+  it belongs in a new subfolder or in an existing, more appropriate location.
+  Do not default to the top of a folder.**
+- If a new file is one of several related files (e.g. scripts for a domain),
+  group them under a dedicated subfolder rather than scattering them.
+- When in doubt, check the surrounding repo structure first (e.g. `scripts/`
+  already has domain subfolders: `docs/`, `gpu/`, `stress/`, `vpn/`) and place
+  the file to match the established convention.
+
 ## Python Environment
 
 - **Always use `uv` to manage Python virtual environments and dependencies.**
