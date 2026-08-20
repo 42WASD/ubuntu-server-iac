@@ -36,3 +36,6 @@
 "03-build-the-host/26-19-7-required-lvm-module": "done"
 "03-build-the-host/27-20-phase-11-filesystem-quotas-for-developer-homes": "done"
 "03-build-the-host/28-21-phase-12-nvidia-host-driver-baseline": "done"
+
+# --- Part IV — Install RKE2 correctly ---
+"04-install-rke2-correctly/00-22-phase-13-choose-and-pin-the-rke2-release": "done"

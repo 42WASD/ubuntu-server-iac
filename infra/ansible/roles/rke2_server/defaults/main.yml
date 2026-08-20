@@ -1,0 +1,26 @@
+---
+# rke2_server — version pin and install variables (Phase 13: choose and pin the release)
+
+# RKE2 minor line chosen for this design (reference: Phase 13).
+rke2_minor: "v1.36"
+
+# EXACT tested patch release, pinned — never float on "latest".
+# Discovered 2026-08-XX via https://api.github.com/repos/rancher/rke2/releases
+# (latest stable v1.36 non-prerelease tag). Kubernetes v1.36.3.
+rke2_version: "v1.36.3+rke2r1"
+
+# The installer reads INSTALL_RKE2_VERSION verbatim from the environment.
+# Used by tasks/main.yml when running the get.rke2.io bootstrap.
+rke2_install_url: "https://get.rke2.io"
+
+# Bundle versions carried by this exact release (recorded for the runbook /
+# release-note review; see docs/implementation/_runbook/03-build-the-host/phase-13-pin-rke2-release.md)
+rke2_bundle:
+  kubernetes: "v1.36.3"
+  cilium: "v1.19.6"
+  cilium_chart: "1.19.601"
+  traefik: "v3.7.8"
+  traefik_chart: "40.1.009"
+  containerd: "v2.3.3-k3s1"
+  etcd: "v3.6.14-k3s1"
+  coredns: "v1.14.6"
