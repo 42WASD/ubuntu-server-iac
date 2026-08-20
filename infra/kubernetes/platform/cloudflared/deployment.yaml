@@ -29,11 +29,20 @@ spec:
                 secretKeyRef:
                   name: cloudflared-token
                   key: token
+          ports:
+            - name: metrics
+              containerPort: 20241
+          startupProbe:
+            httpGet:
+              path: /ready
+              port: metrics
+            failureThreshold: 30
+            periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /ready
-              port: 2000
-            failureThreshold: 1
+              port: metrics
+            failureThreshold: 3
             initialDelaySeconds: 10
             periodSeconds: 10
           resources:
