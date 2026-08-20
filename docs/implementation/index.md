@@ -25,28 +25,28 @@ reference is assigned a status; a generator script renders this page from
 
 ## Overall progress
 
-**3 / 92** phases/sections complete (**3%**).
+**4 / 92** phases/sections complete (**4%**).
 
-<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:3.3%"></div></div><div class="progress-pct">3%</div></div>
+<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:4.3%"></div></div><div class="progress-pct">4%</div></div>
 
 | Status | Count |
 |--------|-------|
-| ✅ done | 3 |
+| ✅ done | 4 |
 | 🔶 in-progress | 0 |
-| ⬜ not-started | 89 |
+| ⬜ not-started | 88 |
 | ❌ blocked | 0 |
 
 ## Progress by part
 
-### 10% — Part III — Build the host
+### 14% — Part III — Build the host
 
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:10.0%"></div></div><div class="progress-pct" style="font-size:.85em;">10%</div><div class="tip-box"><strong>Done (3)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:14.0%"></div></div><div class="progress-pct" style="font-size:.85em;">14%</div><div class="tip-box"><strong>Done (4)</strong>
 • Phase 0 — create the infrastructure repository first
 • Phase 1 — inventory the actual machine
 • Phase 2 — update Ubuntu and install base administration tools
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (26)</strong>
-• unattended security updates
 • Phase 3 — hostname, DNS, and local identity
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (25)</strong>
+• unattended security updates
 • Phase 4 — users, groups, and sudo boundaries
 • platform groups
 • no shared human account
@@ -78,7 +78,7 @@ reference is assigned a status; a generator script renders this page from
 | ✅ `done` | [Phase 1 — inventory the actual machine](../reference-design/build/03-build-the-host/01-10-phase-1-inventory-the-actual-machine/index.md) |
 | ✅ `done` | [Phase 2 — update Ubuntu and install base administration tools](../reference-design/build/03-build-the-host/02-11-phase-2-update-ubuntu-and-install-base-administration-tools/index.md) |
 | ⬜ `not-started` | [unattended security updates](../reference-design/build/03-build-the-host/03-11-1-unattended-security-updates/index.md) |
-| ⬜ `not-started` | [Phase 3 — hostname, DNS, and local identity](../reference-design/build/03-build-the-host/04-12-phase-3-hostname-dns-and-local-identity/index.md) |
+| ✅ `done` | [Phase 3 — hostname, DNS, and local identity](../reference-design/build/03-build-the-host/04-12-phase-3-hostname-dns-and-local-identity/index.md) |
 | ⬜ `not-started` | [Phase 4 — users, groups, and sudo boundaries](../reference-design/build/03-build-the-host/05-13-phase-4-users-groups-and-sudo-boundaries/index.md) |
 | ⬜ `not-started` | [platform groups](../reference-design/build/03-build-the-host/06-13-1-platform-groups/index.md) |
 | ⬜ `not-started` | [no shared human account](../reference-design/build/03-build-the-host/07-13-2-no-shared-human-account/index.md) |

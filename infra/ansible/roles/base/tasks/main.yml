@@ -43,6 +43,20 @@
     enabled: yes
     state: started
 
+# --- host identity (Phase 3: hostname, DNS, and local identity) ---
+
+- name: Set static hostname
+  ansible.builtin.hostname:
+    name: "{{ base_hostname }}"
+
+- name: Deploy /etc/hosts
+  ansible.builtin.template:
+    src: hosts.j2
+    dest: /etc/hosts
+    owner: root
+    group: root
+    mode: "0644"
+
 # --- core services ---
 
 - name: Enable and start core services

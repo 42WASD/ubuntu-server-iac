@@ -45,6 +45,11 @@ base_packages:
   - python3-venv
   - python3-pip
 
+# Host identity (Phase 3 — hostname, DNS, and local identity).
+# Hostname is the short single-label name (no fake public FQDN before a domain
+# exists). Override per-host in inventory (host_vars/alpha.yml -> host_name).
+base_hostname: "{{ host_name | default(inventory_hostname) }}"
+
 # Core services to enable & start at boot.
 base_services_enable:
   - chrony
