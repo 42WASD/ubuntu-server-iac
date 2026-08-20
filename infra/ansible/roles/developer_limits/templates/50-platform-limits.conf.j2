@@ -1,0 +1,11 @@
+# 50-platform-limits.conf — Phase 9 developer resource limits (rendered)
+# Source: infra/ansible/roles/developer_limits/templates/50-platform-limits.conf.j2
+#
+# WHY: protects the host from runaway developer builds. Applies per-UID via
+# the systemd user slice. Applies on the user's next login.
+[Slice]
+CPUQuota={{ profile.slice_cpu_quota }}
+MemoryHigh={{ profile.slice_memory_high }}
+MemoryMax={{ profile.slice_memory_max }}
+TasksMax={{ profile.slice_tasks_max }}
+IOWeight={{ profile.slice_io_weight }}

@@ -1,0 +1,39 @@
+---
+# Defaults for the `developer_limits` role — Phase 9: developer CPU/RAM/PID
+# limits on the host via per-UID systemd user slices.
+#
+# WHY: developers can run heavy builds (pytest -n64, make -j64, a runaway
+# Python program, 10000 child processes). Systemd puts each human user in a
+# per-UID slice (user-*.slice). Drop-ins below cap each user so a single
+# developer can't exhaust the whole host. This protects the HOST; K8s
+# ResourceQuota protects a namespace; BuildKit limits protect the builder.
+
+# Owner profile (trusted administrator) — more headroom.
+developer_limits_owner:
+  slice_cpu_quota: "800%"
+  slice_memory_high: "16G"
+  slice_memory_max: "24G"
+  slice_tasks_max: "8192"
+  slice_io_weight: "75"
+
+# Normal developer profile — default from the reference design.
+developer_limits_normal:
+  slice_cpu_quota: "400%"
+  slice_memory_high: "8G"
+  slice_memory_max: "12G"
+  slice_tasks_max: "4096"
+  slice_io_weight: "50"
+
+# Owner username -> gets the owner profile; everyone else on this list gets
+# the normal profile. Keys are usernames; the role looks up their UID.
+developer_limited_users:
+  - name: jyao
+    profile: owner
+  - name: jyao-42admin
+    profile: normal
+  - name: ehammoud
+    profile: normal
+  - name: mayan
+    profile: normal
+  - name: mtangalv
+    profile: normal

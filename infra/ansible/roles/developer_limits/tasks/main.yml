@@ -1,2 +1,33 @@
 ---
-# developer_limits
+# developer_limits — Phase 9: per-UID systemd slice limits.
+#
+# For each developer, render a drop-in into that user's systemd user slice
+# (user-<UID>.slice.d/50-platform-limits.conf) and reload systemd. Limits
+# apply on the next login of that user. We look up UIDs from the passwd db.
+
+- name: Look up UID for each developer
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ item.name }}"
+  loop: "{{ developer_limits_users }}"
+
+- name: Create slice drop-in directory for each developer
+  ansible.builtin.file:
+    path: "/etc/systemd/system/user-{{ getent_passwd[item.name][2] }}.slice.d"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  loop: "{{ developer_limits_users }}"
+
+- name: Deploy per-user slice limit drop-in
+  ansible.builtin.template:
+    src: 50-platform-limits.conf.j2
+    dest: "/etc/systemd/system/user-{{ getent_passwd[item.name][2] }}.slice.d/50-platform-limits.conf"
+    owner: root
+    group: root
+    mode: "0644"
+  vars:
+    profile: "{{ developer_limits_owner if item.profile == 'owner' else developer_limits_normal }}"
+  loop: "{{ developer_limits_users }}"
+  notify: reload systemd
