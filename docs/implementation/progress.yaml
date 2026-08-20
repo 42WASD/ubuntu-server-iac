@@ -34,3 +34,4 @@
 "03-build-the-host/25-19-6-kubernetes-bulk-vg": "done"
 "03-build-the-host/26-19-7-required-lvm-module": "done"
 "03-build-the-host/27-20-phase-11-filesystem-quotas-for-developer-homes": "done"
+"03-build-the-host/28-21-phase-12-nvidia-host-driver-baseline": "done"
