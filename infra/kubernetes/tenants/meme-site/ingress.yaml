@@ -18,3 +18,13 @@ spec:
                 name: meme-site
                 port:
                   number: 80
+    - host: wasd.42base.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: meme-site
+                port:
+                  number: 80
