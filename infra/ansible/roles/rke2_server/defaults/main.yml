@@ -104,3 +104,27 @@ rke2_kubelet_image_gc_low_threshold: 60
 
 # Apply the Kubernetes default seccomp profile to Pods that don't set one.
 rke2_kubelet_seccomp_default: true
+
+# ---------------------------------------------------------------------------
+# Cilium configuration (Phase 15)
+# Configure RKE2's *packaged* Cilium via a HelmChartConfig. Do NOT install a
+# second upstream Cilium Helm release on top of the bundled chart.
+# ---------------------------------------------------------------------------
+
+# Where RKE2 watches for HelmChartConfig resources (created at install time).
+rke2_manifests_dir: /var/lib/rancher/rke2/server/manifests
+rke2_cilium_config_file: /var/lib/rancher/rke2/server/manifests/rke2-cilium-config.yaml
+
+# Use Cilium's eBPF kube-proxy replacement (matches disable-kube-proxy: true).
+rke2_cilium_kube_proxy_replacement: true
+
+# API server reachable via localhost from the Cilium agents on this node.
+rke2_cilium_k8s_service_host: localhost
+rke2_cilium_k8s_service_port: "6443"
+
+# Observability path: enable Cilium + relay (Hubble), but NOT the UI initially.
+# Rationale: stand up the metrics/observability backend first; expose an admin
+# web UI only after a private-access policy exists.
+rke2_cilium_hubble_enabled: true
+rke2_cilium_hubble_relay_enabled: true
+rke2_cilium_hubble_ui_enabled: false

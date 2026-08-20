@@ -40,15 +40,15 @@ edit/correct).
 
 ## Overall progress
 
-**29 / 92** phases/sections complete (**32%**).
+**30 / 92** phases/sections complete (**33%**).
 
-<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:31.5%"></div></div><div class="progress-pct">32%</div></div>
+<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:32.6%"></div></div><div class="progress-pct">33%</div></div>
 
 | Status | Count |
 |--------|-------|
-| ✅ done | 29 |
+| ✅ done | 30 |
 | 🔶 in-progress | 0 |
-| ⬜ not-started | 60 |
+| ⬜ not-started | 59 |
 | ❌ blocked | 1 |
 | ⏸️ deferred | 2 |
 
@@ -1157,14 +1157,14 @@ through reboot cycles since the driver install.
 </details>
 
 
-### 33% — Part IV — Install RKE2 correctly
+### 44% — Part IV — Install RKE2 correctly
 
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:33.0%"></div></div><div class="progress-pct" style="font-size:.85em;">33%</div><div class="tip-box"><strong>Done (3)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:44.0%"></div></div><div class="progress-pct" style="font-size:.85em;">44%</div><div class="tip-box"><strong>Done (4)</strong>
 • Phase 13 — choose and pin the RKE2 release
 • Phase 14 — RKE2 configuration
 • kubelet configuration
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (6)</strong>
 • Phase 15 — configure RKE2's bundled Cilium
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (5)</strong>
 • Phase 16 — install and start RKE2
 • inspect Cilium
 • verify RKE2 Secrets encryption
@@ -1497,7 +1497,7 @@ Both templates render to valid YAML. The kubelet drop-in resolves to a
 
 </details>
 
-- ⬜ `not-started` — [Phase 15 — configure RKE2's bundled Cilium](../reference-design/build/04-install-rke2-correctly/03-24-phase-15-configure-rke2-s-bundled-cilium/index.md)
+- ✅ `done` — [Phase 15 — configure RKE2's bundled Cilium](../reference-design/build/04-install-rke2-correctly/03-24-phase-15-configure-rke2-s-bundled-cilium/index.md)
 - ⬜ `not-started` — [Phase 16 — install and start RKE2](../reference-design/build/04-install-rke2-correctly/04-25-phase-16-install-and-start-rke2/index.md)
 - ⬜ `not-started` — [inspect Cilium](../reference-design/build/04-install-rke2-correctly/05-25-1-inspect-cilium/index.md)
 - ⬜ `not-started` — [verify RKE2 Secrets encryption](../reference-design/build/04-install-rke2-correctly/06-25-2-verify-rke2-secrets-encryption/index.md)

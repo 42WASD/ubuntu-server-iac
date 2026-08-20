@@ -42,3 +42,21 @@
     owner: "{{ rke2_config_owner }}"
     group: "{{ rke2_config_group }}"
     mode: "0644"
+
+# --- Phase 15: Cilium configuration (HelmChartConfig) ---
+
+- name: Create RKE2 server manifests directory
+  ansible.builtin.file:
+    path: "{{ rke2_manifests_dir }}"
+    state: directory
+    owner: "{{ rke2_config_owner }}"
+    group: "{{ rke2_config_group }}"
+    mode: "0755"
+
+- name: Render Cilium HelmChartConfig
+  ansible.builtin.template:
+    src: rke2-cilium-config.yaml.j2
+    dest: "{{ rke2_cilium_config_file }}"
+    owner: "{{ rke2_config_owner }}"
+    group: "{{ rke2_config_group }}"
+    mode: "0644"

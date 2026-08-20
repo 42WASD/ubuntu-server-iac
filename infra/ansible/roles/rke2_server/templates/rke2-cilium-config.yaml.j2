@@ -1,0 +1,23 @@
+# Cilium HelmChartConfig — rendered by the rke2_server role (Phase 15).
+# Configures RKE2's *packaged* Cilium chart. Do not install a second upstream
+# Cilium Helm release on top of this. RKE2 watches this directory for
+# HelmChartConfig resources.
+
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: rke2-cilium
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    kubeProxyReplacement: {{ rke2_cilium_kube_proxy_replacement | lower }}
+
+    k8sServiceHost: {{ rke2_cilium_k8s_service_host }}
+    k8sServicePort: "{{ rke2_cilium_k8s_service_port }}"
+
+    hubble:
+      enabled: {{ rke2_cilium_hubble_enabled | lower }}
+      relay:
+        enabled: {{ rke2_cilium_hubble_relay_enabled | lower }}
+      ui:
+        enabled: {{ rke2_cilium_hubble_ui_enabled | lower }}
