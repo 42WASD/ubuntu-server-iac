@@ -1,0 +1,53 @@
+---
+# Per-host facts for `alpha` — captured during Phase 1 (inventory the actual
+# machine). Sanitized: no serial numbers, MACs, or secrets are stored here.
+# See docs/reference-design/build/03-build-the-host/01-10-phase-1-inventory-the-actual-machine/.
+
+host_name: alpha
+os_expected: Ubuntu 26.04 LTS
+
+hardware:
+  cpu_cores: 64           # AMD EPYC 7742, 128 threads / 1 socket
+  cpu_threads: 128
+  memory_gib: 112         # installed (7 × 16 GiB); ~107 GiB usable
+  swap_gib: 8
+  gpu_count: 2
+  gpu_model: NVIDIA GeForce RTX 3090 (GA102)
+
+# Block devices as observed by `lsblk -e7`. Paths are NOT to be assumed from
+# position — always match on MODEL/SERIAL before partitioning or pvcreate.
+storage_disks:
+  - name: nvme0n1
+    device: /dev/nvme0n1
+    class: fast
+    size_gib: 1907
+    model: Samsung PM9A1
+    type: nvme
+    os_root: true
+  - name: sda
+    device: /dev/sda
+    class: bulk
+    size_gib: 5631
+    model: ST6000NM0115-1YZ
+    type: hdd
+    # UNALLOCATED — no filesystem, no partition. Reserved for bulk storage.
+
+# Current LVM layout (OS was installed with LVM on the NVMe).
+storage_plan:
+  nvme_class: fast
+  hdd_class: bulk
+  os_lvm_volume_group: ubuntu--vg
+  os_lvm_root_logical_volume: ubuntu--lv
+  os_root_allocated_gib: 100        # root LV currently 100G of the 1.9T PV
+  os_pv_free_gib: ~1.8T            # remaining unallocated space in the VG
+
+network:
+  # Primary LAN interface (has the default route).
+  lan_nic: enp193s0
+  lan_ipv4: 192.168.8.132
+  lan_gateway: 192.168.8.1
+  management_tailscale_ipv4: 100.112.202.47
+  management_interface: tailscale0
+  # Second wired NIC and the wireless adapter are present but not in use.
+  spare_nic: enp194s0
+  wireless: wlx6083e75da3bf
