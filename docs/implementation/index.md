@@ -27,9 +27,7 @@ reference is assigned a status; a generator script renders this page from
 
 **1 / 170** phases/sections complete (**1%**).
 
-```text
-░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 1%
-```
+<div style="display:flex;align-items:center;gap:12px;max-width:720px;padding:8px 0;"><div style="flex:1;height:22px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-progress-fill imp-shimmer" style="--imp-w:0.6%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-weight:700;min-width:52px;text-align:right;">1%</div></div>
 
 | Status | Count |
 |--------|-------|
@@ -41,6 +39,21 @@ reference is assigned a status; a generator script renders this page from
 ## Progress by part
 
 ### 0% — Part I — Understand the platform before installing anything
+
+<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (11)</strong>
+• The one-sentence idea
+• The target architecture
+• The trust model
+• What each developer is allowed to do
+• Five control planes, not one
+• Linux control plane
+• Kubernetes platform control plane
+• Tenant application control plane
+• Build control plane
+• External edge control plane
+• Why this guide is phased</div></div>
 
 | Status | Phase |
 |--------|-------|
@@ -58,6 +71,13 @@ reference is assigned a status; a generator script renders this page from
 
 ### 0% — Part II — Verified stack and current caveats
 
+<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (3)</strong>
+• Stack selection
+• Current verification caveats — read before installing
+• Version policy</div></div>
+
 | Status | Phase |
 |--------|-------|
 | ⬜ `not-started` | [Stack selection](../reference-design/02-verified-stack-and-current-caveats/00-6-stack-selection/index.md) |
@@ -65,6 +85,38 @@ reference is assigned a status; a generator script renders this page from
 | ⬜ `not-started` | [Version policy](../reference-design/02-verified-stack-and-current-caveats/02-8-version-policy/index.md) |
 
 ### 3% — Part III — Build the host
+
+<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:3.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">3%</div></div><div class="imp-tooltip"><strong>Done (1)</strong>
+• Phase 0 — create the infrastructure repository first
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (28)</strong>
+• Phase 1 — inventory the actual machine
+• Phase 2 — update Ubuntu and install base administration tools
+• unattended security updates
+• Phase 3 — hostname, DNS, and local identity
+• Phase 4 — users, groups, and sudo boundaries
+• platform groups
+• no shared human account
+• sudo policy
+• Phase 5 — SSH hardening
+• Phase 6 — Tailscale private management path
+• Tailscale policy concept
+• Phase 7 — host firewall
+• Phase 8 — system tuning and resource safety
+• disable swap initially
+• inotify limits
+• basic forwarding
+• journald bound
+• Phase 9 — developer CPU/RAM/PID limits on the host
+• Phase 10 — storage architecture
+• desired logical layout
+• fresh-install target
+• existing-install path
+• create dedicated RKE2 filesystem only when backing storage is known
+• Kubernetes fast VG
+• Kubernetes bulk VG
+• required LVM module
+• Phase 11 — filesystem quotas for developer homes
+• Phase 12 — NVIDIA host driver baseline</div></div>
 
 | Status | Phase |
 |--------|-------|
@@ -100,6 +152,19 @@ reference is assigned a status; a generator script renders this page from
 
 ### 0% — Part IV — Install RKE2 correctly
 
+<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (9)</strong>
+• Phase 13 — choose and pin the RKE2 release
+• Phase 14 — RKE2 configuration
+• kubelet configuration
+• Phase 15 — configure RKE2's bundled Cilium
+• Phase 16 — install and start RKE2
+• inspect Cilium
+• verify RKE2 Secrets encryption
+• Phase 17 — admin kubeconfig and CLI convenience
+• Phase 18 — verify reboot recovery now, not later</div></div>
+
 | Status | Phase |
 |--------|-------|
 | ⬜ `not-started` | [Phase 13 — choose and pin the RKE2 release](../reference-design/04-install-rke2-correctly/00-22-phase-13-choose-and-pin-the-rke2-release/index.md) |
@@ -113,6 +178,22 @@ reference is assigned a status; a generator script renders this page from
 | ⬜ `not-started` | [Phase 18 — verify reboot recovery now, not later](../reference-design/04-install-rke2-correctly/08-27-phase-18-verify-reboot-recovery-now-not-later/index.md) |
 
 ### 0% — Part V — GitOps bootstrap
+
+<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (12)</strong>
+• Phase 19 — install Argo CD exactly once by hand
+• Phase 20 — root GitOps application
+• AppProjects
+• Phase 21 — namespace baseline
+• Phase 22 — PriorityClasses
+• Phase 23 — ResourceQuota
+• Phase 24 — LimitRange
+• Phase 25 — default-deny NetworkPolicy
+• Phase 26 — RBAC
+• dev Role
+• production is intentionally different
+• Phase 27 — authentication for Kubernetes developers</div></div>
 
 | Status | Phase |
 |--------|-------|
@@ -131,6 +212,14 @@ reference is assigned a status; a generator script renders this page from
 
 ### 0% — Part VI — Policy enforcement
 
+<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (4)</strong>
+• Phase 28 — install Kyverno through Argo CD
+• Phase 29 — stage policy before enforcing it
+• example: deny hostPath
+• Phase 30 — policy tests</div></div>
+
 | Status | Phase |
 |--------|-------|
 | ⬜ `not-started` | [Phase 28 — install Kyverno through Argo CD](../reference-design/06-policy-enforcement/00-37-phase-28-install-kyverno-through-argo-cd/index.md) |
@@ -140,6 +229,13 @@ reference is assigned a status; a generator script renders this page from
 
 ### 0% — Part VII — Persistent storage
 
+<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (3)</strong>
+• Phase 31 — install OpenEBS through Argo CD
+• Phase 32 — StorageClasses
+• Phase 33 — prove PVC lifecycle before deploying databases</div></div>
+
 | Status | Phase |
 |--------|-------|
 | ⬜ `not-started` | [Phase 31 — install OpenEBS through Argo CD](../reference-design/07-persistent-storage/00-40-phase-31-install-openebs-through-argo-cd/index.md) |
@@ -147,6 +243,13 @@ reference is assigned a status; a generator script renders this page from
 | ⬜ `not-started` | [Phase 33 — prove PVC lifecycle before deploying databases](../reference-design/07-persistent-storage/02-42-phase-33-prove-pvc-lifecycle-before-deploying-databases/index.md) |
 
 ### 0% — Part VIII — Monitoring and logs
+
+<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (3)</strong>
+• Phase 34 — metrics stack
+• Phase 35 — logs
+• Phase 36 — alert before things are full</div></div>
 
 | Status | Phase |
 |--------|-------|
@@ -156,12 +259,29 @@ reference is assigned a status; a generator script renders this page from
 
 ### 0% — Part IX — Registry
 
+<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (2)</strong>
+• Phase 37 — install Harbor
+• Phase 38 — configure RKE2 registry trust</div></div>
+
 | Status | Phase |
 |--------|-------|
 | ⬜ `not-started` | [Phase 37 — install Harbor](../reference-design/09-registry/00-46-phase-37-install-harbor/index.md) |
 | ⬜ `not-started` | [Phase 38 — configure RKE2 registry trust](../reference-design/09-registry/01-47-phase-38-configure-rke2-registry-trust/index.md) |
 
 ### 0% — Part X — Developer build experience
+
+<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (7)</strong>
+• Phase 39 — alpha does NOT run a developer Docker daemon
+• Phase 40 — local developer work on alpha
+• Phase 41 — build01 architecture
+• Phase 42 — BuildKit cache policy
+• Phase 43 — remote BuildKit
+• Phase 44 — continuous dev loop
+• Phase 45 — CI pipeline</div></div>
 
 | Status | Phase |
 |--------|-------|
@@ -175,6 +295,13 @@ reference is assigned a status; a generator script renders this page from
 
 ### 0% — Part XI — Public web path
 
+<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (3)</strong>
+• Phase 46 — Cloudflare Tunnel
+• Phase 47 — public vs private names
+• Phase 48 — Traefik routing</div></div>
+
 | Status | Phase |
 |--------|-------|
 | ⬜ `not-started` | [Phase 46 — Cloudflare Tunnel](../reference-design/11-public-web-path/00-55-phase-46-cloudflare-tunnel/index.md) |
@@ -182,6 +309,14 @@ reference is assigned a status; a generator script renders this page from
 | ⬜ `not-started` | [Phase 48 — Traefik routing](../reference-design/11-public-web-path/02-57-phase-48-traefik-routing/index.md) |
 
 ### 0% — Part XII — GPU validation phase
+
+<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (4)</strong>
+• Phase 49 — GPU integration is optional until proven
+• Phase 50 — first GPU goal: whole-GPU scheduling
+• Phase 51 — GPU policy
+• Phase 52 — HAMi validation</div></div>
 
 | Status | Phase |
 |--------|-------|
@@ -192,6 +327,13 @@ reference is assigned a status; a generator script renders this page from
 
 ### 0% — Part XIII — Game networking foundation
 
+<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (3)</strong>
+• Phase 53 — keep game workloads in Kubernetes for now
+• Phase 54 — why game edge is separate from Cloudflare web
+• Phase 55 — relay bring-up</div></div>
+
 | Status | Phase |
 |--------|-------|
 | ⬜ `not-started` | [Phase 53 — keep game workloads in Kubernetes for now](../reference-design/13-game-networking-foundation/00-62-phase-53-keep-game-workloads-in-kubernetes-for-now/index.md) |
@@ -199,6 +341,14 @@ reference is assigned a status; a generator script renders this page from
 | ⬜ `not-started` | [Phase 55 — relay bring-up](../reference-design/13-game-networking-foundation/02-64-phase-55-relay-bring-up/index.md) |
 
 ### 0% — Part XIV — Backups and disaster recovery
+
+<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (4)</strong>
+• Phase 56 — RKE2 etcd snapshots
+• Phase 57 — what must be backed up
+• Phase 58 — local vs offsite
+• Phase 59 — restore tests</div></div>
 
 | Status | Phase |
 |--------|-------|
@@ -209,6 +359,14 @@ reference is assigned a status; a generator script renders this page from
 
 ### 0% — Part XV — Consolidate and enforce the Ansible source of truth
 
+<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (4)</strong>
+• Phase 60 — Ansible control environment
+• Phase 61 — inventory
+• Phase 62 — role ownership
+• Phase 63 — Ansible must be idempotent</div></div>
+
 | Status | Phase |
 |--------|-------|
 | ⬜ `not-started` | [Phase 60 — Ansible control environment](../reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/00-69-phase-60-ansible-control-environment/index.md) |
@@ -218,6 +376,13 @@ reference is assigned a status; a generator script renders this page from
 
 ### 0% — Part XVI — Ubuntu Autoinstall
 
+<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (3)</strong>
+• Phase 64 — use Autoinstall for future clean rebuilds
+• Phase 65 — minimal safe autoinstall skeleton
+• Phase 66 — validate Autoinstall in a VM first</div></div>
+
 | Status | Phase |
 |--------|-------|
 | ⬜ `not-started` | [Phase 64 — use Autoinstall for future clean rebuilds](../reference-design/16-ubuntu-autoinstall/00-73-phase-64-use-autoinstall-for-future-clean-rebuilds/index.md) |
@@ -226,12 +391,29 @@ reference is assigned a status; a generator script renders this page from
 
 ### 0% — Part XVII — OpenTofu for external infrastructure
 
+<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (2)</strong>
+• Phase 67 — what OpenTofu should own
+• Phase 68 — state is sensitive</div></div>
+
 | Status | Phase |
 |--------|-------|
 | ⬜ `not-started` | [Phase 67 — what OpenTofu should own](../reference-design/17-opentofu-for-external-infrastructure/00-76-phase-67-what-opentofu-should-own/index.md) |
 | ⬜ `not-started` | [Phase 68 — state is sensitive](../reference-design/17-opentofu-for-external-infrastructure/01-77-phase-68-state-is-sensitive/index.md) |
 
 ### 0% — Part XVIII — Day-2 operations
+
+<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (7)</strong>
+• Upgrade order
+• RKE2 upgrade checklist
+• Host kernel/NVIDIA update checklist
+• Disk-pressure runbook
+• Memory-pressure runbook
+• CPU-pressure runbook
+• Network-debugging layers</div></div>
 
 | Status | Phase |
 |--------|-------|
@@ -244,6 +426,19 @@ reference is assigned a status; a generator script renders this page from
 | ⬜ `not-started` | [Network-debugging layers](../reference-design/18-day-2-operations/06-84-network-debugging-layers/index.md) |
 
 ### 0% — Part XIX — Failure modes you should explicitly design for
+
+<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (9)</strong>
+• Root filesystem fills
+• Developer gets compromised
+• Developer has kubectl and tries privilege escalation
+• CI runner is compromised
+• Cilium breaks after upgrade
+• Argo CD deletes something unexpectedly
+• Admission policy locks out platform workloads
+• GPU integration breaks containerd/RKE2
+• Single server dies</div></div>
 
 | Status | Phase |
 |--------|-------|
@@ -259,6 +454,15 @@ reference is assigned a status; a generator script renders this page from
 
 ### 0% — Part XX — Observability: how you know the platform works
 
+<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (5)</strong>
+• Host SLO-style checks
+• Kubernetes checks
+• Tenant checks
+• Build checks
+• External-edge checks</div></div>
+
 | Status | Phase |
 |--------|-------|
 | ⬜ `not-started` | [Host SLO-style checks](../reference-design/20-observability-how-you-know-the-platform-works/00-94-host-slo-style-checks/index.md) |
@@ -268,6 +472,19 @@ reference is assigned a status; a generator script renders this page from
 | ⬜ `not-started` | [External-edge checks](../reference-design/20-observability-how-you-know-the-platform-works/04-98-external-edge-checks/index.md) |
 
 ### 0% — Part XXI — Recommended implementation sequence
+
+<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (9)</strong>
+• Phase A — host foundation
+• Phase B — Kubernetes foundation
+• Phase C — GitOps + tenancy
+• Phase D — policy + storage
+• Phase E — platform services
+• Phase F — developer workflow
+• Phase G — external exposure
+• Phase H — GPU
+• Phase I — reproducibility</div></div>
 
 | Status | Phase |
 |--------|-------|
@@ -282,6 +499,35 @@ reference is assigned a status; a generator script renders this page from
 | ⬜ `not-started` | [Phase I — reproducibility](../reference-design/21-recommended-implementation-sequence/08-107-phase-i-reproducibility/index.md) |
 
 ### 0% — Part XXII — Plain-English glossary
+
+<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (25)</strong>
+• RKE2
+• CNI
+• Cilium
+• Traefik
+• Gateway API
+• GitOps
+• Argo CD
+• ResourceQuota
+• LimitRange
+• Pod Security Admission
+• Kyverno
+• LocalPV
+• OpenEBS LocalPV LVM
+• Harbor
+• BuildKit
+• Buildx
+• Skaffold
+• LXD system container
+• KVM VM
+• Tailscale
+• Cloudflare Tunnel
+• WireGuard relay
+• OpenTofu
+• Idempotent
+• Reconciliation</div></div>
 
 | Status | Phase |
 |--------|-------|
@@ -313,6 +559,19 @@ reference is assigned a status; a generator script renders this page from
 
 ### 0% — Part XXIII — Compact technical reference
 
+<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (9)</strong>
+• Host ownership matrix
+• Namespace reference
+• Initial quota reference
+• Host developer-limit reference
+• Network exposure reference
+• Storage reference
+• Secret rules
+• "Bad idea" reference
+• First real application acceptance test</div></div>
+
 | Status | Phase |
 |--------|-------|
 | ⬜ `not-started` | [Host ownership matrix](../reference-design/23-compact-technical-reference/00-108-host-ownership-matrix/index.md) |
@@ -327,12 +586,44 @@ reference is assigned a status; a generator script renders this page from
 
 ### 0% — Part XXIV — Current verification references
 
+<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (0)</strong>
+—</div></div>
+
 | Status | Phase |
 |--------|-------|
 
 ### 0% — Part XXV — Final build order
 
+<div class="imp-tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;"><div style="display:flex;align-items:center;gap:8px;flex:1;"><div style="flex:1;height:8px;background:rgba(127,127,127,0.15);border-radius:999px;overflow:hidden;"><div class="imp-part-fill" style="--imp-w:0.0%;width:0%;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);background-size:200% 100%;"></div></div><div style="font-size:.85em;font-weight:600;min-width:36px;text-align:right;">0%</div></div><div class="imp-tooltip"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (0)</strong>
+—</div></div>
+
 | Status | Phase |
 |--------|-------|
+
+<style>
+@keyframes imp-fill { from { width: 0; } to { width: var(--imp-w); } }
+@keyframes imp-shimmer { from { background-position: 0 0; } to { background-position: 200% 0; } }
+.imp-progress-fill { animation: imp-fill 1.6s cubic-bezier(.22,1,.36,1) forwards; }
+.imp-part-fill { animation: imp-fill 1.2s cubic-bezier(.22,1,.36,1) forwards; }
+.imp-progress-fill.imp-shimmer { animation: imp-fill 1.6s cubic-bezier(.22,1,.36,1) forwards, imp-shimmer 2s linear infinite; }
+.imp-tip { position: relative; }
+.imp-tooltip {
+  visibility: hidden; opacity: 0; position: absolute; z-index: 30;
+  left: 0; top: calc(100% + 8px); width: 320px; max-height: 260px;
+  overflow: auto; background: var(--md-default-bg-color);
+  color: var(--md-default-fg-color);
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 8px; box-shadow: 0 6px 24px rgba(0,0,0,.25);
+  padding: 10px 12px; font-size: .8em; line-height: 1.5;
+  transition: opacity .15s ease, visibility .15s ease; white-space: pre-wrap;
+}
+.imp-tip:hover .imp-tooltip, .imp-tip:focus-within .imp-tooltip {
+  visibility: visible; opacity: 1;
+}
+</style>
 
 <!-- END_GENERATED_IMPLEMENTATION -->

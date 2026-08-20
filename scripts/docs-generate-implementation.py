@@ -35,39 +35,58 @@ STATUS_ICON = {
     "not-started": "⬜",
     "blocked": "❌",
 }
-STATUS_ORDER = ["done", "in-progress", "not-started", "blocked"]
+STATUS_ORDER = list(STATUS_ICON)
+DEFAULT = "not-started"
+
+GRADIENT = ("background:linear-gradient(90deg,#38bdf8,#818cf8,#c084fc,#34d399);"
+            "background-size:200% 100%;")
+
+CSS = """
+<style>
+@keyframes imp-fill { from { width: 0; } to { width: var(--imp-w); } }
+@keyframes imp-shimmer { from { background-position: 0 0; } to { background-position: 200% 0; } }
+.imp-progress-fill { animation: imp-fill 1.6s cubic-bezier(.22,1,.36,1) forwards; }
+.imp-part-fill { animation: imp-fill 1.2s cubic-bezier(.22,1,.36,1) forwards; }
+.imp-progress-fill.imp-shimmer { animation: imp-fill 1.6s cubic-bezier(.22,1,.36,1) forwards, imp-shimmer 2s linear infinite; }
+.imp-tip { position: relative; }
+.imp-tooltip {
+  visibility: hidden; opacity: 0; position: absolute; z-index: 30;
+  left: 0; top: calc(100% + 8px); width: 320px; max-height: 260px;
+  overflow: auto; background: var(--md-default-bg-color);
+  color: var(--md-default-fg-color);
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 8px; box-shadow: 0 6px 24px rgba(0,0,0,.25);
+  padding: 10px 12px; font-size: .8em; line-height: 1.5;
+  transition: opacity .15s ease, visibility .15s ease; white-space: pre-wrap;
+}
+.imp-tip:hover .imp-tooltip, .imp-tip:focus-within .imp-tooltip {
+  visibility: visible; opacity: 1;
+}
+</style>
+"""
 
 
 def display_title(index_md: Path) -> str:
-    """Extract the first H1 from an index.md as the display title."""
+    """Return the first H1 of an index.md, else the dir name."""
     text = index_md.read_text()
     m = re.search(r"^#\s+(.*)$", text, flags=re.M)
     return m.group(1).strip() if m else index_md.parent.name
 
 
 def scan_reference() -> list[dict]:
-    """Return list of parts: [{slug, title, sections:[{slug,title}]}]."""
+    """Return parts: [{slug, title, sections:[{slug,title}]}]."""
     parts = []
     for part_dir in sorted(REF.iterdir()):
-        if not part_dir.is_dir():
+        if not (part_dir / "index.md").exists():
             continue
-        part_index = part_dir / "index.md"
-        if not part_index.exists():
-            continue
-        sections = []
-        for sec_dir in sorted(part_dir.iterdir()):
-            sec_index = sec_dir / "index.md"
-            if sec_dir.is_dir() and sec_index.exists():
-                sections.append(
-                    {"slug": sec_dir.name, "title": display_title(sec_index)}
-                )
-        parts.append(
-            {
-                "slug": part_dir.name,
-                "title": display_title(part_index),
-                "sections": sections,
-            }
-        )
+        sections = [
+            {"slug": d.name, "title": display_title(d / "index.md")}
+            for d in sorted(part_dir.iterdir())
+            if d.is_dir() and (d / "index.md").exists()
+        ]
+        parts.append({"slug": part_dir.name,
+                      "title": display_title(part_dir / "index.md"),
+                      "sections": sections})
     return parts
 
 
@@ -77,64 +96,90 @@ def load_progress() -> dict:
     return {}
 
 
-def render(parts: list[dict], progress: dict) -> str:
-    # Overall counts
-    all_slugs = [
-        (f"{p['slug']}/{s['slug']}", s)
-        for p in parts
-        for s in p["sections"]
-    ]
-    total = len(all_slugs)
-    counts = {k: 0 for k in STATUS_ORDER}
-    for path, _ in all_slugs:
-        counts[progress.get(path, "not-started")] += 1
-    pct = (counts["done"] / total * 100) if total else 0
+def status_of(progress: dict, path: str) -> str:
+    return progress.get(path, DEFAULT)
 
-    lines = []
-    lines.append("## Overall progress")
-    lines.append("")
-    lines.append(
-        f"**{counts['done']} / {total}** phases/sections complete "
-        f"(**{pct:.0f}%**)."
+
+def bar(pct: float, height: str, anim: str) -> str:
+    """Return an animated gradient bar div."""
+    return (f'<div style="flex:1;height:{height};'
+            f'background:rgba(127,127,127,0.15);border-radius:999px;'
+            f'overflow:hidden;"><div class="{anim}" style="--imp-w:{pct}%;'
+            f'width:0%;height:100%;border-radius:999px;{GRADIENT}"></div></div>')
+
+
+def tooltip(done: list[str], pending: list[str]) -> str:
+    """Return a hover tooltip summarizing done vs pending titles."""
+    def fmt(items: list[str]) -> str:
+        return "\n".join(f"• {t}" for t in items) or "—"
+    return ('<div class="imp-tooltip">'
+            f'<strong>Done ({len(done)})</strong>\n{fmt(done)}'
+            f'\n<hr style="opacity:.3;margin:6px 0;">'
+            f'<strong>Pending ({len(pending)})</strong>\n{fmt(pending)}'
+            "</div>")
+
+
+def overall_bar(pct: float) -> str:
+    """Return the large animated overall progress bar."""
+    return (
+        f'<div style="display:flex;align-items:center;gap:12px;'
+        f'max-width:720px;padding:8px 0;">'
+        f'{bar(f"{pct:.1f}", "22px", "imp-progress-fill imp-shimmer")}'
+        f'<div style="font-weight:700;min-width:52px;text-align:right;">'
+        f'{pct:.0f}%</div></div>'
     )
-    lines.append("")
 
-    # Bar (text-based, renders reliably)
-    bar_width = 40
-    done_ch = round(bar_width * counts["done"] / total) if total else 0
-    bar = "█" * done_ch + "░" * (bar_width - done_ch)
-    lines.append(f"```text\n{bar} {pct:.0f}%\n```")
-    lines.append("")
 
-    lines.append("| Status | Count |")
-    lines.append("|--------|-------|")
-    for st in STATUS_ORDER:
-        lines.append(f"| {STATUS_ICON[st]} {st} | {counts[st]} |")
-    lines.append("")
+def part_bar(p: dict, progress: dict) -> tuple[str, str]:
+    """Return (heading_pct, bar_html) for a part, incl. hover tooltip."""
+    counts = {k: 0 for k in STATUS_ORDER}
+    done, pending = [], []
+    for s in p["sections"]:
+        st = status_of(progress, f"{p['slug']}/{s['slug']}")
+        counts[st] += 1
+        (done if st == "done" else pending).append(s["title"])
+    total = len(p["sections"]) or 1
+    pct = round(counts["done"] / total * 100)
+    bar_html = (
+        f'<div class="imp-tip" style="display:flex;align-items:center;'
+        f'gap:8px;max-width:520px;padding:2px 0 10px;cursor:help;">'
+        f'<div style="display:flex;align-items:center;gap:8px;flex:1;">'
+        f'{bar(f"{pct:.1f}", "8px", "imp-part-fill")}'
+        f'<div style="font-size:.85em;font-weight:600;min-width:36px;'
+        f'text-align:right;">{pct}%</div></div>'
+        f'{tooltip(done, pending)}</div>'
+    )
+    return f"{pct}%", bar_html
 
-    # Per-part tables
-    lines.append("## Progress by part")
-    lines.append("")
+
+def render(parts: list[dict], progress: dict) -> str:
+    counts = {k: 0 for k in STATUS_ORDER}
+    total = sum(len(p["sections"]) for p in parts)
     for p in parts:
-        sec_counts = {k: 0 for k in STATUS_ORDER}
+        for s in p["sections"]:
+            counts[status_of(progress, f"{p['slug']}/{s['slug']}")] += 1
+    pct = counts["done"] / total * 100 if total else 0
+
+    lines = ["## Overall progress", ""]
+    lines.append(f"**{counts['done']} / {total}** phases/sections complete "
+                 f"(**{pct:.0f}%**).")
+    lines += ["", overall_bar(pct), "", "| Status | Count |", "|--------|-------|"]
+    lines += [f"| {STATUS_ICON[st]} {st} | {counts[st]} |" for st in STATUS_ORDER]
+    lines += ["", "## Progress by part", ""]
+
+    for p in parts:
+        pct_s, bar_html = part_bar(p, progress)
+        lines += [f"### {pct_s} — {p['title']}", "", bar_html, "",
+                  "| Status | Phase |", "|--------|-------|"]
         for s in p["sections"]:
             path = f"{p['slug']}/{s['slug']}"
-            sec_counts[progress.get(path, "not-started")] += 1
-        part_total = len(p["sections"]) or 1
-        part_pct = round(sec_counts["done"] / part_total * 100)
-        lines.append(f"### {part_pct}% — {p['title']}")
-        lines.append("")
-        lines.append("| Status | Phase |")
-        lines.append("|--------|-------|")
-        for s in p["sections"]:
-            path = f"{p['slug']}/{s['slug']}"
-            status = progress.get(path, "not-started")
-            icon = STATUS_ICON[status]
+            st = status_of(progress, path)
+            icon = STATUS_ICON[st]
             link = f"../reference-design/{path}/index.md"
-            lines.append(f"| {icon} `{status}` | [{s['title']}]({link}) |")
+            lines.append(f"| {icon} `{st}` | [{s['title']}]({link}) |")
         lines.append("")
 
-    return "\n".join(lines).rstrip() + "\n"
+    return "\n".join(lines).rstrip() + "\n" + CSS
 
 
 def main() -> int:
