@@ -40,15 +40,15 @@ edit/correct).
 
 ## Overall progress
 
-**31 / 92** phases/sections complete (**34%**).
+**33 / 92** phases/sections complete (**36%**).
 
-<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:33.7%"></div></div><div class="progress-pct">34%</div></div>
+<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:35.9%"></div></div><div class="progress-pct">36%</div></div>
 
 | Status | Count |
 |--------|-------|
-| ✅ done | 31 |
+| ✅ done | 33 |
 | 🔶 in-progress | 0 |
-| ⬜ not-started | 58 |
+| ⬜ not-started | 56 |
 | ❌ blocked | 1 |
 | ⏸️ deferred | 2 |
 
@@ -1157,17 +1157,17 @@ through reboot cycles since the driver install.
 </details>
 
 
-### 56% — Part IV — Install RKE2 correctly
+### 78% — Part IV — Install RKE2 correctly
 
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:56.0%"></div></div><div class="progress-pct" style="font-size:.85em;">56%</div><div class="tip-box"><strong>Done (5)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:78.0%"></div></div><div class="progress-pct" style="font-size:.85em;">78%</div><div class="tip-box"><strong>Done (7)</strong>
 • Phase 13 — choose and pin the RKE2 release
 • Phase 14 — RKE2 configuration
 • kubelet configuration
 • Phase 15 — configure RKE2's bundled Cilium
 • Phase 16 — install and start RKE2
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (4)</strong>
 • inspect Cilium
 • verify RKE2 Secrets encryption
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (2)</strong>
 • Phase 17 — admin kubeconfig and CLI convenience
 • Phase 18 — verify reboot recovery now, not later</div></div>
 
@@ -1782,8 +1782,139 @@ from Phase 13.
 
 </details>
 
-- ⬜ `not-started` — [inspect Cilium](../reference-design/build/04-install-rke2-correctly/05-25-1-inspect-cilium/index.md)
-- ⬜ `not-started` — [verify RKE2 Secrets encryption](../reference-design/build/04-install-rke2-correctly/06-25-2-verify-rke2-secrets-encryption/index.md)
+- ✅ `done` — [inspect Cilium](../reference-design/build/04-install-rke2-correctly/05-25-1-inspect-cilium/index.md)
+
+<details markdown="1" class="runbook">
+<summary>✅ 📜 Build log — inspect Cilium</summary>
+
+# Phase 25.1 — inspect Cilium
+
+**Intent:** verify the bundled Cilium CNI is running as expected, that
+kube-proxy is genuinely disabled (using Cilium's replacement), and that Pod
+DNS / service networking works inside the cluster.
+
+## 25.1.1 Cilium pods
+
+```bash
+sudo /var/lib/rancher/rke2/bin/kubectl \
+  --kubeconfig /etc/rancher/rke2/rke2.yaml \
+  -n kube-system get pods -o wide | grep -i cilium
+```
+
+Observed:
+
+```text
+cilium-ks259                             1/1   Running    12m   192.168.8.132  alpha
+cilium-operator-8569876bb4-mj27t         1/1   Running    12m   192.168.8.132  alpha
+helm-install-rke2-cilium-dc76p           0/1   Completed  3m37s 192.168.8.132  alpha
+```
+
+Cilium agent daemonset is `Running`; the operator is `Running` (single
+replica, per Phase 15 operator scaling); the helm install job `Completed`.
+
+## 25.1.2 Daemonsets
+
+```bash
+sudo /var/lib/rancher/rke2/bin/kubectl \
+  --kubeconfig /etc/rancher/rke2/rke2.yaml \
+  -n kube-system get daemonset
+```
+
+Observed: `cilium` (1/1 Ready) and `rke2-traefik` (1/1 Ready).
+
+## 25.1.3 No kube-proxy DaemonSet
+
+Because we set `disable-kube-proxy: true` (Phase 14) and
+`kubeProxyReplacement: true` (Phase 15), kube-proxy must **not** exist:
+
+```bash
+sudo /var/lib/rancher/rke2/bin/kubectl \
+  --kubeconfig /etc/rancher/rke2/rke2.yaml \
+  -n kube-system get ds kube-proxy
+```
+
+Expected `NotFound`; observed:
+
+```text
+Error from server (NotFound): daemonsets.apps "kube-proxy" not found
+```
+
+✅ Confirms Cilium's eBPF kube-proxy replacement is in use.
+
+## 25.1.4 Service networking / DNS inside a Pod
+
+```bash
+sudo /var/lib/rancher/rke2/bin/kubectl \
+  --kubeconfig /etc/rancher/rke2/rke2.yaml \
+  run dns-test --rm -it --restart=Never --image=busybox:1.36 \
+  -- nslookup kubernetes.default.svc.cluster.local
+```
+
+Observed:
+
+```text
+Server:    10.43.0.10
+Address:   10.43.0.10:53
+
+Name:   kubernetes.default.svc.cluster.local
+Address: 10.43.0.1
+```
+
+✅ Cluster DNS (`10.43.0.10`) resolves the Kubernetes service (`10.43.0.1`),
+proving service networking + DNS work inside a Pod.
+
+## 25.1.5 Result
+
+All checks pass. Combined with Phase 16, **Checkpoint 10 (base cluster gate)**
+is satisfied: `alpha Ready`, CoreDNS/Cilium/Traefik/metrics-server running,
+DNS + service networking work, no unexplained restarts. A state snapshot was
+captured to `~/platform-audit/k8s-first-healthy.txt`.
+
+</details>
+
+- ✅ `done` — [verify RKE2 Secrets encryption](../reference-design/build/04-install-rke2-correctly/06-25-2-verify-rke2-secrets-encryption/index.md)
+
+<details markdown="1" class="runbook">
+<summary>✅ 📜 Build log — verify RKE2 Secrets encryption</summary>
+
+# Phase 25.2 — verify RKE2 Secrets encryption
+
+**Intent:** confirm Secrets-at-rest encryption is enabled for the running
+cluster via RKE2's `secrets-encrypt` administration command.
+
+## 25.2.1 Status check
+
+```bash
+sudo rke2 secrets-encrypt status
+```
+
+Observed:
+
+```text
+Encryption Status: Enabled
+Current Rotation Stage: start
+Server Encryption Hashes: All hashes match
+
+Active  Key Type  Name
+------  --------  ----
+ *      AES-CBC   aescbckey
+```
+
+✅ `Encryption Status: Enabled` — Secrets are encrypted at rest with a single
+`AES-CBC` key (`aescbckey`), and all server encryption hashes match.
+
+## 25.2.2 Key rotation
+
+Per the reference design, we do **not** rotate keys during initial bootstrap.
+Key rotation is a separate maintenance procedure and must be preceded by an
+etcd snapshot (see the etcd snapshot schedule configured in Phase 14).
+
+## 25.2.3 Result
+
+Secrets-at-rest encryption is confirmed **Enabled**. No rotation performed.
+
+</details>
+
 - ⬜ `not-started` — [Phase 17 — admin kubeconfig and CLI convenience](../reference-design/build/04-install-rke2-correctly/07-26-phase-17-admin-kubeconfig-and-cli-convenience/index.md)
 - ⬜ `not-started` — [Phase 18 — verify reboot recovery now, not later](../reference-design/build/04-install-rke2-correctly/08-27-phase-18-verify-reboot-recovery-now-not-later/index.md)
 
