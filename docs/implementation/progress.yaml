@@ -17,3 +17,4 @@
 "03-build-the-host/08-13-3-sudo-policy": "done"
 "03-build-the-host/09-14-phase-5-ssh-hardening": "deferred"
 "03-build-the-host/10-15-phase-6-tailscale-private-management-path": "done"
+"03-build-the-host/11-15-1-tailscale-policy-concept": "deferred"

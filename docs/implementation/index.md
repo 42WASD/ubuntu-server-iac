@@ -48,9 +48,9 @@ edit/correct).
 |--------|-------|
 | ✅ done | 9 |
 | 🔶 in-progress | 0 |
-| ⬜ not-started | 82 |
+| ⬜ not-started | 81 |
 | ❌ blocked | 0 |
-| ⏸️ deferred | 1 |
+| ⏸️ deferred | 2 |
 
 ## Progress by part
 
@@ -387,7 +387,7 @@ tailscale version
 
 </details>
 
-- ⬜ `not-started` — [Tailscale policy concept](../reference-design/build/03-build-the-host/11-15-1-tailscale-policy-concept/index.md)
+- ⏸️ `deferred` — [Tailscale policy concept](../reference-design/build/03-build-the-host/11-15-1-tailscale-policy-concept/index.md)
 - ⬜ `not-started` — [Phase 7 — host firewall](../reference-design/build/03-build-the-host/12-16-phase-7-host-firewall/index.md)
 - ⬜ `not-started` — [Phase 8 — system tuning and resource safety](../reference-design/build/03-build-the-host/13-17-phase-8-system-tuning-and-resource-safety/index.md)
 - ⬜ `not-started` — [disable swap initially](../reference-design/build/03-build-the-host/14-17-1-disable-swap-initially/index.md)
