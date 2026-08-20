@@ -48,20 +48,33 @@ def display_title(index_md: Path) -> str:
     return m.group(1).strip() if m else index_md.parent.name
 
 
+def scan_sections(parent: Path) -> list[dict]:
+    """Return [{slug, title, subsections:[...]}] for each dir holding index.md.
+
+    A *section* is a direct child with an index.md. A *sub-section* is any
+    further nesting underneath it. This is recursive, so a section may carry
+    its own `subsections`.
+    """
+    sections = []
+    for d in sorted(parent.iterdir()):
+        if d.is_dir() and (d / "index.md").exists():
+            sections.append({
+                "slug": d.name,
+                "title": display_title(d / "index.md"),
+                "subsections": scan_sections(d),
+            })
+    return sections
+
+
 def scan_reference() -> list[dict]:
-    """Return parts: [{slug, title, sections:[{slug,title}]}]."""
+    """Return parts: [{slug, title, sections:[{slug,title,subsections:[...]}]}]."""
     parts = []
     for part_dir in sorted(REF.iterdir()):
         if not (part_dir / "index.md").exists():
             continue
-        sections = [
-            {"slug": d.name, "title": display_title(d / "index.md")}
-            for d in sorted(part_dir.iterdir())
-            if d.is_dir() and (d / "index.md").exists()
-        ]
         parts.append({"slug": part_dir.name,
                       "title": display_title(part_dir / "index.md"),
-                      "sections": sections})
+                      "sections": scan_sections(part_dir)})
     return parts
 
 
@@ -101,7 +114,18 @@ def load_progress() -> dict:
 
 
 def status_of(progress: dict, path: str) -> str:
-    return progress.get(path, DEFAULT)
+    """Return a section's status, inheriting the nearest ancestor that has one.
+
+    Sub-sections that have no explicit status in progress.yaml inherit their
+    parent phase's status (e.g. a doc-only sub-page under a done phase reads
+    as done rather than `not-started`).
+    """
+    parts = path.split("/")
+    for i in range(len(parts), 0, -1):
+        candidate = "/".join(parts[:i])
+        if candidate in progress:
+            return progress[candidate]
+    return DEFAULT
 
 
 def bar(pct: float, anim: str = "") -> str:
@@ -132,15 +156,37 @@ def overall_bar(pct: float) -> str:
     )
 
 
+def count_statuses(sections: list[dict], prefix: str, progress: dict,
+                   counts: dict) -> None:
+    """Recursively tally statuses for every section/sub-section."""
+    for s in sections:
+        path = f"{prefix}/{s['slug']}"
+        st = status_of(progress, path)
+        counts[st] += 1
+        if s["subsections"]:
+            count_statuses(s["subsections"], path, progress, counts)
+
+
+def collect_statuses(sections: list[dict], prefix: str, progress: dict) -> list:
+    """Return [(path, st, title)] flattened, for tooltip purposes."""
+    out = []
+    for s in sections:
+        path = f"{prefix}/{s['slug']}"
+        out.append((path, status_of(progress, path), s["title"]))
+        if s["subsections"]:
+            out.extend(collect_statuses(s["subsections"], path, progress))
+    return out
+
+
 def part_bar(p: dict, progress: dict) -> tuple[str, str]:
     """Return (heading_pct, bar_html) for a part, incl. hover tooltip."""
     counts = {k: 0 for k in STATUS_ORDER}
     done, pending = [], []
-    for s in p["sections"]:
-        st = status_of(progress, f"{p['slug']}/{s['slug']}")
+    for path, st, title in collect_statuses(p["sections"], p["slug"], progress):
         counts[st] += 1
-        (done if st == "done" else pending).append(s["title"])
-    total = len(p["sections"]) or 1
+        (done if st == "done" else pending).append(title)
+    total = counts["done"] + sum(counts[k] for k in STATUS_ORDER if k != "done")
+    total = total or 1
     pct = round(counts["done"] / total * 100)
     bar_html = (
         f'<div class="tip" style="display:flex;align-items:center;'
@@ -166,12 +212,37 @@ def runbook_box(path: str, title: str, icon: str) -> str:
     )
 
 
+def render_sections(sections: list[dict], prefix: str, progress: dict,
+                    lines: list[str], depth: int = 0) -> None:
+    """Append a section for each node, recursively; sub-sections are indented.
+
+    Only the bullet line is indented; a runbook `<details>` box must stay at
+    column 0 or Markdown would treat it as a code block.
+    """
+    indent = "  " * depth
+    for s in sections:
+        path = f"{prefix}/{s['slug']}"
+        st = status_of(progress, path)
+        icon = STATUS_ICON[st]
+        link = f"../reference-design/build/{path}/index.md"
+        lines.append(f"{indent}- {icon} `{st}` — [{s['title']}]({link})")
+        rb = runbook_box(path, s["title"], icon)
+        if rb:
+            lines += ["", rb, ""]
+        if s["subsections"]:
+            render_sections(s["subsections"], path, progress, lines,
+                            depth + 1)
+
+
 def render(parts: list[dict], progress: dict) -> str:
     counts = {k: 0 for k in STATUS_ORDER}
-    total = sum(len(p["sections"]) for p in parts)
+    total = 0
     for p in parts:
-        for s in p["sections"]:
-            counts[status_of(progress, f"{p['slug']}/{s['slug']}")] += 1
+        p_counts = {k: 0 for k in STATUS_ORDER}
+        count_statuses(p["sections"], p["slug"], progress, p_counts)
+        for k in STATUS_ORDER:
+            counts[k] += p_counts[k]
+        total += p_counts["done"] + sum(p_counts[k] for k in STATUS_ORDER if k != "done")
     pct = counts["done"] / total * 100 if total else 0
 
     lines = ["## Overall progress", ""]
@@ -184,15 +255,7 @@ def render(parts: list[dict], progress: dict) -> str:
     for p in parts:
         pct_s, bar_html = part_bar(p, progress)
         lines += [f"### {pct_s} — {p['title']}", "", bar_html, ""]
-        for s in p["sections"]:
-            path = f"{p['slug']}/{s['slug']}"
-            st = status_of(progress, path)
-            icon = STATUS_ICON[st]
-            link = f"../reference-design/build/{path}/index.md"
-            lines.append(f"- {icon} `{st}` — [{s['title']}]({link})")
-            rb = runbook_box(path, s["title"], icon)
-            if rb:
-                lines += ["", rb, ""]
+        render_sections(p["sections"], p["slug"], progress, lines)
         lines.append("")
 
     return "\n".join(lines).rstrip() + "\n"

@@ -1,5 +1,5 @@
 ---
-phase: 04-install-rke2-correctly/05-25-1-inspect-cilium
+phase: 04-install-rke2-correctly/04-25-phase-16-install-and-start-rke2/inspect-cilium
 ---
 # Phase 25.1 — inspect Cilium
 

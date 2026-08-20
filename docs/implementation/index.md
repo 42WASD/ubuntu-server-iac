@@ -40,15 +40,15 @@ edit/correct).
 
 ## Overall progress
 
-**45 / 92** phases/sections complete (**49%**).
+**47 / 92** phases/sections complete (**51%**).
 
-<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:48.9%"></div></div><div class="progress-pct">49%</div></div>
+<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:51.1%"></div></div><div class="progress-pct">51%</div></div>
 
 | Status | Count |
 |--------|-------|
-| ✅ done | 45 |
+| ✅ done | 47 |
 | 🔶 in-progress | 0 |
-| ⬜ not-started | 44 |
+| ⬜ not-started | 42 |
 | ❌ blocked | 1 |
 | ⏸️ deferred | 2 |
 
@@ -63,23 +63,23 @@ edit/correct).
 • unattended security updates
 • Phase 3 — hostname, DNS, and local identity
 • Phase 4 — users, groups, and sudo boundaries
-• platform groups
 • no shared human account
+• platform groups
 • sudo policy
 • Phase 6 — Tailscale private management path
 • Phase 7 — host firewall
 • Phase 8 — system tuning and resource safety
+• basic forwarding
 • disable swap initially
 • inotify limits
-• basic forwarding
 • journald bound
 • Phase 9 — developer CPU/RAM/PID limits on the host
 • Phase 10 — storage architecture
+• create dedicated RKE2 filesystem only when backing storage is known
 • desired logical layout
 • existing-install path
-• create dedicated RKE2 filesystem only when backing storage is known
-• Kubernetes fast VG
 • Kubernetes bulk VG
+• Kubernetes fast VG
 • required LVM module
 • Phase 11 — filesystem quotas for developer homes
 • Phase 12 — NVIDIA host driver baseline
@@ -222,7 +222,7 @@ sudo systemctl reset-failed grub-initrd-fallback          # transient, not a rea
 
 </details>
 
-- ✅ `done` — [unattended security updates](../reference-design/build/03-build-the-host/03-11-1-unattended-security-updates/index.md)
+  - ✅ `done` — [unattended security updates](../reference-design/build/03-build-the-host/02-11-phase-2-update-ubuntu-and-install-base-administration-tools/unattended-security-updates/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — unattended security updates</summary>
@@ -350,9 +350,9 @@ Verified for each of `ehammoud mayan mtangalv`:
 
 </details>
 
-- ✅ `done` — [platform groups](../reference-design/build/03-build-the-host/06-13-1-platform-groups/index.md)
-- ✅ `done` — [no shared human account](../reference-design/build/03-build-the-host/07-13-2-no-shared-human-account/index.md)
-- ✅ `done` — [sudo policy](../reference-design/build/03-build-the-host/08-13-3-sudo-policy/index.md)
+  - ✅ `done` — [no shared human account](../reference-design/build/03-build-the-host/05-13-phase-4-users-groups-and-sudo-boundaries/no-shared-human-account/index.md)
+  - ✅ `done` — [platform groups](../reference-design/build/03-build-the-host/05-13-phase-4-users-groups-and-sudo-boundaries/platform-groups/index.md)
+  - ✅ `done` — [sudo policy](../reference-design/build/03-build-the-host/05-13-phase-4-users-groups-and-sudo-boundaries/sudo-policy/index.md)
 - ⏸️ `deferred` — [Phase 5 — SSH hardening](../reference-design/build/03-build-the-host/09-14-phase-5-ssh-hardening/index.md)
 - ✅ `done` — [Phase 6 — Tailscale private management path](../reference-design/build/03-build-the-host/10-15-phase-6-tailscale-private-management-path/index.md)
 
@@ -387,7 +387,7 @@ tailscale version
 
 </details>
 
-- ⏸️ `deferred` — [Tailscale policy concept](../reference-design/build/03-build-the-host/11-15-1-tailscale-policy-concept/index.md)
+  - ⏸️ `deferred` — [Tailscale policy concept](../reference-design/build/03-build-the-host/10-15-phase-6-tailscale-private-management-path/tailscale-policy-concept/index.md)
 - ✅ `done` — [Phase 7 — host firewall](../reference-design/build/03-build-the-host/12-16-phase-7-host-firewall/index.md)
 
 <details markdown="1" class="runbook">
@@ -661,10 +661,10 @@ reload `sysctl`, and restart `systemd-journald`. Swap-disable is bootstrap-time
 
 </details>
 
-- ✅ `done` — [disable swap initially](../reference-design/build/03-build-the-host/14-17-1-disable-swap-initially/index.md)
-- ✅ `done` — [inotify limits](../reference-design/build/03-build-the-host/15-17-2-inotify-limits/index.md)
-- ✅ `done` — [basic forwarding](../reference-design/build/03-build-the-host/16-17-3-basic-forwarding/index.md)
-- ✅ `done` — [journald bound](../reference-design/build/03-build-the-host/17-17-4-journald-bound/index.md)
+  - ✅ `done` — [basic forwarding](../reference-design/build/03-build-the-host/13-17-phase-8-system-tuning-and-resource-safety/basic-forwarding/index.md)
+  - ✅ `done` — [disable swap initially](../reference-design/build/03-build-the-host/13-17-phase-8-system-tuning-and-resource-safety/disable-swap-initially/index.md)
+  - ✅ `done` — [inotify limits](../reference-design/build/03-build-the-host/13-17-phase-8-system-tuning-and-resource-safety/inotify-limits/index.md)
+  - ✅ `done` — [journald bound](../reference-design/build/03-build-the-host/13-17-phase-8-system-tuning-and-resource-safety/journald-bound/index.md)
 - ✅ `done` — [Phase 9 — developer CPU/RAM/PID limits on the host](../reference-design/build/03-build-the-host/18-18-phase-9-developer-cpu-ram-pid-limits-on-the-host/index.md)
 
 <details markdown="1" class="runbook">
@@ -898,13 +898,13 @@ bulk VGs, and load/persist `dm_snapshot`. Both K8s VGs now exist on alpha.
 
 </details>
 
-- ✅ `done` — [desired logical layout](../reference-design/build/03-build-the-host/20-19-1-desired-logical-layout/index.md)
-- ❌ `blocked` — [fresh-install target](../reference-design/build/03-build-the-host/21-19-2-fresh-install-target/index.md)
-- ✅ `done` — [existing-install path](../reference-design/build/03-build-the-host/22-19-3-existing-install-path/index.md)
-- ✅ `done` — [create dedicated RKE2 filesystem only when backing storage is known](../reference-design/build/03-build-the-host/23-19-4-create-dedicated-rke2-filesystem-only-when-backing-storage-is-known/index.md)
-- ✅ `done` — [Kubernetes fast VG](../reference-design/build/03-build-the-host/24-19-5-kubernetes-fast-vg/index.md)
-- ✅ `done` — [Kubernetes bulk VG](../reference-design/build/03-build-the-host/25-19-6-kubernetes-bulk-vg/index.md)
-- ✅ `done` — [required LVM module](../reference-design/build/03-build-the-host/26-19-7-required-lvm-module/index.md)
+  - ✅ `done` — [create dedicated RKE2 filesystem only when backing storage is known](../reference-design/build/03-build-the-host/19-19-phase-10-storage-architecture/create-dedicated-rke2-filesystem-only-when-backing-storage-is-known/index.md)
+  - ✅ `done` — [desired logical layout](../reference-design/build/03-build-the-host/19-19-phase-10-storage-architecture/desired-logical-layout/index.md)
+  - ✅ `done` — [existing-install path](../reference-design/build/03-build-the-host/19-19-phase-10-storage-architecture/existing-install-path/index.md)
+  - ❌ `blocked` — [fresh-install target](../reference-design/build/03-build-the-host/19-19-phase-10-storage-architecture/fresh-install-target/index.md)
+  - ✅ `done` — [Kubernetes bulk VG](../reference-design/build/03-build-the-host/19-19-phase-10-storage-architecture/kubernetes-bulk-vg/index.md)
+  - ✅ `done` — [Kubernetes fast VG](../reference-design/build/03-build-the-host/19-19-phase-10-storage-architecture/kubernetes-fast-vg/index.md)
+  - ✅ `done` — [required LVM module](../reference-design/build/03-build-the-host/19-19-phase-10-storage-architecture/required-lvm-module/index.md)
 - ✅ `done` — [Phase 11 — filesystem quotas for developer homes](../reference-design/build/03-build-the-host/27-20-phase-11-filesystem-quotas-for-developer-homes/index.md)
 
 <details markdown="1" class="runbook">
@@ -1384,7 +1384,7 @@ variable values). Actual RKE2 install/boot validation happens in Phase 16.
 
 </details>
 
-- ✅ `done` — [kubelet configuration](../reference-design/build/04-install-rke2-correctly/02-23-1-kubelet-configuration/index.md)
+  - ✅ `done` — [kubelet configuration](../reference-design/build/04-install-rke2-correctly/01-23-phase-14-rke2-configuration/kubelet-configuration/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — kubelet configuration</summary>
@@ -1783,7 +1783,7 @@ from Phase 13.
 
 </details>
 
-- ✅ `done` — [inspect Cilium](../reference-design/build/04-install-rke2-correctly/05-25-1-inspect-cilium/index.md)
+  - ✅ `done` — [inspect Cilium](../reference-design/build/04-install-rke2-correctly/04-25-phase-16-install-and-start-rke2/inspect-cilium/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — inspect Cilium</summary>
@@ -1873,7 +1873,7 @@ captured to `~/platform-audit/k8s-first-healthy.txt`.
 
 </details>
 
-- ✅ `done` — [verify RKE2 Secrets encryption](../reference-design/build/04-install-rke2-correctly/06-25-2-verify-rke2-secrets-encryption/index.md)
+  - ✅ `done` — [verify RKE2 Secrets encryption](../reference-design/build/04-install-rke2-correctly/04-25-phase-16-install-and-start-rke2/verify-rke2-secrets-encryption/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — verify RKE2 Secrets encryption</summary>
@@ -2172,9 +2172,9 @@ gate before adding more components.
 </details>
 
 
-### 75% — Part V — GitOps bootstrap
+### 92% — Part V — GitOps bootstrap
 
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:75.0%"></div></div><div class="progress-pct" style="font-size:.85em;">75%</div><div class="tip-box"><strong>Done (9)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:92.0%"></div></div><div class="progress-pct" style="font-size:.85em;">92%</div><div class="tip-box"><strong>Done (11)</strong>
 • Phase 19 — install Argo CD exactly once by hand
 • Phase 20 — root GitOps application
 • AppProjects
@@ -2184,9 +2184,9 @@ gate before adding more components.
 • Phase 24 — LimitRange
 • Phase 25 — default-deny NetworkPolicy
 • Phase 26 — RBAC
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (3)</strong>
 • dev Role
 • production is intentionally different
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (1)</strong>
 • Phase 27 — authentication for Kubernetes developers</div></div>
 
 - ✅ `done` — [Phase 19 — install Argo CD exactly once by hand](../reference-design/build/05-gitops-bootstrap/00-28-phase-19-install-argo-cd-exactly-once-by-hand/index.md)
@@ -2322,7 +2322,7 @@ config (besides Argo CD itself, Phase 19).
 
 </details>
 
-- ✅ `done` — [AppProjects](../reference-design/build/05-gitops-bootstrap/02-29-1-appprojects/index.md)
+  - ✅ `done` — [AppProjects](../reference-design/build/05-gitops-bootstrap/01-29-phase-20-root-gitops-application/appprojects/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — AppProjects</summary>
@@ -2709,8 +2709,8 @@ authorization only.
 
 </details>
 
-- ⬜ `not-started` — [dev Role](../reference-design/build/05-gitops-bootstrap/09-35-1-dev-role/index.md)
-- ⬜ `not-started` — [production is intentionally different](../reference-design/build/05-gitops-bootstrap/10-35-2-production-is-intentionally-different/index.md)
+  - ✅ `done` — [dev Role](../reference-design/build/05-gitops-bootstrap/08-35-phase-26-rbac/dev-role/index.md)
+  - ✅ `done` — [production is intentionally different](../reference-design/build/05-gitops-bootstrap/08-35-phase-26-rbac/production-is-intentionally-different/index.md)
 - ⬜ `not-started` — [Phase 27 — authentication for Kubernetes developers](../reference-design/build/05-gitops-bootstrap/11-36-phase-27-authentication-for-kubernetes-developers/index.md)
 
 ### 0% — Part VI — Policy enforcement
@@ -2725,7 +2725,7 @@ authorization only.
 
 - ⬜ `not-started` — [Phase 28 — install Kyverno through Argo CD](../reference-design/build/06-policy-enforcement/00-37-phase-28-install-kyverno-through-argo-cd/index.md)
 - ⬜ `not-started` — [Phase 29 — stage policy before enforcing it](../reference-design/build/06-policy-enforcement/01-38-phase-29-stage-policy-before-enforcing-it/index.md)
-- ⬜ `not-started` — [example: deny hostPath](../reference-design/build/06-policy-enforcement/02-38-1-example-deny-hostpath/index.md)
+  - ⬜ `not-started` — [example: deny hostPath](../reference-design/build/06-policy-enforcement/01-38-phase-29-stage-policy-before-enforcing-it/example-deny-hostpath/index.md)
 - ⬜ `not-started` — [Phase 30 — policy tests](../reference-design/build/06-policy-enforcement/03-39-phase-30-policy-tests/index.md)
 
 ### 0% — Part VII — Persistent storage

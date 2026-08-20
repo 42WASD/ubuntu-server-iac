@@ -1,5 +1,5 @@
 ---
-phase: 04-install-rke2-correctly/02-23-1-kubelet-configuration
+phase: 04-install-rke2-correctly/01-23-phase-14-rke2-configuration/kubelet-configuration
 ---
 # Phase 14, sub-phase 23.1 — kubelet configuration
 

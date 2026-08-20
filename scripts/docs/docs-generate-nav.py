@@ -37,6 +37,21 @@ def display_title(index_md: Path) -> str:
     return m.group(1).strip() if m else index_md.parent.name
 
 
+def build_subnav(dir_path: Path, rel: str) -> list:
+    """Recursively build a nav list for a directory's child sections."""
+    entries = []
+    for sec_dir in sorted(dir_path.iterdir()):
+        if sec_dir.is_dir() and (sec_dir / "index.md").exists():
+            child_rel = f"{rel}/{sec_dir.name}"
+            sub = build_subnav(sec_dir, child_rel)
+            title = display_title(sec_dir / "index.md")
+            if sub:
+                entries.append({title: [f"{child_rel}/index.md", *sub]})
+            else:
+                entries.append({title: f"{child_rel}/index.md"})
+    return entries
+
+
 def build_nav() -> list:
     nav = []
     for group in GROUP_ORDER:
@@ -50,12 +65,7 @@ def build_nav() -> list:
                 title = display_title(part_dir / "index.md")
                 rel = f"reference-design/{group}/{part_dir.name}"
                 part_nav_entries = [{"Overview": f"{rel}/index.md"}]
-                for sec_dir in sorted(part_dir.iterdir()):
-                    if sec_dir.is_dir() and (sec_dir / "index.md").exists():
-                        part_nav_entries.append({
-                            display_title(sec_dir / "index.md"):
-                                f"{rel}/{sec_dir.name}/index.md"
-                        })
+                part_nav_entries.extend(build_subnav(part_dir, rel))
                 parts.append({title: part_nav_entries})
         nav.append({label: parts})
     return nav

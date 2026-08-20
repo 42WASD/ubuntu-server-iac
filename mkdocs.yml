@@ -76,12 +76,13 @@ nav:
       - The target architecture: reference-design/background/01-understand-the-platform-before-installing-anything/01-1-the-target-architecture/index.md
       - The trust model: reference-design/background/01-understand-the-platform-before-installing-anything/02-2-the-trust-model/index.md
       - What each developer is allowed to do: reference-design/background/01-understand-the-platform-before-installing-anything/03-3-what-each-developer-is-allowed-to-do/index.md
-      - Five control planes, not one: reference-design/background/01-understand-the-platform-before-installing-anything/04-4-five-control-planes-not-one/index.md
-      - Linux control plane: reference-design/background/01-understand-the-platform-before-installing-anything/05-4-1-linux-control-plane/index.md
-      - Kubernetes platform control plane: reference-design/background/01-understand-the-platform-before-installing-anything/06-4-2-kubernetes-platform-control-plane/index.md
-      - Tenant application control plane: reference-design/background/01-understand-the-platform-before-installing-anything/07-4-3-tenant-application-control-plane/index.md
-      - Build control plane: reference-design/background/01-understand-the-platform-before-installing-anything/08-4-4-build-control-plane/index.md
-      - External edge control plane: reference-design/background/01-understand-the-platform-before-installing-anything/09-4-5-external-edge-control-plane/index.md
+      - Five control planes, not one:
+        - reference-design/background/01-understand-the-platform-before-installing-anything/04-4-five-control-planes-not-one/index.md
+        - Build control plane: reference-design/background/01-understand-the-platform-before-installing-anything/04-4-five-control-planes-not-one/build-control-plane/index.md
+        - External edge control plane: reference-design/background/01-understand-the-platform-before-installing-anything/04-4-five-control-planes-not-one/external-edge-control-plane/index.md
+        - Kubernetes platform control plane: reference-design/background/01-understand-the-platform-before-installing-anything/04-4-five-control-planes-not-one/kubernetes-platform-control-plane/index.md
+        - Linux control plane: reference-design/background/01-understand-the-platform-before-installing-anything/04-4-five-control-planes-not-one/linux-control-plane/index.md
+        - Tenant application control plane: reference-design/background/01-understand-the-platform-before-installing-anything/04-4-five-control-planes-not-one/tenant-application-control-plane/index.md
       - Why this guide is phased: reference-design/background/01-understand-the-platform-before-installing-anything/10-5-why-this-guide-is-phased/index.md
     - Part II — Verified stack and current caveats:
       - Overview: reference-design/background/02-verified-stack-and-current-caveats/index.md
@@ -111,63 +112,73 @@ nav:
       - Overview: reference-design/build/03-build-the-host/index.md
       - Phase 0 — create the infrastructure repository first: reference-design/build/03-build-the-host/00-9-phase-0-create-the-infrastructure-repository-first/index.md
       - Phase 1 — inventory the actual machine: reference-design/build/03-build-the-host/01-10-phase-1-inventory-the-actual-machine/index.md
-      - Phase 2 — update Ubuntu and install base administration tools: reference-design/build/03-build-the-host/02-11-phase-2-update-ubuntu-and-install-base-administration-tools/index.md
-      - unattended security updates: reference-design/build/03-build-the-host/03-11-1-unattended-security-updates/index.md
+      - Phase 2 — update Ubuntu and install base administration tools:
+        - reference-design/build/03-build-the-host/02-11-phase-2-update-ubuntu-and-install-base-administration-tools/index.md
+        - unattended security updates: reference-design/build/03-build-the-host/02-11-phase-2-update-ubuntu-and-install-base-administration-tools/unattended-security-updates/index.md
       - Phase 3 — hostname, DNS, and local identity: reference-design/build/03-build-the-host/04-12-phase-3-hostname-dns-and-local-identity/index.md
-      - Phase 4 — users, groups, and sudo boundaries: reference-design/build/03-build-the-host/05-13-phase-4-users-groups-and-sudo-boundaries/index.md
-      - platform groups: reference-design/build/03-build-the-host/06-13-1-platform-groups/index.md
-      - no shared human account: reference-design/build/03-build-the-host/07-13-2-no-shared-human-account/index.md
-      - sudo policy: reference-design/build/03-build-the-host/08-13-3-sudo-policy/index.md
+      - Phase 4 — users, groups, and sudo boundaries:
+        - reference-design/build/03-build-the-host/05-13-phase-4-users-groups-and-sudo-boundaries/index.md
+        - no shared human account: reference-design/build/03-build-the-host/05-13-phase-4-users-groups-and-sudo-boundaries/no-shared-human-account/index.md
+        - platform groups: reference-design/build/03-build-the-host/05-13-phase-4-users-groups-and-sudo-boundaries/platform-groups/index.md
+        - sudo policy: reference-design/build/03-build-the-host/05-13-phase-4-users-groups-and-sudo-boundaries/sudo-policy/index.md
       - Phase 5 — SSH hardening: reference-design/build/03-build-the-host/09-14-phase-5-ssh-hardening/index.md
-      - Phase 6 — Tailscale private management path: reference-design/build/03-build-the-host/10-15-phase-6-tailscale-private-management-path/index.md
-      - Tailscale policy concept: reference-design/build/03-build-the-host/11-15-1-tailscale-policy-concept/index.md
+      - Phase 6 — Tailscale private management path:
+        - reference-design/build/03-build-the-host/10-15-phase-6-tailscale-private-management-path/index.md
+        - Tailscale policy concept: reference-design/build/03-build-the-host/10-15-phase-6-tailscale-private-management-path/tailscale-policy-concept/index.md
       - Phase 7 — host firewall: reference-design/build/03-build-the-host/12-16-phase-7-host-firewall/index.md
-      - Phase 8 — system tuning and resource safety: reference-design/build/03-build-the-host/13-17-phase-8-system-tuning-and-resource-safety/index.md
-      - disable swap initially: reference-design/build/03-build-the-host/14-17-1-disable-swap-initially/index.md
-      - inotify limits: reference-design/build/03-build-the-host/15-17-2-inotify-limits/index.md
-      - basic forwarding: reference-design/build/03-build-the-host/16-17-3-basic-forwarding/index.md
-      - journald bound: reference-design/build/03-build-the-host/17-17-4-journald-bound/index.md
+      - Phase 8 — system tuning and resource safety:
+        - reference-design/build/03-build-the-host/13-17-phase-8-system-tuning-and-resource-safety/index.md
+        - basic forwarding: reference-design/build/03-build-the-host/13-17-phase-8-system-tuning-and-resource-safety/basic-forwarding/index.md
+        - disable swap initially: reference-design/build/03-build-the-host/13-17-phase-8-system-tuning-and-resource-safety/disable-swap-initially/index.md
+        - inotify limits: reference-design/build/03-build-the-host/13-17-phase-8-system-tuning-and-resource-safety/inotify-limits/index.md
+        - journald bound: reference-design/build/03-build-the-host/13-17-phase-8-system-tuning-and-resource-safety/journald-bound/index.md
       - Phase 9 — developer CPU/RAM/PID limits on the host: reference-design/build/03-build-the-host/18-18-phase-9-developer-cpu-ram-pid-limits-on-the-host/index.md
-      - Phase 10 — storage architecture: reference-design/build/03-build-the-host/19-19-phase-10-storage-architecture/index.md
-      - desired logical layout: reference-design/build/03-build-the-host/20-19-1-desired-logical-layout/index.md
-      - fresh-install target: reference-design/build/03-build-the-host/21-19-2-fresh-install-target/index.md
-      - existing-install path: reference-design/build/03-build-the-host/22-19-3-existing-install-path/index.md
-      - create dedicated RKE2 filesystem only when backing storage is known: reference-design/build/03-build-the-host/23-19-4-create-dedicated-rke2-filesystem-only-when-backing-storage-is-known/index.md
-      - Kubernetes fast VG: reference-design/build/03-build-the-host/24-19-5-kubernetes-fast-vg/index.md
-      - Kubernetes bulk VG: reference-design/build/03-build-the-host/25-19-6-kubernetes-bulk-vg/index.md
-      - required LVM module: reference-design/build/03-build-the-host/26-19-7-required-lvm-module/index.md
+      - Phase 10 — storage architecture:
+        - reference-design/build/03-build-the-host/19-19-phase-10-storage-architecture/index.md
+        - create dedicated RKE2 filesystem only when backing storage is known: reference-design/build/03-build-the-host/19-19-phase-10-storage-architecture/create-dedicated-rke2-filesystem-only-when-backing-storage-is-known/index.md
+        - desired logical layout: reference-design/build/03-build-the-host/19-19-phase-10-storage-architecture/desired-logical-layout/index.md
+        - existing-install path: reference-design/build/03-build-the-host/19-19-phase-10-storage-architecture/existing-install-path/index.md
+        - fresh-install target: reference-design/build/03-build-the-host/19-19-phase-10-storage-architecture/fresh-install-target/index.md
+        - Kubernetes bulk VG: reference-design/build/03-build-the-host/19-19-phase-10-storage-architecture/kubernetes-bulk-vg/index.md
+        - Kubernetes fast VG: reference-design/build/03-build-the-host/19-19-phase-10-storage-architecture/kubernetes-fast-vg/index.md
+        - required LVM module: reference-design/build/03-build-the-host/19-19-phase-10-storage-architecture/required-lvm-module/index.md
       - Phase 11 — filesystem quotas for developer homes: reference-design/build/03-build-the-host/27-20-phase-11-filesystem-quotas-for-developer-homes/index.md
       - Phase 12 — NVIDIA host driver baseline: reference-design/build/03-build-the-host/28-21-phase-12-nvidia-host-driver-baseline/index.md
     - Part IV — Install RKE2 correctly:
       - Overview: reference-design/build/04-install-rke2-correctly/index.md
       - Phase 13 — choose and pin the RKE2 release: reference-design/build/04-install-rke2-correctly/00-22-phase-13-choose-and-pin-the-rke2-release/index.md
-      - Phase 14 — RKE2 configuration: reference-design/build/04-install-rke2-correctly/01-23-phase-14-rke2-configuration/index.md
-      - kubelet configuration: reference-design/build/04-install-rke2-correctly/02-23-1-kubelet-configuration/index.md
+      - Phase 14 — RKE2 configuration:
+        - reference-design/build/04-install-rke2-correctly/01-23-phase-14-rke2-configuration/index.md
+        - kubelet configuration: reference-design/build/04-install-rke2-correctly/01-23-phase-14-rke2-configuration/kubelet-configuration/index.md
       - Phase 15 — configure RKE2's bundled Cilium: reference-design/build/04-install-rke2-correctly/03-24-phase-15-configure-rke2-s-bundled-cilium/index.md
-      - Phase 16 — install and start RKE2: reference-design/build/04-install-rke2-correctly/04-25-phase-16-install-and-start-rke2/index.md
-      - inspect Cilium: reference-design/build/04-install-rke2-correctly/05-25-1-inspect-cilium/index.md
-      - verify RKE2 Secrets encryption: reference-design/build/04-install-rke2-correctly/06-25-2-verify-rke2-secrets-encryption/index.md
+      - Phase 16 — install and start RKE2:
+        - reference-design/build/04-install-rke2-correctly/04-25-phase-16-install-and-start-rke2/index.md
+        - inspect Cilium: reference-design/build/04-install-rke2-correctly/04-25-phase-16-install-and-start-rke2/inspect-cilium/index.md
+        - verify RKE2 Secrets encryption: reference-design/build/04-install-rke2-correctly/04-25-phase-16-install-and-start-rke2/verify-rke2-secrets-encryption/index.md
       - Phase 17 — admin kubeconfig and CLI convenience: reference-design/build/04-install-rke2-correctly/07-26-phase-17-admin-kubeconfig-and-cli-convenience/index.md
       - Phase 18 — verify reboot recovery now, not later: reference-design/build/04-install-rke2-correctly/08-27-phase-18-verify-reboot-recovery-now-not-later/index.md
     - Part V — GitOps bootstrap:
       - Overview: reference-design/build/05-gitops-bootstrap/index.md
       - Phase 19 — install Argo CD exactly once by hand: reference-design/build/05-gitops-bootstrap/00-28-phase-19-install-argo-cd-exactly-once-by-hand/index.md
-      - Phase 20 — root GitOps application: reference-design/build/05-gitops-bootstrap/01-29-phase-20-root-gitops-application/index.md
-      - AppProjects: reference-design/build/05-gitops-bootstrap/02-29-1-appprojects/index.md
+      - Phase 20 — root GitOps application:
+        - reference-design/build/05-gitops-bootstrap/01-29-phase-20-root-gitops-application/index.md
+        - AppProjects: reference-design/build/05-gitops-bootstrap/01-29-phase-20-root-gitops-application/appprojects/index.md
       - Phase 21 — namespace baseline: reference-design/build/05-gitops-bootstrap/03-30-phase-21-namespace-baseline/index.md
       - Phase 22 — PriorityClasses: reference-design/build/05-gitops-bootstrap/04-31-phase-22-priorityclasses/index.md
       - Phase 23 — ResourceQuota: reference-design/build/05-gitops-bootstrap/05-32-phase-23-resourcequota/index.md
       - Phase 24 — LimitRange: reference-design/build/05-gitops-bootstrap/06-33-phase-24-limitrange/index.md
       - Phase 25 — default-deny NetworkPolicy: reference-design/build/05-gitops-bootstrap/07-34-phase-25-default-deny-networkpolicy/index.md
-      - Phase 26 — RBAC: reference-design/build/05-gitops-bootstrap/08-35-phase-26-rbac/index.md
-      - dev Role: reference-design/build/05-gitops-bootstrap/09-35-1-dev-role/index.md
-      - production is intentionally different: reference-design/build/05-gitops-bootstrap/10-35-2-production-is-intentionally-different/index.md
+      - Phase 26 — RBAC:
+        - reference-design/build/05-gitops-bootstrap/08-35-phase-26-rbac/index.md
+        - dev Role: reference-design/build/05-gitops-bootstrap/08-35-phase-26-rbac/dev-role/index.md
+        - production is intentionally different: reference-design/build/05-gitops-bootstrap/08-35-phase-26-rbac/production-is-intentionally-different/index.md
       - Phase 27 — authentication for Kubernetes developers: reference-design/build/05-gitops-bootstrap/11-36-phase-27-authentication-for-kubernetes-developers/index.md
     - Part VI — Policy enforcement:
       - Overview: reference-design/build/06-policy-enforcement/index.md
       - Phase 28 — install Kyverno through Argo CD: reference-design/build/06-policy-enforcement/00-37-phase-28-install-kyverno-through-argo-cd/index.md
-      - Phase 29 — stage policy before enforcing it: reference-design/build/06-policy-enforcement/01-38-phase-29-stage-policy-before-enforcing-it/index.md
-      - "example: deny hostPath": reference-design/build/06-policy-enforcement/02-38-1-example-deny-hostpath/index.md
+      - Phase 29 — stage policy before enforcing it:
+        - reference-design/build/06-policy-enforcement/01-38-phase-29-stage-policy-before-enforcing-it/index.md
+        - "example: deny hostPath": reference-design/build/06-policy-enforcement/01-38-phase-29-stage-policy-before-enforcing-it/example-deny-hostpath/index.md
       - Phase 30 — policy tests: reference-design/build/06-policy-enforcement/03-39-phase-30-policy-tests/index.md
     - Part VII — Persistent storage:
       - Overview: reference-design/build/07-persistent-storage/index.md

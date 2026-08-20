@@ -1,5 +1,5 @@
 ---
-phase: 04-install-rke2-correctly/06-25-2-verify-rke2-secrets-encryption
+phase: 04-install-rke2-correctly/04-25-phase-16-install-and-start-rke2/verify-rke2-secrets-encryption
 ---
 # Phase 25.2 — verify RKE2 Secrets encryption
 
