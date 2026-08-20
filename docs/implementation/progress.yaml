@@ -27,7 +27,7 @@
 "03-build-the-host/18-18-phase-9-developer-cpu-ram-pid-limits-on-the-host": "done"
 "03-build-the-host/19-19-phase-10-storage-architecture": "done"
 "03-build-the-host/20-19-1-desired-logical-layout": "done"
-"03-build-the-host/21-19-2-fresh-install-target": "not-started"
+"03-build-the-host/21-19-2-fresh-install-target": "blocked"
 "03-build-the-host/22-19-3-existing-install-path": "done"
 "03-build-the-host/23-19-4-create-dedicated-rke2-filesystem-only-when-backing-storage-is-known": "done"
 "03-build-the-host/24-19-5-kubernetes-fast-vg": "done"

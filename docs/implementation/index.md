@@ -48,8 +48,8 @@ edit/correct).
 |--------|-------|
 | ✅ done | 25 |
 | 🔶 in-progress | 0 |
-| ⬜ not-started | 65 |
-| ❌ blocked | 0 |
+| ⬜ not-started | 64 |
+| ❌ blocked | 1 |
 | ⏸️ deferred | 2 |
 
 ## Progress by part
@@ -899,7 +899,7 @@ bulk VGs, and load/persist `dm_snapshot`. Both K8s VGs now exist on alpha.
 </details>
 
 - ✅ `done` — [desired logical layout](../reference-design/build/03-build-the-host/20-19-1-desired-logical-layout/index.md)
-- ⬜ `not-started` — [fresh-install target](../reference-design/build/03-build-the-host/21-19-2-fresh-install-target/index.md)
+- ❌ `blocked` — [fresh-install target](../reference-design/build/03-build-the-host/21-19-2-fresh-install-target/index.md)
 - ✅ `done` — [existing-install path](../reference-design/build/03-build-the-host/22-19-3-existing-install-path/index.md)
 - ✅ `done` — [create dedicated RKE2 filesystem only when backing storage is known](../reference-design/build/03-build-the-host/23-19-4-create-dedicated-rke2-filesystem-only-when-backing-storage-is-known/index.md)
 - ✅ `done` — [Kubernetes fast VG](../reference-design/build/03-build-the-host/24-19-5-kubernetes-fast-vg/index.md)
