@@ -40,15 +40,15 @@ edit/correct).
 
 ## Overall progress
 
-**40 / 92** phases/sections complete (**43%**).
+**41 / 92** phases/sections complete (**45%**).
 
-<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:43.5%"></div></div><div class="progress-pct">43%</div></div>
+<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:44.6%"></div></div><div class="progress-pct">45%</div></div>
 
 | Status | Count |
 |--------|-------|
-| ✅ done | 40 |
+| ✅ done | 41 |
 | 🔶 in-progress | 0 |
-| ⬜ not-started | 49 |
+| ⬜ not-started | 48 |
 | ❌ blocked | 1 |
 | ⏸️ deferred | 2 |
 
@@ -2172,16 +2172,16 @@ gate before adding more components.
 </details>
 
 
-### 42% — Part V — GitOps bootstrap
+### 50% — Part V — GitOps bootstrap
 
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:42.0%"></div></div><div class="progress-pct" style="font-size:.85em;">42%</div><div class="tip-box"><strong>Done (5)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:50.0%"></div></div><div class="progress-pct" style="font-size:.85em;">50%</div><div class="tip-box"><strong>Done (6)</strong>
 • Phase 19 — install Argo CD exactly once by hand
 • Phase 20 — root GitOps application
 • AppProjects
 • Phase 21 — namespace baseline
-• Phase 23 — ResourceQuota
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (7)</strong>
 • Phase 22 — PriorityClasses
+• Phase 23 — ResourceQuota
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (6)</strong>
 • Phase 24 — LimitRange
 • Phase 25 — default-deny NetworkPolicy
 • Phase 26 — RBAC
@@ -2402,7 +2402,61 @@ they are no longer in the manifest.
 
 </details>
 
-- ⬜ `not-started` — [Phase 22 — PriorityClasses](../reference-design/build/05-gitops-bootstrap/04-31-phase-22-priorityclasses/index.md)
+- ✅ `done` — [Phase 22 — PriorityClasses](../reference-design/build/05-gitops-bootstrap/04-31-phase-22-priorityclasses/index.md)
+
+<details markdown="1" class="runbook">
+<summary>✅ 📜 Build log — Phase 22 — PriorityClasses</summary>
+
+# Phase 22 — PriorityClasses
+# Phase 22 — PriorityClasses
+
+Created a small, deliberately non-inflated set of `PriorityClass` resources so
+the scheduler can preempt low-value disposable workloads before starving
+critical platform or production ones.
+
+## 22.1 Manifests
+
+`infra/kubernetes/platform/priorityclasses/priorityclasses.yaml`:
+
+| PriorityClass               | value   | purpose |
+| --------------------------- | ------- | ------- |
+| `platform-critical-custom`  | 100000  | Critical platform workloads (platform admins). |
+| `prod-high`                 | 20000   | Tenant production workloads. |
+| `dev-normal`                | 1000    | Normal development workloads. |
+| `build-low`                 | -1000   | Build / disposable workloads that yield first. |
+
+No `globalDefault` is set, so ordinary pods get the default priority and
+elevated classes must be requested explicitly.
+
+Avoiding giant inflation: if every tenant could declare
+`platform-critical`, priority is meaningless. Restricting who may use the
+elevated classes is delegated to RBAC/Kyverno in a later phase.
+
+Managed by a new Argo child app `platform-priorityclasses` (sync-wave `-20`,
+so they exist before namespaces/quota apps). The `platform-root` app
+auto-discovers it from `infra/kubernetes/bootstrap/argocd/apps`.
+
+## 22.2 Applied via Argo CD
+
+```bash
+kubectl -n argocd get applications
+# platform-priorityclasses  Synced  Healthy
+```
+
+```bash
+kubectl get priorityclasses
+# NAME                      VALUE
+# platform-critical-custom  100000
+# prod-high                 20000
+# dev-normal                1000
+# build-low                 -1000
+```
+
+The elevated `platform-critical-custom` class exists now; who may use it is
+enforced later (RBAC / admission), not by the class itself.
+
+</details>
+
 - ✅ `done` — [Phase 23 — ResourceQuota](../reference-design/build/05-gitops-bootstrap/05-32-phase-23-resourcequota/index.md)
 
 <details markdown="1" class="runbook">
