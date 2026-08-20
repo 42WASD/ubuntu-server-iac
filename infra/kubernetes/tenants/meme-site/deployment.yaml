@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: meme-site
-  namespace: demo-meme
+  namespace: dev-42wasd-admin
   labels:
     app: meme-site
 spec:
@@ -15,12 +15,23 @@ spec:
       labels:
         app: meme-site
     spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: nginx
-          image: nginx:alpine
+          image: nginxinc/nginx-unprivileged:alpine
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            runAsNonRoot: true
+            runAsUser: 101
+            runAsGroup: 101
           ports:
             - name: http
-              containerPort: 80
+              containerPort: 8080
           volumeMounts:
             - name: www
               mountPath: /usr/share/nginx/html

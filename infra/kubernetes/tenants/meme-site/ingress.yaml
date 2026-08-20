@@ -2,7 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: meme-site
-  namespace: demo-meme
+  namespace: dev-42wasd-admin
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: web
 spec:

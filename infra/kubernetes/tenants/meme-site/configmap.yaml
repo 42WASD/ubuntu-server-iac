@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: meme-site-index
-  namespace: demo-meme
+  namespace: dev-42wasd-admin
 data:
   index.html: |
     <!DOCTYPE html>
