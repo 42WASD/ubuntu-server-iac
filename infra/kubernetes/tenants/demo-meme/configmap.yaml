@@ -18,13 +18,23 @@ data:
         h1 { font-size:2.4rem; margin:.4em 0; }
         p  { color:#9aa1b5; max-width:640px; line-height:1.5; }
         img { max-width:min(90vw, 640px); border-radius:12px; box-shadow:0 10px 40px rgba(0,0,0,.5); }
-        .node { font-family:ui-monospace,monospace; color:#6f86ff; font-size:.95rem; }
         em { color:#ff7ac3; }
       </style>
     </head>
     <body>
-      <h1>It's not much, but it's <em>honest work</em> 🐳</h1>
-      <img src="https://http.cat/200" alt="200 OK cat" width="640">
-      <p>This page is served by nginx:alpine running on the RKE2 cluster.</p>
+      <h1>Our meme, served straight from the cluster 🐳</h1>
+      <img src="meme.svg" alt="Meme: containerized" width="640">
+      <p>This meme image is served by <em>nginx:alpine</em> from a ConfigMap on the RKE2 cluster — no external host.</p>
     </body>
     </html>
+
+  meme.svg: |
+    <svg xmlns="http://www.w3.org/2000/svg" width="600" height="500" viewBox="0 0 600 500">
+      <rect width="600" height="500" fill="#10121a"/>
+      <text x="300" y="60" text-anchor="middle" font-family="Impact, sans-serif" font-size="40" font-weight="bold" fill="#fff" stroke="#000" stroke-width="2">MY SERVER HOSTING</text>
+      <text x="300" y="110" text-anchor="middle" font-family="Impact, sans-serif" font-size="40" font-weight="bold" fill="#fff" stroke="#000" stroke-width="2">A MEME WEBSITE</text>
+      <circle cx="300" cy="280" r="140" fill="#243b55"/>
+      <text x="300" y="270" text-anchor="middle" font-family="Impact, sans-serif" font-size="60" font-weight="bold" fill="#ff7ac3">🐳</text>
+      <text x="300" y="330" text-anchor="middle" font-family="Impact, sans-serif" font-size="34" font-weight="bold" fill="#fff" stroke="#000" stroke-width="2">WORTH IT</text>
+      <text x="300" y="460" text-anchor="middle" font-family="Impact, sans-serif" font-size="34" font-weight="bold" fill="#fff" stroke="#000" stroke-width="2">100% WORTH IT</text>
+    </svg>
