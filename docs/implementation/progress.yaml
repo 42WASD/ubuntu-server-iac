@@ -19,3 +19,8 @@
 "03-build-the-host/10-15-phase-6-tailscale-private-management-path": "done"
 "03-build-the-host/11-15-1-tailscale-policy-concept": "deferred"
 "03-build-the-host/12-16-phase-7-host-firewall": "done"
+"03-build-the-host/13-17-phase-8-system-tuning-and-resource-safety": "done"
+"03-build-the-host/14-17-1-disable-swap-initially": "done"
+"03-build-the-host/15-17-2-inotify-limits": "done"
+"03-build-the-host/16-17-3-basic-forwarding": "done"
+"03-build-the-host/17-17-4-journald-bound": "done"

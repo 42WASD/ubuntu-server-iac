@@ -40,23 +40,23 @@ edit/correct).
 
 ## Overall progress
 
-**10 / 92** phases/sections complete (**11%**).
+**15 / 92** phases/sections complete (**16%**).
 
-<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:10.9%"></div></div><div class="progress-pct">11%</div></div>
+<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:16.3%"></div></div><div class="progress-pct">16%</div></div>
 
 | Status | Count |
 |--------|-------|
-| ✅ done | 10 |
+| ✅ done | 15 |
 | 🔶 in-progress | 0 |
-| ⬜ not-started | 80 |
+| ⬜ not-started | 75 |
 | ❌ blocked | 0 |
 | ⏸️ deferred | 2 |
 
 ## Progress by part
 
-### 34% — Part III — Build the host
+### 52% — Part III — Build the host
 
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:34.0%"></div></div><div class="progress-pct" style="font-size:.85em;">34%</div><div class="tip-box"><strong>Done (10)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:52.0%"></div></div><div class="progress-pct" style="font-size:.85em;">52%</div><div class="tip-box"><strong>Done (15)</strong>
 • Phase 0 — create the infrastructure repository first
 • Phase 1 — inventory the actual machine
 • Phase 2 — update Ubuntu and install base administration tools
@@ -67,15 +67,15 @@ edit/correct).
 • sudo policy
 • Phase 6 — Tailscale private management path
 • Phase 7 — host firewall
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (19)</strong>
-• unattended security updates
-• Phase 5 — SSH hardening
-• Tailscale policy concept
 • Phase 8 — system tuning and resource safety
 • disable swap initially
 • inotify limits
 • basic forwarding
 • journald bound
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (14)</strong>
+• unattended security updates
+• Phase 5 — SSH hardening
+• Tailscale policy concept
 • Phase 9 — developer CPU/RAM/PID limits on the host
 • Phase 10 — storage architecture
 • desired logical layout
@@ -505,11 +505,166 @@ with the file-deploy + systemd-enable tasks (templates for `.nft` + units),
 
 </details>
 
-- ⬜ `not-started` — [Phase 8 — system tuning and resource safety](../reference-design/build/03-build-the-host/13-17-phase-8-system-tuning-and-resource-safety/index.md)
-- ⬜ `not-started` — [disable swap initially](../reference-design/build/03-build-the-host/14-17-1-disable-swap-initially/index.md)
-- ⬜ `not-started` — [inotify limits](../reference-design/build/03-build-the-host/15-17-2-inotify-limits/index.md)
-- ⬜ `not-started` — [basic forwarding](../reference-design/build/03-build-the-host/16-17-3-basic-forwarding/index.md)
-- ⬜ `not-started` — [journald bound](../reference-design/build/03-build-the-host/17-17-4-journald-bound/index.md)
+- ✅ `done` — [Phase 8 — system tuning and resource safety](../reference-design/build/03-build-the-host/13-17-phase-8-system-tuning-and-resource-safety/index.md)
+
+<details markdown="1" class="runbook">
+<summary>✅ 📜 Build log — Phase 8 — system tuning and resource safety</summary>
+
+# Phase 8 — system tuning and resource safety
+
+**Intent:** baseline kernel/logging settings that make `alpha` a safe,
+predictable Kubernetes host. Each change is persisted so it survives reboots,
+and each is done for an explicit reason (not "copy-paste tuning").
+
+Config sources of truth live in `scripts/system/` and are deployed to the
+standard system locations on `alpha`.
+
+---
+
+## 8.1 Disable swap (initially)
+
+**Why:** Kubernetes 1.x predates stable swap support and, even when enabled,
+swap makes memory accounting unpredictable and adds variables while we are
+first validating the cluster. We start with swap **off** and can re-enable it
+later as a deliberate feature.
+
+```bash
+# 1) Show whether swap is active
+swapon --show
+#    -> /swap.img   8G   0B   -1     (8G swap file, active)
+
+# 2) Turn swap off for the running session
+sudo swapoff -a
+
+# 3) Stop it from coming back on reboot: comment the fstab entry
+#    (we deliberately overwrite the line with an explanation, not just delete,
+#    so the original intent stays visible in /etc/fstab)
+sudo sed -i 's|^/swap.img.*|# /swap.img was disabled for initial k8s deployment (Phase 8)|' /etc/fstab
+```
+
+**Verified:**
+```bash
+swapon --show          # (empty) -> no swap active
+grep -i swap /etc/fstab
+# # /swap.img was disabled for initial k8s deployment (Phase 8)
+```
+
+---
+
+## 8.2 inotify limits
+
+**Why:** RKE2 runs containers that create a LOT of inotify watchers (files +
+directories being watched). Ubuntu's default is only `1024` instances, which is
+too low for workloads like `kubectl`/IDE auto-reload/helm/CI inside pods and
+can cause "too many files open"/watcher exhaustion. We raise the per-user
+limits.
+
+```bash
+# 4) Deploy the inotify sysctl drop-in (source: scripts/system/)
+sudo cp 99-platform-inotify.conf /etc/sysctl.d/
+
+# 5) Apply all sysctl settings now (also picks up network conf)
+sudo sysctl --system
+```
+
+Contents of `99-platform-inotify.conf`:
+```sysctl
+fs.inotify.max_user_instances = 8192
+fs.inotify.max_user_watches   = 524288
+```
+
+> Note: `max_user_watches` was already `1048576` on alpha (>= our 524288), so
+> that line was a no-op; the important change was `max_user_instances`
+> `1024 -> 8192`.
+
+---
+
+## 8.3 Basic IP forwarding
+
+**Why:** a Kubernetes host must forward packets to route Pod traffic between
+nodes and for Cilium to move traffic. Without `ip_forward=1`, Pod networking
+breaks. We only enable forwarding itself — we do NOT add a general router
+(masquerading etc. stays out).
+
+```bash
+# Deploy the network sysctl drop-in (source: scripts/system/)
+sudo cp 99-platform-network.conf /etc/sysctl.d/
+sudo sysctl --system
+```
+
+Contents of `99-platform-network.conf`:
+```sysctl
+net.ipv4.ip_forward = 1
+net.ipv6.conf.all.forwarding = 1
+```
+
+> On alpha these were already `1/1` (Ubuntu default had them on), so this was
+> a confirm/no-op — but the file pins it explicitly so future reboots/config
+> resets can't silently flip it off.
+
+---
+
+## 8.4 journald storage bound
+
+**Why:** without a cap, the systemd journal grows unbounded and can fill the
+system disk — fatal for a K8s node. We bound size + retention and enable
+compression so logging can never starve the OS of space.
+
+```bash
+# Deploy the journald drop-in (source: scripts/system/)
+sudo mkdir -p /etc/systemd/journald.conf.d
+sudo cp 50-platform.conf /etc/systemd/journald.conf.d/
+
+# journald only reads this at restart, so restart it
+sudo systemctl restart systemd-journald
+```
+
+Contents of `50-platform.conf`:
+```ini
+[Journal]
+SystemMaxUse=4G     # persistent journal cap
+SystemKeepFree=8G   # always keep >=8G free on the system disk
+RuntimeMaxUse=1G    # in-memory /run journal cap
+MaxRetentionSec=14day
+Compress=yes
+```
+
+**Verify:**
+```bash
+journalctl --disk-usage   # -> Archived and active journals take up 88M
+systemctl is-active systemd-journald   # -> active
+```
+
+---
+
+## 8.5 Full verification on alpha
+
+```bash
+swapon --show                              # (empty)
+sysctl fs.inotify.max_user_instances       # 8192
+sysctl fs.inotify.max_user_watches         # 524288
+sysctl net.ipv4.ip_forward                 # 1
+sysctl net.ipv6.conf.all.forwarding        # 1
+journalctl --disk-usage                    # 88M
+grep inotify /etc/sysctl.d/99-platform-inotify.conf
+grep ip_forward /etc/sysctl.d/99-platform-network.conf
+```
+
+All persisted under `/etc/sysctl.d/` and `/etc/systemd/journald.conf.d/`, so
+they survive reboots.
+
+**Infra encoding:** these belong in the `base` role (host-wide sysctl +
+journald). Add to `infra/ansible/roles/base/` tasks: copy `99-platform-*.conf`
+to `/etc/sysctl.d/`, `50-platform.conf` to `/etc/systemd/journald.conf.d/`,
+reload `sysctl`, and restart `systemd-journald`. Swap-disable is bootstrap-time
+(keep as a documented manual step / bootstrap task).
+
+</details>
+
+- ✅ `done` — [disable swap initially](../reference-design/build/03-build-the-host/14-17-1-disable-swap-initially/index.md)
+- ✅ `done` — [inotify limits](../reference-design/build/03-build-the-host/15-17-2-inotify-limits/index.md)
+- ✅ `done` — [basic forwarding](../reference-design/build/03-build-the-host/16-17-3-basic-forwarding/index.md)
+- ✅ `done` — [journald bound](../reference-design/build/03-build-the-host/17-17-4-journald-bound/index.md)
 - ⬜ `not-started` — [Phase 9 — developer CPU/RAM/PID limits on the host](../reference-design/build/03-build-the-host/18-18-phase-9-developer-cpu-ram-pid-limits-on-the-host/index.md)
 - ⬜ `not-started` — [Phase 10 — storage architecture](../reference-design/build/03-build-the-host/19-19-phase-10-storage-architecture/index.md)
 - ⬜ `not-started` — [desired logical layout](../reference-design/build/03-build-the-host/20-19-1-desired-logical-layout/index.md)
