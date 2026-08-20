@@ -1,0 +1,57 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: platform
+  namespace: argocd
+spec:
+  description: Platform infrastructure. May deploy cluster-wide resources.
+  sourceRepos:
+    - '*'
+  destinations:
+    - namespace: '*'
+      server: '*'
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: tenant-jya0
+  namespace: argocd
+spec:
+  description: Tenant jya0 applications.
+  clusterResourceWhitelist:
+    - group: ''
+      kind: Namespace
+  sourceRepos:
+    - 'https://github.com/42WASD/ubuntu-server-iac.git'
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespaces:
+        - dev-jya0
+        - prod-jya0
+        - ml-jya0
+        - gpu-jya0
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: tenant-42wasd-admin
+  namespace: argocd
+spec:
+  description: Tenant 42wasd-admin applications.
+  clusterResourceWhitelist:
+    - group: ''
+      kind: Namespace
+  sourceRepos:
+    - 'https://github.com/42WASD/ubuntu-server-iac.git'
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespaces:
+        - dev-42admin
+        - prod-42admin
+        - games-42admin

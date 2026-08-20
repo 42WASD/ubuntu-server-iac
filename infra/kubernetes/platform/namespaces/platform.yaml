@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kyverno
+  labels:
+    platform.tier: platform
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: openebs
+  labels:
+    platform.tier: platform
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+  labels:
+    platform.tier: platform
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: registry
+  labels:
+    platform.tier: platform
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: security
+  labels:
+    platform.tier: platform
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ingress
+  labels:
+    platform.tier: platform
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: build
+  labels:
+    platform.tier: platform
