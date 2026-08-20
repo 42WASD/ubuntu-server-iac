@@ -1332,6 +1332,33 @@ Git. It is generated at install time and stored only on the host.
 > to the node. Using it in `tls-san` keeps the serving cert valid across Tailscale
 > address changes. The raw IP is retained in host_vars as a fallback.
 
+### 14.1.1 Token lifecycle (decided here)
+
+Because `config.yaml` does **not** set a `token:`, RKE2 will **auto-generate a
+random cluster token on first boot** and store it at:
+
+```text
+/var/lib/rancher/rke2/server/token
+```
+
+This token is used for both:
+- joining new nodes (agents / additional servers), and
+- encrypting cluster bootstrap data in the datastore (recovery material).
+
+Implications we accept deliberately:
+
+- **Never commit it to Git.** This is the reference design's rule and the reason
+  we did not put a `token:` in the config.
+- It is **recovery material**: when backups run (Phase 56/57) the token file
+  must be captured off-host.
+- When the first agent/server is added later, join using the existing token
+  (e.g. `INSTALL_RKE2_AGENT_TOKEN="$(cat /var/lib/rancher/rke2/server/token)"`),
+  or pre-generate a strong token and store it in **Ansible Vault** (gitignored
+  `.vault-password` + encrypted `group_vars/rke2.yml`), never plaintext.
+
+Single-node today, so no join flow exists yet — the generated token is simply
+recorded as recovery material.
+
 ## 14.2 Files on the host
 
 ```bash
