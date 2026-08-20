@@ -321,8 +321,32 @@ sudo groupmod -n tenant-42wasd-admin tenant-42admin
 ```
 Renamed for clarity/consistency; reflected in infra + docs.
 
-**Infra encoding:** `infra/ansible/roles/users/` — `defaults` (groups +
-membership), `tasks`, `templates/platform-admin.j2`.
+## 4.4 Tenant human accounts (ehammoud, mayan, mtangalv)
+
+Three real tenant members, one per user, under `tenant-42wasd-admin` +
+`ssh-users`.
+
+```bash
+for u in ehammoud mayan mtangalv; do
+  sudo useradd -m -s /bin/bash -G ssh-users,tenant-42wasd-admin \
+    -c "$u (42wasd admin tenant)" "$u"
+done
+
+# Initial password, forced-change NOT enabled (they keep Password123 until
+# they run `passwd` themselves — PAM allows self-service password change)
+for u in ehammoud mayan mtangalv; do
+  echo "$u:Password123" | sudo chpasswd
+done
+```
+
+Verified for each of `ehammoud mayan mtangalv`:
+- Memberships: `ssh-users tenant-42wasd-admin`
+- Password status `P` (active, user may change it)
+- Self-service password change enabled by default via PAM (`passwd` works).
+
+**Infra encoding:** `infra/ansible/roles/users/` — extend `defaults` group
+`tenant-42wasd-admin` members list with the three usernames; `tasks` idempotent
+`user` module handles create + password + membership.
 
 </details>
 
