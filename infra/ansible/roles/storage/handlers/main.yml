@@ -1,0 +1,9 @@
+---
+# Handlers for the `storage` role.
+- name: persist lvm modules
+  ansible.builtin.copy:
+    dest: /etc/modules-load.d/openebs-lvm.conf
+    content: "{{ storage_lvm_modules | join('\n') }}\n"
+    owner: root
+    group: root
+    mode: "0644"

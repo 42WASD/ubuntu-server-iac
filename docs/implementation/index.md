@@ -40,23 +40,23 @@ edit/correct).
 
 ## Overall progress
 
-**16 / 92** phases/sections complete (**17%**).
+**22 / 92** phases/sections complete (**24%**).
 
-<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:17.4%"></div></div><div class="progress-pct">17%</div></div>
+<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:23.9%"></div></div><div class="progress-pct">24%</div></div>
 
 | Status | Count |
 |--------|-------|
-| ✅ done | 16 |
+| ✅ done | 22 |
 | 🔶 in-progress | 0 |
-| ⬜ not-started | 74 |
+| ⬜ not-started | 67 |
 | ❌ blocked | 0 |
-| ⏸️ deferred | 2 |
+| ⏸️ deferred | 3 |
 
 ## Progress by part
 
-### 55% — Part III — Build the host
+### 76% — Part III — Build the host
 
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:55.0%"></div></div><div class="progress-pct" style="font-size:.85em;">55%</div><div class="tip-box"><strong>Done (16)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:76.0%"></div></div><div class="progress-pct" style="font-size:.85em;">76%</div><div class="tip-box"><strong>Done (22)</strong>
 • Phase 0 — create the infrastructure repository first
 • Phase 1 — inventory the actual machine
 • Phase 2 — update Ubuntu and install base administration tools
@@ -73,18 +73,18 @@ edit/correct).
 • basic forwarding
 • journald bound
 • Phase 9 — developer CPU/RAM/PID limits on the host
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (13)</strong>
+• Phase 10 — storage architecture
+• desired logical layout
+• existing-install path
+• create dedicated RKE2 filesystem only when backing storage is known
+• Kubernetes bulk VG
+• required LVM module
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (7)</strong>
 • unattended security updates
 • Phase 5 — SSH hardening
 • Tailscale policy concept
-• Phase 10 — storage architecture
-• desired logical layout
 • fresh-install target
-• existing-install path
-• create dedicated RKE2 filesystem only when backing storage is known
 • Kubernetes fast VG
-• Kubernetes bulk VG
-• required LVM module
 • Phase 11 — filesystem quotas for developer homes
 • Phase 12 — NVIDIA host driver baseline</div></div>
 
@@ -747,14 +747,122 @@ exactly what the role renders.
 
 </details>
 
-- ⬜ `not-started` — [Phase 10 — storage architecture](../reference-design/build/03-build-the-host/19-19-phase-10-storage-architecture/index.md)
-- ⬜ `not-started` — [desired logical layout](../reference-design/build/03-build-the-host/20-19-1-desired-logical-layout/index.md)
+- ✅ `done` — [Phase 10 — storage architecture](../reference-design/build/03-build-the-host/19-19-phase-10-storage-architecture/index.md)
+
+<details markdown="1" class="runbook">
+<summary>✅ 📜 Build log — Phase 10 — storage architecture</summary>
+
+# Phase 10 — storage architecture
+
+**Intent:** give Kubernetes a safe, extensible storage layout: a dedicated fast
+RKE2 data filesystem, a bulk K8s VG for volumes, and deliberate free reserves
+so future-you can extend without pain. On `alpha` this followed the
+**existing-install path** (Ubuntu already installed on LVM) — we create LVs
+from free extents and add VGs; we do NOT repartition a live filesystem just to
+make the diagram pretty.
+
+## 10.1 Inspect first (never guess)
+
+```bash
+lsblk -f
+sudo pvs ; sudo vgs ; sudo lvs
+```
+
+**Actual topology on alpha:**
+| Disk | Size | Role | State |
+|------|------|------|-------|
+| `nvme0n1` | 1.9T NVMe | OS | `ubuntu-vg` PV = whole disk, 100G root, **1.76T free** |
+| `sda` | 5.5T HDD | bulk | completely unformatted |
+
+**Why inspect:** the design explicitly says don't casually shrink a live
+filesystem. The NVMe is one big PV owned by `ubuntu-vg`, so a *separate* fast
+NVMe VG is impossible without a repartition → we create LVs inside `ubuntu-vg`
+instead.
+
+## 10.2 Dedicated RKE2 filesystem (fast, on NVMe)
+
+**Why:** RKE2's data dir must be on fast storage with its own headroom, so
+runaway etcd/containerd can't fill root.
+
+```bash
+# 320G logical volume from ubuntu-vg free extents (NOT a partition shrink)
+sudo lvcreate -L 320G -n rke2 ubuntu-vg
+# format XFS (defaults,noatime)
+sudo mkfs.xfs /dev/ubuntu-vg/rke2
+
+sudo mkdir -p /var/lib/rancher/rke2
+echo '/dev/ubuntu-vg/rke2 /var/lib/rancher/rke2 xfs defaults,noatime 0 2' | sudo tee -a /etc/fstab
+sudo mount -a
+sudo systemctl daemon-reload   # systemd cached the old fstab
+```
+
+**Verified:**
+```bash
+findmnt /var/lib/rancher/rke2   # -> xfs, rw,noatime
+df -hT /var/lib/rancher/rke2    # -> 320G, 314G avail
+```
+
+## 10.3 Bulk Kubernetes VG on the HDD
+
+**Why:** bulk/cheap K8s volumes go on the HDD; we give it ~60% (~3.3T) and
+leave the rest as emergency reserve (LVM free extents are more useful in a
+crisis than a 100%-allocated disk).
+
+```bash
+# GPT table + one 0-60% partition, labeled for intent
+sudo parted -s /dev/sda mklabel gpt
+sudo parted -s /dev/sda mkpart primary 0% 60%
+sudo parted -s /dev/sda name 1 k8s_bulk
+
+sudo pvcreate /dev/sda1
+sudo vgcreate vg_k8s_hdd /dev/sda1
+```
+
+**Verified:** `vgs vg_k8s_hdd` → `3.27t`, `3.27t` free. ~2.2T left unallocated
+on the HDD as emergency reserve.
+
+## 10.4 Fast NVMe VG (deferred)
+
+`vg_k8s_nvme` is **not** created: the NVMe's only PV (`nvme0n1p3`) fully
+belongs to `ubuntu-vg`. Splitting it would require shrinking a live XFS/ext4
+filesystem — explicitly forbidden by the design on an existing install.
+Recorded as **deferred**; can be done at the next clean reinstall.
+
+## 10.5 Enable OpenEBS-required LVM module
+
+```bash
+sudo modprobe dm_snapshot
+echo dm_snapshot | sudo tee /etc/modules-load.d/openebs-lvm.conf
+```
+
+**Why:** OpenEBS LocalPV LVM needs `dm-snapshot` (device-mapper snapshot). The
+file makes it load at every boot.
+
+## Checkpoint 7 (verified on alpha)
+
+| Requirement | Status |
+|-------------|--------|
+| root filesystem with free headroom | ✅ 66G free (30% used) |
+| `/var/lib/rancher/rke2` on fast storage | ✅ 320G NVMe, 314G free |
+| `vg_k8s_nvme` visible | ⏸️ deferred (needs repartition) |
+| `vg_k8s_hdd` visible | ✅ 3.27T |
+| meaningful emergency reserve | ✅ ~2.2T unallocated on HDD |
+| `dm_snapshot` loaded + persisted | ✅ |
+
+**Infra encoding:** `infra/ansible/roles/storage/` — `defaults/main.yml`
+commits the intended VG names (`rke2`, `vg_k8s_nvme`, `vg_k8s_hdd`), not device
+serials; `tasks` idempotently create the rke2 LV, mount it, create `vg_k8s_hdd`,
+and load/persist `dm_snapshot`. The fast NVMe VG is intentionally absent there.
+
+</details>
+
+- ✅ `done` — [desired logical layout](../reference-design/build/03-build-the-host/20-19-1-desired-logical-layout/index.md)
 - ⬜ `not-started` — [fresh-install target](../reference-design/build/03-build-the-host/21-19-2-fresh-install-target/index.md)
-- ⬜ `not-started` — [existing-install path](../reference-design/build/03-build-the-host/22-19-3-existing-install-path/index.md)
-- ⬜ `not-started` — [create dedicated RKE2 filesystem only when backing storage is known](../reference-design/build/03-build-the-host/23-19-4-create-dedicated-rke2-filesystem-only-when-backing-storage-is-known/index.md)
-- ⬜ `not-started` — [Kubernetes fast VG](../reference-design/build/03-build-the-host/24-19-5-kubernetes-fast-vg/index.md)
-- ⬜ `not-started` — [Kubernetes bulk VG](../reference-design/build/03-build-the-host/25-19-6-kubernetes-bulk-vg/index.md)
-- ⬜ `not-started` — [required LVM module](../reference-design/build/03-build-the-host/26-19-7-required-lvm-module/index.md)
+- ✅ `done` — [existing-install path](../reference-design/build/03-build-the-host/22-19-3-existing-install-path/index.md)
+- ✅ `done` — [create dedicated RKE2 filesystem only when backing storage is known](../reference-design/build/03-build-the-host/23-19-4-create-dedicated-rke2-filesystem-only-when-backing-storage-is-known/index.md)
+- ⏸️ `deferred` — [Kubernetes fast VG](../reference-design/build/03-build-the-host/24-19-5-kubernetes-fast-vg/index.md)
+- ✅ `done` — [Kubernetes bulk VG](../reference-design/build/03-build-the-host/25-19-6-kubernetes-bulk-vg/index.md)
+- ✅ `done` — [required LVM module](../reference-design/build/03-build-the-host/26-19-7-required-lvm-module/index.md)
 - ⬜ `not-started` — [Phase 11 — filesystem quotas for developer homes](../reference-design/build/03-build-the-host/27-20-phase-11-filesystem-quotas-for-developer-homes/index.md)
 - ⬜ `not-started` — [Phase 12 — NVIDIA host driver baseline](../reference-design/build/03-build-the-host/28-21-phase-12-nvidia-host-driver-baseline/index.md)
 

@@ -1,2 +1,60 @@
 ---
-# storage
+# storage — Phase 10: storage architecture.
+#
+# Idempotent, safe on existing installs:
+#   - create the dedicated `rke2` LV on the OS VG (NVMe) from free extents
+#   - format + mount /var/lib/rancher/rke2
+#   - create the bulk K8s VG on the HDD partition
+#   - ensure the LVM module OpenEBS needs is loaded and persisted
+#
+# The fast NVMe VG (vg_k8s_nvme) is deliberately NOT created here: it would
+# require shrinking a live filesystem, which is deferred (see defaults).
+
+- name: Ensure LVM tools are present
+  ansible.builtin.apt:
+    name: lvm2
+    state: present
+
+- name: Ensure required LVM kernel modules are loaded and persisted
+  ansible.builtin.modprobe:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ storage_lvm_modules }}"
+  register: modprobe_result
+  notify: persist lvm modules
+
+- name: Create dedicated rke2 logical volume if it does not exist
+  ansible.builtin.lvol:
+    vg: "{{ storage_rke2_vg }}"
+    lv: "{{ storage_rke2_lv }}"
+    size: 320g
+    shrink: false
+  when: "'/dev/{{ storage_rke2_vg }}/{{ storage_rke2_lv }}' not in ansible_facts.devices"
+
+- name: Create mountpoint directory
+  ansible.builtin.file:
+    path: "{{ storage_rke2_mount }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Format rke2 LV with XFS (only first time)
+  ansible.builtin.filesystem:
+    fstype: xfs
+    dev: "/dev/{{ storage_rke2_vg }}/{{ storage_rke2_lv }}"
+
+- name: Mount rke2 filesystem
+  ansible.posix.mount:
+    path: "{{ storage_rke2_mount }}"
+    src: "/dev/{{ storage_rke2_vg }}/{{ storage_rke2_lv }}"
+    fstype: xfs
+    opts: defaults,noatime
+    state: mounted
+
+# --- bulk VG on the HDD partition ---
+- name: Create bulk Kubernetes volume group if absent
+  community.general.lvg:
+    vg: "{{ storage_bulk_vg }}"
+    pvs: "{{ storage_bulk_device }}"
+    state: present
