@@ -121,7 +121,6 @@ def main() -> int:
         {"Reference Design": [{"Overview": "reference-design/index.md"}, *build_nav()]},
         {"Implementation": [
             {"Progress": "implementation/index.md"},
-            {"Build Runbook (Command Log)": "implementation/runbook.md"},
         ]},
     ]
 

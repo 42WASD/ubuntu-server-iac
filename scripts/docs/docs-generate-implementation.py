@@ -65,6 +65,35 @@ def scan_reference() -> list[dict]:
     return parts
 
 
+def load_runbook() -> dict[str, str]:
+    """Load per-phase runbook markdown, keyed by phase path.
+
+    Each runbook file lives under docs/implementation/runbook/ and carries YAML
+    frontmatter: `phase: <reference/build/...>` mapping it to a build phase.
+    Returns {phase_path: markdown_body}.
+    """
+    from io import StringIO
+    base = REPO / "docs" / "implementation" / "_runbook"
+    out: dict[str, str] = {}
+    if not base.exists():
+        return out
+    for f in sorted(base.rglob("*.md")):
+        text = f.read_text()
+        fm, body = None, text
+        if text.startswith("---"):
+            parts = text.split("---", 2)
+            if len(parts) == 3:
+                fm = yaml.safe_load(parts[1]) or {}
+                body = parts[2].strip()
+        phase = (fm or {}).get("phase")
+        if phase:
+            out[phase] = body
+    return out
+
+
+RUNBOOK = load_runbook()
+
+
 def load_progress() -> dict:
     if PROGRESS.exists():
         return yaml.safe_load(PROGRESS.read_text()) or {}
@@ -124,6 +153,19 @@ def part_bar(p: dict, progress: dict) -> tuple[str, str]:
     return f"{pct}%", bar_html
 
 
+def runbook_box(path: str, title: str, icon: str) -> str:
+    """Return a collapsible <details> with the phase's runbook body, or ''."""
+    body = RUNBOOK.get(path)
+    if not body:
+        return ""
+    return (
+        f"<details markdown=\"1\" class=\"runbook\">\n"
+        f"<summary>{icon} 📜 Build log — {title}</summary>\n\n"
+        f"{body}\n\n"
+        f"</details>"
+    )
+
+
 def render(parts: list[dict], progress: dict) -> str:
     counts = {k: 0 for k in STATUS_ORDER}
     total = sum(len(p["sections"]) for p in parts)
@@ -141,14 +183,16 @@ def render(parts: list[dict], progress: dict) -> str:
 
     for p in parts:
         pct_s, bar_html = part_bar(p, progress)
-        lines += [f"### {pct_s} — {p['title']}", "", bar_html, "",
-                  "| Status | Phase |", "|--------|-------|"]
+        lines += [f"### {pct_s} — {p['title']}", "", bar_html, ""]
         for s in p["sections"]:
             path = f"{p['slug']}/{s['slug']}"
             st = status_of(progress, path)
             icon = STATUS_ICON[st]
             link = f"../reference-design/build/{path}/index.md"
-            lines.append(f"| {icon} `{st}` | [{s['title']}]({link}) |")
+            lines.append(f"- {icon} `{st}` — [{s['title']}]({link})")
+            rb = runbook_box(path, s["title"], icon)
+            if rb:
+                lines += ["", rb, ""]
         lines.append("")
 
     return "\n".join(lines).rstrip() + "\n"
@@ -172,30 +216,6 @@ def main() -> int:
         )
     else:
         content = content.rstrip() + "\n\n" + replacement + "\n"
-
-    # Inject the runbook into its collapsible placeholder so developers can see
-    # the command log inline on this page without navigating away. runbook.md
-    # stays the single source of truth. `md_in_html` + `markdown="1"` lets the
-    # inner markdown (headings, lists, code fences) render properly.
-    rb_start = "<!-- BEGIN_GENERATED_RUNBOOK -->"
-    rb_end = "<!-- END_GENERATED_RUNBOOK -->"
-    rb = REPO / "docs" / "implementation" / "runbook.md"
-    if rb.exists() and rb_start in content and rb_end in content:
-        inner = rb.read_text().strip()
-        rb_block = (
-            f"{rb_start}\n\n"
-            f"<details markdown=\"1\">\n"
-            f"<summary>📜 Show build commands (Phases 0–4)</summary>\n\n"
-            f"{inner}\n\n"
-            f"</details>\n\n"
-            f"{rb_end}"
-        )
-        content = re.sub(
-            re.escape(rb_start) + r".*?" + re.escape(rb_end),
-            lambda m: rb_block,
-            content,
-            flags=re.S,
-        )
 
     OUT.write_text(content)
     print(f"Generated implementation progress: {len(parts)} parts, {len(parts) and sum(len(p['sections']) for p in parts)} sections -> {OUT}")
