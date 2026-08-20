@@ -40,15 +40,15 @@ edit/correct).
 
 ## Overall progress
 
-**39 / 92** phases/sections complete (**42%**).
+**40 / 92** phases/sections complete (**43%**).
 
-<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:42.4%"></div></div><div class="progress-pct">42%</div></div>
+<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:43.5%"></div></div><div class="progress-pct">43%</div></div>
 
 | Status | Count |
 |--------|-------|
-| ✅ done | 39 |
+| ✅ done | 40 |
 | 🔶 in-progress | 0 |
-| ⬜ not-started | 50 |
+| ⬜ not-started | 49 |
 | ❌ blocked | 1 |
 | ⏸️ deferred | 2 |
 
@@ -2172,16 +2172,16 @@ gate before adding more components.
 </details>
 
 
-### 33% — Part V — GitOps bootstrap
+### 42% — Part V — GitOps bootstrap
 
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:33.0%"></div></div><div class="progress-pct" style="font-size:.85em;">33%</div><div class="tip-box"><strong>Done (4)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:42.0%"></div></div><div class="progress-pct" style="font-size:.85em;">42%</div><div class="tip-box"><strong>Done (5)</strong>
 • Phase 19 — install Argo CD exactly once by hand
 • Phase 20 — root GitOps application
 • AppProjects
 • Phase 21 — namespace baseline
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (8)</strong>
-• Phase 22 — PriorityClasses
 • Phase 23 — ResourceQuota
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (7)</strong>
+• Phase 22 — PriorityClasses
 • Phase 24 — LimitRange
 • Phase 25 — default-deny NetworkPolicy
 • Phase 26 — RBAC
@@ -2403,7 +2403,62 @@ they are no longer in the manifest.
 </details>
 
 - ⬜ `not-started` — [Phase 22 — PriorityClasses](../reference-design/build/05-gitops-bootstrap/04-31-phase-22-priorityclasses/index.md)
-- ⬜ `not-started` — [Phase 23 — ResourceQuota](../reference-design/build/05-gitops-bootstrap/05-32-phase-23-resourcequota/index.md)
+- ✅ `done` — [Phase 23 — ResourceQuota](../reference-design/build/05-gitops-bootstrap/05-32-phase-23-resourcequota/index.md)
+
+<details markdown="1" class="runbook">
+<summary>✅ 📜 Build log — Phase 23 — ResourceQuota</summary>
+
+# Phase 23 — ResourceQuota
+
+Applied a `namespace-budget` ResourceQuota to every tenant namespace as a
+**ceiling** (not a reservation). Ceilings may sum beyond physical capacity; the
+sum of actually-scheduled requests cannot.
+
+## 23.1 Manifests
+
+`infra/kubernetes/platform/quotas/`:
+
+- `jya0.yaml` — `dev-jya0`, `prd-jya0`
+- `42wasd-admin.yaml` — `dev-42wasd-admin`, `prd-42wasd-admin`
+- `mlops.yaml` — `mlops`, includes `requests.nvidia.com/gpu: "1"` ceiling
+- `games.yaml` — `prd-games-42wasd-admin` (canonical) and
+  `dev-games-42wasd-admin` (ephemeral staging, intentionally small)
+
+Values come from the initial quota reference (`02-110`), with game lanes
+documented as "tune after games".
+
+Managed by a new Argo child app `platform-quotas` (sync-wave `-10`) in
+`infra/kubernetes/bootstrap/argocd/apps/platform-quotas.yaml`. The
+`platform-root` app auto-discovered it after a hard refresh.
+
+## 23.2 Applied via Argo CD
+
+```bash
+kubectl -n argocd get applications
+# platform-quotas  Synced  Healthy
+```
+
+Verified a `namespace-budget` quota in every tenant namespace:
+
+```bash
+for ns in dev-jya0 prd-jya0 dev-42wasd-admin prd-42wasd-admin mlops \
+          dev-games-42wasd-admin prd-games-42wasd-admin; do
+  kubectl -n $ns get resourcequota namespace-budget --no-headers
+done
+```
+
+`mlops` hard limits include:
+
+```json
+{"requests.nvidia.com/gpu":"1","requests.cpu":"8","limits.cpu":"16",
+ "requests.memory":"16Gi","limits.memory":"32Gi", ...}
+```
+
+The GPU ceiling is defined now; the physical GPU is added in a later phase.
+GPU is governed by quota + admission, not namespace splitting.
+
+</details>
+
 - ⬜ `not-started` — [Phase 24 — LimitRange](../reference-design/build/05-gitops-bootstrap/06-33-phase-24-limitrange/index.md)
 - ⬜ `not-started` — [Phase 25 — default-deny NetworkPolicy](../reference-design/build/05-gitops-bootstrap/07-34-phase-25-default-deny-networkpolicy/index.md)
 - ⬜ `not-started` — [Phase 26 — RBAC](../reference-design/build/05-gitops-bootstrap/08-35-phase-26-rbac/index.md)
