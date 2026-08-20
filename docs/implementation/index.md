@@ -2710,7 +2710,55 @@ authorization only.
 </details>
 
   - ✅ `done` — [dev Role](../reference-design/build/05-gitops-bootstrap/08-35-phase-26-rbac/dev-role/index.md)
+
+<details markdown="1" class="runbook">
+<summary>✅ 📜 Build log — dev Role</summary>
+
+# dev Role (26.1)
+
+The `tenant-developer` Role grants full CRUD on pods, services, endpoints,
+configmaps, PVCs, deployments/replicasets/statefulsets, jobs/cronjobs, plus
+`exec`/`portforward`, scoped to a single dev namespace. The RoleBinding binds
+the identity group (e.g. `tenant-42wasd-admin`) into that namespace.
+
+Part of Phase 26 — RBAC, applied via Argo CD:
+
+```bash
+kubectl -n argocd patch application platform-root \
+  --type merge -p '{"metadata":{"annotations":{"argocd.argoproj.io/refresh":"hard"}}}'
+# -> platform-rbac  Synced  Healthy
+```
+
+Verified the `dev-42wasd-admin` namespace has the expected Role + RoleBinding.
+
+</details>
+
   - ✅ `done` — [production is intentionally different](../reference-design/build/05-gitops-bootstrap/08-35-phase-26-rbac/production-is-intentionally-different/index.md)
+
+<details markdown="1" class="runbook">
+<summary>✅ 📜 Build log — production is intentionally different</summary>
+
+# production is intentionally different (26.2)
+
+In prod namespaces developers are read-only (`get`/`list`/`watch`/`logs`/
+`events`, possibly port-forward). Application writes come exclusively from
+Argo CD. A principal that can create arbitrary prod Pods can mount Secrets
+from that namespace even if RBAC denies direct `get secret`, so giving devs
+write access in prod would make the "cannot read Secret" boundary meaningless.
+
+Verified with `kubectl auth can-i` (as the tenant group):
+
+```bash
+kubectl auth can-i create deployments -n prd-42wasd-admin \
+  --as=system:serviceaccount --as-group=tenant-42wasd-admin   # no
+kubectl auth can-i get pods -n prd-42wasd-admin \
+  --as=system:serviceaccount --as-group=tenant-42wasd-admin   # yes
+kubectl auth can-i get secrets -n prd-42wasd-admin \
+  --as=system:serviceaccount --as-group=tenant-42wasd-admin   # no
+```
+
+</details>
+
 - ⬜ `not-started` — [Phase 27 — authentication for Kubernetes developers](../reference-design/build/05-gitops-bootstrap/11-36-phase-27-authentication-for-kubernetes-developers/index.md)
 
 ### 0% — Part VI — Policy enforcement
