@@ -18,10 +18,14 @@ sudo pvs ; sudo vgs ; sudo lvs
 ```
 
 **Actual topology on alpha:**
-| Disk | Size | Role | State |
-|------|------|------|-------|
-| `nvme0n1` | 1.9T NVMe | OS | `ubuntu-vg` PV = whole disk, 100G root, **1.76T free** |
-| `sda` | 5.5T HDD | bulk | completely unformatted |
+
+<table>
+<thead><tr><th>Disk</th><th>Size</th><th>Role</th><th>State</th></tr></thead>
+<tbody>
+<tr><td><code>nvme0n1</code></td><td>1.9T NVMe</td><td>OS</td><td><code>ubuntu-vg</code> PV = whole disk, 100G root, <strong>1.76T free</strong></td></tr>
+<tr><td><code>sda</code></td><td>5.5T HDD</td><td>bulk</td><td>completely unformatted</td></tr>
+</tbody>
+</table>
 
 **Why inspect:** the design explicitly says don't casually shrink a live
 filesystem. The NVMe is one big PV owned by `ubuntu-vg`, so a *separate* fast
@@ -122,14 +126,15 @@ file makes it load at every boot.
 
 ## Checkpoint 7 (verified on alpha)
 
-| Requirement | Status |
-|-------------|--------|
-| root filesystem with free headroom | ✅ 66G free (30% used) |
-| `/var/lib/rancher/rke2` on fast storage | ✅ 320G NVMe, 314G free |
-| `vg_k8s_nvme` visible | ✅ 754.6G fast NVMe |
-| `vg_k8s_hdd` visible | ✅ 3.27T |
-| meaningful emergency reserve | ✅ ~2.2T unallocated on HDD |
-| `dm_snapshot` loaded + persisted | ✅ |
+<table>
+<tr><th>Requirement</th><th>Status</th></tr>
+<tr><td>root filesystem with free headroom</td><td>✅ 66G free (30% used)</td></tr>
+<tr><td><code>/var/lib/rancher/rke2</code> on fast storage</td><td>✅ 320G NVMe, 314G free</td></tr>
+<tr><td><code>vg_k8s_nvme</code> visible</td><td>✅ 754.6G fast NVMe</td></tr>
+<tr><td><code>vg_k8s_hdd</code> visible</td><td>✅ 3.27T</td></tr>
+<tr><td>meaningful emergency reserve</td><td>✅ ~2.2T unallocated on HDD</td></tr>
+<tr><td><code>dm_snapshot</code> loaded + persisted</td><td>✅</td></tr>
+</table>
 
 **Infra encoding:** `infra/ansible/roles/storage/` — `defaults/main.yml`
 commits the intended VG names (`rke2`, `vg_k8s_nvme`, `vg_k8s_hdd`), not device

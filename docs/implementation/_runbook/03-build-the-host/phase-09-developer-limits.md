@@ -60,10 +60,14 @@ systemctl show user-1000.slice -p CPUQuotaPerSecUSec -p MemoryHigh -p MemoryMax 
 ```
 
 **Verified on alpha** (matches intended profiles):
-| Slice | CPU | MemoryHigh | MemoryMax | TasksMax | IOWeight |
-|-------|-----|-----------|-----------|----------|----------|
-| user-1000 (jyao) | 8s (800%) | 16G | 24G | 8192 | 75 |
-| user-1001..1004 | 4s (400%) | 8G | 12G | 4096 | 50 |
+
+<table>
+<thead><tr><th>Slice</th><th>CPU</th><th>MemoryHigh</th><th>MemoryMax</th><th>TasksMax</th><th>IOWeight</th></tr></thead>
+<tbody>
+<tr><td>user-1000 (jyao)</td><td>8s (800%)</td><td>16G</td><td>24G</td><td>8192</td><td>75</td></tr>
+<tr><td>user-1001..1004</td><td>4s (400%)</td><td>8G</td><td>12G</td><td>4096</td><td>50</td></tr>
+</tbody>
+</table>
 
 > NOTE: existing logged-in sessions only pick up new limits after the user
 > logs out and back in (the slice is recreated at login).
