@@ -45,3 +45,4 @@
 "04-install-rke2-correctly/04-25-phase-16-install-and-start-rke2": "done"
 "04-install-rke2-correctly/05-25-1-inspect-cilium": "done"
 "04-install-rke2-correctly/06-25-2-verify-rke2-secrets-encryption": "done"
+"04-install-rke2-correctly/07-26-phase-17-admin-kubeconfig-and-cli-convenience": "done"

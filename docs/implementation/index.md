@@ -40,15 +40,15 @@ edit/correct).
 
 ## Overall progress
 
-**33 / 92** phases/sections complete (**36%**).
+**34 / 92** phases/sections complete (**37%**).
 
-<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:35.9%"></div></div><div class="progress-pct">36%</div></div>
+<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:37.0%"></div></div><div class="progress-pct">37%</div></div>
 
 | Status | Count |
 |--------|-------|
-| ✅ done | 33 |
+| ✅ done | 34 |
 | 🔶 in-progress | 0 |
-| ⬜ not-started | 56 |
+| ⬜ not-started | 55 |
 | ❌ blocked | 1 |
 | ⏸️ deferred | 2 |
 
@@ -1157,9 +1157,9 @@ through reboot cycles since the driver install.
 </details>
 
 
-### 78% — Part IV — Install RKE2 correctly
+### 89% — Part IV — Install RKE2 correctly
 
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:78.0%"></div></div><div class="progress-pct" style="font-size:.85em;">78%</div><div class="tip-box"><strong>Done (7)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:89.0%"></div></div><div class="progress-pct" style="font-size:.85em;">89%</div><div class="tip-box"><strong>Done (8)</strong>
 • Phase 13 — choose and pin the RKE2 release
 • Phase 14 — RKE2 configuration
 • kubelet configuration
@@ -1167,8 +1167,8 @@ through reboot cycles since the driver install.
 • Phase 16 — install and start RKE2
 • inspect Cilium
 • verify RKE2 Secrets encryption
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (2)</strong>
 • Phase 17 — admin kubeconfig and CLI convenience
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (1)</strong>
 • Phase 18 — verify reboot recovery now, not later</div></div>
 
 - ✅ `done` — [Phase 13 — choose and pin the RKE2 release](../reference-design/build/04-install-rke2-correctly/00-22-phase-13-choose-and-pin-the-rke2-release/index.md)
@@ -1915,7 +1915,97 @@ Secrets-at-rest encryption is confirmed **Enabled**. No rotation performed.
 
 </details>
 
-- ⬜ `not-started` — [Phase 17 — admin kubeconfig and CLI convenience](../reference-design/build/04-install-rke2-correctly/07-26-phase-17-admin-kubeconfig-and-cli-convenience/index.md)
+- ✅ `done` — [Phase 17 — admin kubeconfig and CLI convenience](../reference-design/build/04-install-rke2-correctly/07-26-phase-17-admin-kubeconfig-and-cli-convenience/index.md)
+
+<details markdown="1" class="runbook">
+<summary>✅ 📜 Build log — Phase 17 — admin kubeconfig and CLI convenience</summary>
+
+# Phase 17 — admin kubeconfig and CLI convenience
+
+**Intent:** give the **platform admin only** (`jyao`) the RKE2 admin kubeconfig
+and expose `kubectl` / `crictl` for day-to-day admin convenience. Developers do
+**not** get this file — they receive their own identities/kubeconfigs later
+(Phase 26 RBAC).
+
+## 17.1 Admin kubeconfig
+
+Copied the root-only RKE2 admin kubeconfig into the admin user's home:
+
+```bash
+mkdir -p /home/jyao/.kube
+sudo cp /etc/rancher/rke2/rke2.yaml /home/jyao/.kube/config
+sudo chown -R jyao:jyao /home/jyao/.kube
+chmod 600 /home/jyao/.kube/config
+```
+
+## 17.2 Point the kubeconfig at the management address
+
+RKE2 generates the admin kubeconfig with `server: https://127.0.0.1:6443`.
+The reference design says to change it to the management address so it works
+remotely.
+
+> **Design decision — MagicDNS name, not the raw IP.** The reference uses
+> `<ALPHA_TAILSCALE_IP>`, but consistent with Phase 14 we used the stable
+> Tailscale MagicDNS hostname (`alpha.taild82ced.ts.net`) instead. This name is
+> already in the serving certificate's `tls-san`, and unlike the 100.x IP it
+> cannot be reallocated. So `kubectl` presents a valid cert and keeps working
+> across Tailscale address changes.
+
+```bash
+sed -i 's|https://127.0.0.1:6443|https://alpha.taild82ced.ts.net:6443|' /home/jyao/.kube/config
+```
+
+Result: `server: https://alpha.taild82ced.ts.net:6443`.
+
+## 17.3 Expose bundled CLI tools
+
+```bash
+sudo ln -sf /var/lib/rancher/rke2/bin/kubectl /usr/local/bin/kubectl
+sudo ln -sf /var/lib/rancher/rke2/bin/crictl /usr/local/bin/crictl
+```
+
+`crictl` also needed to know RKE2's non-standard containerd socket. Created
+`/etc/crictl.yaml`:
+
+```yaml
+runtime-endpoint: unix:///run/k3s/containerd/containerd.sock
+image-endpoint: unix:///run/k3s/containerd/containerd.sock
+timeout: 10
+debug: false
+```
+
+## 17.4 Verify
+
+```bash
+export KUBECONFIG=/home/jyao/.kube/config
+kubectl get nodes
+```
+
+Observed:
+
+```text
+NAME    STATUS   ROLES                AGE   VERSION          CONTAINER-RUNTIME
+alpha   Ready    control-plane,etcd   16m   v1.36.3+rke2r1   containerd://2.3.3-k3s1
+```
+
+`kubectl get nodes` succeeds over the MagicDNS address with a valid cert.
+`sudo crictl version` reports containerd `v2.3.3-k3s1`.
+
+## 17.5 What was implemented (Ansible)
+
+- `rke2_server` defaults: `rke2_admin_user`, `rke2_admin_kubeconfig_server`
+  (MagicDNS), `rke2_admin_kubeconfig_source`, `rke2_admin_kubeconfig_dest`.
+- `tasks/main.yml`: create `kubectl` / `crictl` symlinks, write
+  `/etc/crictl.yaml`, copy + own the admin kubeconfig, and rewrite its `server`
+  to the management hostname.
+
+## 17.6 Result
+
+Admin access over Tailscale with a valid serving certificate is confirmed.
+Developers keep their own identities per Phase 26.
+
+</details>
+
 - ⬜ `not-started` — [Phase 18 — verify reboot recovery now, not later](../reference-design/build/04-install-rke2-correctly/08-27-phase-18-verify-reboot-recovery-now-not-later/index.md)
 
 ### 0% — Part V — GitOps bootstrap

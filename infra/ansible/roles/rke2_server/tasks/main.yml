@@ -101,3 +101,47 @@
   ansible.builtin.systemd:
     name: rke2-server
     state: started
+
+# --- Phase 17: admin kubeconfig + CLI convenience ---
+
+- name: Expose bundled kubectl for the admin
+  ansible.builtin.file:
+    src: /var/lib/rancher/rke2/bin/kubectl
+    dest: /usr/local/bin/kubectl
+    state: link
+
+- name: Expose bundled crictl for the admin
+  ansible.builtin.file:
+    src: /var/lib/rancher/rke2/bin/crictl
+    dest: /usr/local/bin/crictl
+    state: link
+
+# RKE2's containerd listens on a non-standard socket path; point crictl at it
+# so `sudo crictl` works out of the box for the admin.
+- name: Configure crictl to use the RKE2 containerd socket
+  ansible.builtin.copy:
+    dest: /etc/crictl.yaml
+    content: |
+      runtime-endpoint: unix:///run/k3s/containerd/containerd.sock
+      image-endpoint: unix:///run/k3s/containerd/containerd.sock
+      timeout: 10
+      debug: false
+    mode: "0644"
+
+- name: Copy admin kubeconfig into the admin's ~/.kube/config
+  ansible.builtin.copy:
+    src: "{{ rke2_admin_kubeconfig_source }}"
+    dest: "{{ rke2_admin_kubeconfig_dest }}"
+    remote_src: true
+    owner: "{{ rke2_admin_user }}"
+    group: "{{ rke2_admin_user }}"
+    mode: "0600"
+
+# The generated rke2.yaml points the server at 127.0.0.1. Rewrite it to the
+# stable Tailscale MagicDNS name so the admin can reach the API server over
+# Tailscale with a valid serving certificate (matches the tls-san in config.yaml).
+- name: Point admin kubeconfig server at the management hostname
+  ansible.builtin.replace:
+    path: "{{ rke2_admin_kubeconfig_dest }}"
+    regexp: "https://127\\.0\\.0\\.1:6443"
+    replace: "{{ rke2_admin_kubeconfig_server }}"

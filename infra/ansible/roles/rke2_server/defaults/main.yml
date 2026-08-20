@@ -136,3 +136,24 @@ rke2_cilium_hubble_ui_enabled: false
 # the second replica requests host ports that can bind only once per node, so
 # it sits Pending forever. Scale to 1 explicitly until more nodes join.
 rke2_cilium_operator_replicas: 1
+
+# ---------------------------------------------------------------------------
+# Admin kubeconfig + CLI convenience (Phase 17)
+# The RKE2 admin kubeconfig (/etc/rancher/rke2/rke2.yaml) is only for the
+# platform admin. Developers get their OWN identities later (Phase 26).
+# ---------------------------------------------------------------------------
+
+# Platform admin who owns ~/.kube/config.
+rke2_admin_user: "{{ platform_admin_user }}"
+
+# kubeconfig server address. We prefer the stable Tailscale MagicDNS hostname
+# (already in the serving cert tls-san) over the raw 100.x IP so kubectl over
+# Tailscale presents a valid cert. Falls back to the raw IP if DNS is unset.
+rke2_admin_kubeconfig_server: "{{ 'https://' ~ network.management_tailscale_dnsname ~ ':6443'
+        if network.management_tailscale_dnsname is defined
+        else 'https://127.0.0.1:6443' }}"
+
+# RKE2-generated admin kubeconfig (root-only source of truth).
+rke2_admin_kubeconfig_source: /etc/rancher/rke2/rke2.yaml
+# Per-admin copy (absolute path; `~` does not expand in the copy task).
+rke2_admin_kubeconfig_dest: "/home/{{ rke2_admin_user }}/.kube/config"
