@@ -19,6 +19,10 @@ cluster — never committed to Git.
   `secretKeyRef` — the literal never appears in Git.
 - Named `metrics` port `20241`; `startupProbe` + `livenessProbe` on
   `GET /ready` (the metrics port).
+- `replicas: 2` — each `cloudflared` replica opens 4 connections to the
+  Cloudflare edge, so a second replica keeps the tunnel serving if one pod is
+  killed or restarted. On single-node `alpha` a Daemon would add nothing beyond
+  this, so a Deployment with `replicas: 2` is the right shape here.
 - `--protocol http2` is forced because outbound QUIC/UDP (port 7844) times out
   on this network; cloudflared otherwise stays in a retry loop and never
   registers. HTTP/2 over TCP 443 is fully functional.
@@ -51,17 +55,18 @@ kubectl -n argocd patch application platform-cloudflared \
 ## 46.3 Verification
 
 ```bash
-kubectl -n ingress get pods -l app=cloudflared          # 1/1 Running
-kubectl -n ingress get deploy cloudflared               # 1/1 Available
+kubectl -n ingress get pods -l app=cloudflared          # 2/2 Running
+kubectl -n ingress get deploy cloudflared               # 2/2 Available
 kubectl -n argocd get app platform-cloudflared          # Synced  Healthy
-kubectl -n ingress logs <cloudflared-pod> \
-  | grep "Registered tunnel connection"                 # 4 x connIndex, protocol=http2
+for p in $(kubectl -n ingress get pods -l app=cloudflared -o name); do
+  kubectl -n ingress logs "$p" | grep -c "Registered tunnel connection"
+done
 ```
 
-Logged `Registered tunnel connection` for all four HA connections
-(`connIndex=0..3`) over `protocol=http2`. The `UDP Connectivity FAIL / QUIC`
-lines are informational only — QUIC/UDP is blocked on this network and
-`--protocol http2` forces the TCP/443 path.
+Each replica logs `Registered tunnel connection` for all four HA connections
+(`connIndex=0..3`) over `protocol=http2` — 8 total across the two replicas.
+The `UDP Connectivity FAIL / QUIC` lines are informational only; QUIC/UDP is
+blocked on this network and `--protocol http2` forces the TCP/443 path.
 
 ## 46.4 Notes / issues
 
