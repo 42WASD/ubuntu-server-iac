@@ -4,6 +4,14 @@ set -e
 # === 1. Resolve paths in the current user context (before sudo is involved) ===
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 DNS_WRAPPER="$SCRIPT_DIR/vpn-dns-wrapper.sh"
+GPAUTH_BROADCAST="$SCRIPT_DIR/gpauth-broadcast.sh"
+
+# Prefer the broadcast wrapper (Tailscale-reachable auth URL) over stock gpauth.
+if [ -x "$GPAUTH_BROADCAST" ]; then
+    GPAUTH_CMD="$GPAUTH_BROADCAST"
+else
+    GPAUTH_CMD="gpauth"
+fi
 
 # Setup HIP script location (GlobalProtect health check)
 HIP_DIR=~/.config/openconnect
@@ -19,7 +27,7 @@ fi
 
 # === 2. SAML Authentication ===
 echo "=== 1. Starting SAML Authentication ==="
-AUTH_JSON=$(gpauth --browser remote --gateway vpn.ecouncil.ae)
+AUTH_JSON=$($GPAUTH_CMD --browser remote --gateway vpn.ecouncil.ae)
 
 COOKIE=$(echo "$AUTH_JSON" | grep -o '"preloginCookie":"[^"]*' | cut -d'"' -f4)
 USER=$(echo "$AUTH_JSON" | grep -o '"username":"[^"]*' | cut -d'"' -f4)
