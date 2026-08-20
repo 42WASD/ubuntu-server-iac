@@ -40,26 +40,27 @@ edit/correct).
 
 ## Overall progress
 
-**25 / 92** phases/sections complete (**27%**).
+**26 / 92** phases/sections complete (**28%**).
 
-<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:27.2%"></div></div><div class="progress-pct">27%</div></div>
+<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:28.3%"></div></div><div class="progress-pct">28%</div></div>
 
 | Status | Count |
 |--------|-------|
-| ✅ done | 25 |
+| ✅ done | 26 |
 | 🔶 in-progress | 0 |
-| ⬜ not-started | 64 |
+| ⬜ not-started | 63 |
 | ❌ blocked | 1 |
 | ⏸️ deferred | 2 |
 
 ## Progress by part
 
-### 86% — Part III — Build the host
+### 90% — Part III — Build the host
 
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:86.0%"></div></div><div class="progress-pct" style="font-size:.85em;">86%</div><div class="tip-box"><strong>Done (25)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:90.0%"></div></div><div class="progress-pct" style="font-size:.85em;">90%</div><div class="tip-box"><strong>Done (26)</strong>
 • Phase 0 — create the infrastructure repository first
 • Phase 1 — inventory the actual machine
 • Phase 2 — update Ubuntu and install base administration tools
+• unattended security updates
 • Phase 3 — hostname, DNS, and local identity
 • Phase 4 — users, groups, and sudo boundaries
 • platform groups
@@ -82,8 +83,7 @@ edit/correct).
 • required LVM module
 • Phase 11 — filesystem quotas for developer homes
 • Phase 12 — NVIDIA host driver baseline
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (4)</strong>
-• unattended security updates
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (3)</strong>
 • Phase 5 — SSH hardening
 • Tailscale policy concept
 • fresh-install target</div></div>
@@ -222,10 +222,10 @@ sudo systemctl reset-failed grub-initrd-fallback          # transient, not a rea
 
 </details>
 
-- ⬜ `not-started` — [unattended security updates](../reference-design/build/03-build-the-host/03-11-1-unattended-security-updates/index.md)
+- ✅ `done` — [unattended security updates](../reference-design/build/03-build-the-host/03-11-1-unattended-security-updates/index.md)
 
 <details markdown="1" class="runbook">
-<summary>⬜ 📜 Build log — unattended security updates</summary>
+<summary>✅ 📜 Build log — unattended security updates</summary>
 
 # Phase 2.1 — unattended security updates
 
