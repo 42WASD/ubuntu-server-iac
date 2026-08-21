@@ -52,6 +52,26 @@ spec:
             =(containers):
               - =(ports):
                   - X(hostPort): "null"
+    - name: constrain-game-nodeport-range
+      match:
+        any:
+          - resources:
+              kinds:
+                - Service
+              namespaces:
+                - "*-games-*"
+                - "games-*"
+      validate:
+        message: "Game NodePorts must be within the reserved relay range 30000-30199 (VPS pass-through)."
+        deny:
+          conditions:
+            any:
+              - key: "{{ request.object.spec.ports[].nodePort }}"
+                operator: LessThan
+                value: 30000
+              - key: "{{ request.object.spec.ports[].nodePort }}"
+                operator: GreaterThan
+                value: 30199
     - name: forbid-latest-tag-in-prod
       match:
         any:
