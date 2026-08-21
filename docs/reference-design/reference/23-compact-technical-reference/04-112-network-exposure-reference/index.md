@@ -18,6 +18,7 @@ public 80/443
 
 game ports
     VPS relay -> WireGuard -> explicit Kubernetes/game service
+    (policy-routing return path; NO MASQUERADE -> game sees real player IP)
 ```
 
 When additional RKE2 nodes join, follow RKE2's current Cilium-specific node-to-node port requirements and restrict those ports to the node network only.

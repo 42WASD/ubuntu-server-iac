@@ -34,4 +34,11 @@ real UAE mobile path
 GCC path if relevant
 ```
 
+## Return-path design (player IP)
+
+The relay must **not** MASQUERADE inbound game flows, or the game server sees
+only the relay's tunnel IP. Use policy routing on the private side (alpha) to
+send only game return traffic back through the tunnel (see Phase 54), so the
+real player IP is preserved end-to-end into the pod.
+
 ---

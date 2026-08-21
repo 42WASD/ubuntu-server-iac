@@ -3785,7 +3785,52 @@ The WireGuard overhead is negligible — tunnel throughput actually matched the
 public-IP path. No game ports are DNAT'd through it yet; that happens with the
 game-edge architecture decision.
 
-## 55.5 Tooling / notes
+## 55.5 Source-IP preservation — validated approach (research)
+
+**Goal:** the game server/pod should see the **real player IP**, not the
+relay's tunnel address.
+
+**Why not MASQUERADE:** MASQUERADE rewrites the source to the relay's WireGuard
+IP (`10.200.0.1`) so the pod sees that instead of the player. It works but
+hides the player IP.
+
+**Validated technique — Policy Routing on alpha (Pro Custodibus, "WireGuard
+Port Forwarding From the Internet"):** keep the VPS DNAT but **drop the
+MASQUERADE**; on alpha, route only the return traffic back through the tunnel
+via a custom table:
+
+```text
+alpha /etc/wireguard/wg0.conf
+[Interface]
+  Table = 123
+  PreUp   = ip rule add from 10.200.0.2 table 123 priority 456
+  PostDown= ip rule del from 10.200.0.2 table 123 priority 456
+  AllowedIPs = 0.0.0.0/0    # peer -> becomes default route of table 123
+```
+
+Only packets sourced from alpha's WireGuard IP go through the tunnel; all other
+alpha traffic keeps its normal ISP gateway.
+
+**Kubernetes caveat:** a Service can re-SNAT before the pod. Use
+`externalTrafficPolicy: Cluster` and verify the source IP all the way:
+
+```text
+VPS sees  <player_ip>     alpha sees <player_ip>     pod sees <player_ip>  (important)
+```
+
+If the pod sees a `10.x`/node IP, the rewrite is inside Kubernetes (CNI), not
+WireGuard.
+
+**Fallback (pods/containers on a bridge):** Connection Marking
+(`CONNMARK --set-mark` on NEW via wg0; restore mark on return; route marked
+packets via custom table). Only needed when simple policy routing can't pick
+the return path.
+
+> **Status:** research/validation complete; design recorded in reference
+> Phase 54 + 55. **Not yet implemented** — implementation is a follow-up change
+> (removes VPS MASQUERADE, adds alpha policy routing, verifies pod source IP).
+
+## 55.6 Tooling / notes
 
 - `wireguard` + `wireguard-tools` installed on both the VPS and alpha (kernel
   module `wireguard` loaded).
