@@ -1,0 +1,30 @@
+# Kyverno Helm values — pinned chart, single-node friendly.
+# Chart: kyverno (repo https://kyverno.github.io/kyverno/)  version 3.9.0
+#
+# Single-node note (reference Phase 28): 3 replicas on one physical node is
+# NOT real HA. Start with a single replica per controller and only raise it
+# if workload volume actually requires it.
+#
+# The kyverno namespace (platform.tier: platform) is deliberately exempt from
+# the restricted Pod Security profile so the admission controllers can run.
+
+# Scale every controller to 1 replica on this single-node cluster.
+replicaCount: 1
+
+# The Kyverno admission controllers need to bind privileged ports / set
+# elevated settings; keep the default security context provided by the chart.
+# (Do NOT force runAsNonRoot here — the chart manages its own PodSecurityContext.)
+
+# RKE2 uses its own Cilium/CNI; nothing special needed for CNI, but keep the
+# Kyverno webhooks on the cluster's service network.
+config:
+  webhook:
+    # Keep default namespace exclusions so Kyverno itself stays recoverable.
+    namespaceSelector:
+      matchExpressions:
+        - key: kubernetes.io/metadata.name
+          operator: NotIn
+          values:
+            - kyverno
+            - kube-system
+            - argocd
