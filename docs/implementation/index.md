@@ -3844,18 +3844,40 @@ NodePort if the VPS ever stops MASQUERADing).
 
 ### Real ways to expose the player IP into a pod
 
-- **Minecraft proxy** (BungeeCord/Velocity) that re-injects the real player IP
-  (proxy protocol / handshake) — the only clean L7 solution.
+**Verified solution — a Minecraft proxy (Velocity) in front of the game.**
+Velocity (or BungeeCord) is the proxy that faces the client; the real game
+server is a backend only the proxy can reach. Velocity's **player-info
+forwarding** (modern mode, signed handshake) carries each player's real IP to
+the backend at layer 7 — so the NAT the relay does on the wire is irrelevant.
+
+```text
+player -> VPS relay (DNAT+MASQ) -> alpha -> NodePort -> Velocity proxy pod
+                                                                | player-info forwarding
+                                                                v
+                                                       game backend pod (sees real IP)
+```
+
+Config that must match on both sides:
+
+```text
+proxy    velocity.toml : player-info-forwarding-mode = "modern", shared forwarding-secret
+backend  paper-global.yml : proxies.velocity.enabled=true, online-mode=true,
+                            secret=same, forwarding-mode=modern
+backend  server.properties : online-mode=false   # proxy handles auth
+```
+
+Images: proxy `itzg/bungeecord:java17` (`TYPE=VELOCITY`), backend
+`itzg/minecraft-server` (`TYPE=PAPER`). Both run as pods in the cluster; the
+relay NodePort points at the proxy, not the game.
+
 - **Bind the game to `10.200.0.2`** as a plain process on alpha (not a pod) so
   Pro Custodibus policy routing applies.
-- **Accept MASQUERADE** (current) and log the player address at a layer that
-  still has it (reverse proxy before NAT).
 
-Reference-design Phase 54/55 updated to reflect this tested finding.
+Reference-design Phase 54/55 updated to reflect this verified solution.
 
-> **Status:** complete (tried-and-reverted). The relay works and is
-> boot-persistent with MASQUERADE; player-IP-into-pod is documented as not
-> achievable via NAT here.
+> **Status:** complete (tried-and-reverted at L3/L4). The relay works and is
+> boot-persistent with MASQUERADE; player-IP-into-a-pod is **only** achievable
+> via the L7 Velocity proxy architecture (not via NAT).
 
 ## 55.6 Tooling / notes
 
