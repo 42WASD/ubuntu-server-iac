@@ -43,10 +43,13 @@ spec:
               value: "PAPER"
             - name: VERSION
               value: "LATEST"
-            # Auto-download TabListPing from Modrinth on first start (project
-            # id MwLGimob). Only this mod is installed; nothing else changed.
-            - name: MODRINTH_MODS
-              value: "MwLGimob"
+            # Auto-download the TabListPing plugin into /data/plugins on first
+            # start. TabListPing is a Bukkit/Paper plugin; PLUGINS is the itzg
+            # var for downloading individual plugin jars by URL. 2.03 supports
+            # Paper 26.2 (the current VERSION=LATEST). Only this plugin is
+            # installed; nothing else changed.
+            - name: PLUGINS
+              value: "https://cdn.modrinth.com/data/MwLGimob/versions/JB16ulew/TabListPing-2.03.jar"
           securityContext:
             allowPrivilegeEscalation: false
             runAsNonRoot: true

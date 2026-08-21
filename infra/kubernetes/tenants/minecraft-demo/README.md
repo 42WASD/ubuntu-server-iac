@@ -10,7 +10,8 @@ namespace via Argo CD (project `tenant-42wasd-admin`).
   **Paper** (`TYPE=PAPER`, latest supported release), cracked
   (`ONLINE_MODE=FALSE`), 2G heap, restricted-PSA compliant (non-root UID/GID
   1000 + `fsGroup: 1000` + drop ALL caps + seccomp RuntimeDefault). Uses
-  `MODRINTH_MODS=MwLGimob` to auto-install the **TabListPing** plugin only.
+  `PLUGINS` (direct jar URL) to auto-install the **TabListPing 2.03** plugin
+  only.
 - `service.yaml` — ClusterIP on 25565 (game edge is the UAE relay -> WireGuard,
   reference Phase 54; avoids NodePort/LoadBalancer which Kyverno flags).
 - `networkpolicy.yaml` — allows ingress on 25565 and outbound internet (Paper
@@ -22,9 +23,9 @@ TabListPing shows each player's real ping (ms) in the tab list. It is a
 Bukkit/Paper plugin, which is why the server now runs **Paper** instead of
 vanilla (vanilla cannot load plugins). Only this plugin is installed.
 
-The image auto-downloads it from Modrinth via `MODRINTH_MODS=MwLGimob`. The
-`.jar` lands in `/data/plugins/` on the world PVC, so it persists across pod
-restarts.
+The image auto-downloads it via the `PLUGINS` env var (direct Modrinth CDN
+URL, version 2.03 which supports Paper 26.2). The `.jar` lands in
+`/data/plugins/` on the world PVC, so it persists across pod restarts.
 
 ## Why one replica + Recreate
 

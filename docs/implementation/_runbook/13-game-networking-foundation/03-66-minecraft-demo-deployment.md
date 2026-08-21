@@ -174,9 +174,15 @@ Changes in `infra/kubernetes/tenants/minecraft-demo/deployment.yaml`:
 
 - `TYPE: VANILLA` → `TYPE: PAPER` (keeps `VERSION: latest`; image picks the
   latest Paper-supported Minecraft release).
-- Added `MODRINTH_MODS: MwLGimob` — the itzg image auto-downloads TabListPing
-  from Modrinth (project id `MwLGimob`, Bobcat) into `/data/plugins/` on first
-  start, so the `.jar` persists on the world PVC across pod restarts.
+- Added `PLUGINS: https://cdn.modrinth.com/data/MwLGimob/versions/JB16ulew/TabListPing-2.03.jar`
+  — the itzg `PLUGINS` var downloads the plugin jar directly into `/data/plugins/`
+  on first start, so it persists on the world PVC across pod restarts.
+- **Correction:** the first attempt used `MODRINTH_MODS=MwLGimob`, which is
+  **not** a real itzg variable — the env var is passed to the container but
+  nothing is downloaded. The correct mechanism for individual plugin jars on a
+  Paper server is `PLUGINS` (comma/newline list of jar URLs). Also, the server
+  runs Paper 26.2 (`VERSION=LATEST`), which requires **TabListPing 2.03**
+  (2.02 only supports up to 1.21.11); 2.03 explicitly supports 26.1/26.2.
 
 No egress change needed: the NetworkPolicy already allows outbound internet,
 which now also covers the Paper jar + plugin download.
