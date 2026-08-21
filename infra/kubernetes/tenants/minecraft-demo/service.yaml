@@ -9,6 +9,11 @@ spec:
   # load balancer. A future game-edge LB can replace this; the Kyverno
   # restrict-nodeport rule is currently Audit mode (flags, not blocks).
   type: NodePort
+  # Local preserves the real client (player) IP into the pod instead of Cilium
+  # SNAT'ing it. Single-node cluster, so Local has no availability downside
+  # here; it is required so the pod sees the player's public IP (relayed via
+  # the UAE WireGuard tunnel without MASQUERADE) rather than a node IP.
+  externalTrafficPolicy: Local
   selector:
     app: minecraft-demo
   ports:
