@@ -40,14 +40,14 @@ edit/correct).
 
 ## Overall progress
 
-**52 / 92** phases/sections complete (**57%**).
+**53 / 92** phases/sections complete (**58%**).
 
-<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:56.5%"></div></div><div class="progress-pct">57%</div></div>
+<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:57.6%"></div></div><div class="progress-pct">58%</div></div>
 
 | Status | Count |
 |--------|-------|
-| ✅ done | 52 |
-| 🔶 in-progress | 1 |
+| ✅ done | 53 |
+| 🔶 in-progress | 0 |
 | ⬜ not-started | 36 |
 | ❌ blocked | 1 |
 | ⏸️ deferred | 2 |
@@ -2761,13 +2761,13 @@ kubectl auth can-i get secrets -n prd-42wasd-admin \
 
 - ⬜ `not-started` — [Phase 27 — authentication for Kubernetes developers](../reference-design/build/05-gitops-bootstrap/11-36-phase-27-authentication-for-kubernetes-developers/index.md)
 
-### 50% — Part VI — Policy enforcement
+### 75% — Part VI — Policy enforcement
 
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:50.0%"></div></div><div class="progress-pct" style="font-size:.85em;">50%</div><div class="tip-box"><strong>Done (2)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:75.0%"></div></div><div class="progress-pct" style="font-size:.85em;">75%</div><div class="tip-box"><strong>Done (3)</strong>
 • Phase 28 — install Kyverno through Argo CD
-• example: deny hostPath
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (2)</strong>
 • Phase 29 — stage policy before enforcing it
+• example: deny hostPath
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (1)</strong>
 • Phase 30 — policy tests</div></div>
 
 - ✅ `done` — [Phase 28 — install Kyverno through Argo CD](../reference-design/build/06-policy-enforcement/00-37-phase-28-install-kyverno-through-argo-cd/index.md)
@@ -2846,10 +2846,10 @@ No policies are enabled yet — that is Phase 29 (stage in Audit first).
 
 </details>
 
-- 🔶 `in-progress` — [Phase 29 — stage policy before enforcing it](../reference-design/build/06-policy-enforcement/01-38-phase-29-stage-policy-before-enforcing-it/index.md)
+- ✅ `done` — [Phase 29 — stage policy before enforcing it](../reference-design/build/06-policy-enforcement/01-38-phase-29-stage-policy-before-enforcing-it/index.md)
 
 <details markdown="1" class="runbook">
-<summary>🔶 📜 Build log — Phase 29 — stage policy before enforcing it</summary>
+<summary>✅ 📜 Build log — Phase 29 — stage policy before enforcing it</summary>
 
 # Phase 29 — stage policy before enforcing it
 
@@ -2900,11 +2900,29 @@ Expected: all 5 ClusterPolicies present, status `Ready`, mode Audit. No policy
 is enforcing yet — that is the Phase 30 test gate before any rule flips to
 Enforce.
 
+**Live result** (after `platform-root` hard-refresh):
+
+```text
+NAME                                ADMISSION   BACKGROUND   READY   AGE
+disallow-privileged-host-settings   true        true         True    21s
+require-approved-registry-in-prod   true        true         True    21s
+require-resource-limits             true        true         True    21s
+restrict-exposure-and-image-tags    true        true         True    21s
+restrict-storage-priority-gpu       true        true         True    21s
+```
+
+All five report `spec.validationFailureAction: Audit`. Background reports are
+generated per resource. The existing `meme-site` workload in
+`dev-42wasd-admin` remained `Running` (1/1) throughout — confirming the Audit
+policies do **not** block anything. Transient FAILs on older meme-site
+ReplicaSets during the initial background scan are expected staging noise; the
+report for the current Deployment settles clean.
+
 ## 29.5 Next step (Phase 29 → 30)
 
-Inspect `kubectl get policyreport` / `clusterrreport` after policies are live
-to confirm no tenant workload is unexpectedly flagged, then Phase 30 creates
-intentionally-bad manifests to prove the deny rules actually fire.
+Inspect `kubectl get policyreport` / `clusterpolicyreport` after policies are
+live to confirm no tenant workload is unexpectedly flagged, then Phase 30
+creates intentionally-bad manifests to prove the deny rules actually fire.
 
 </details>
 
