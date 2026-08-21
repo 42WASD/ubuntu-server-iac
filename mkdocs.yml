@@ -219,6 +219,7 @@ nav:
       - Phase 53 — keep game workloads in Kubernetes for now: reference-design/build/13-game-networking-foundation/00-62-phase-53-keep-game-workloads-in-kubernetes-for-now/index.md
       - Phase 54 — why game edge is separate from Cloudflare web: reference-design/build/13-game-networking-foundation/01-63-phase-54-why-game-edge-is-separate-from-cloudflare-web/index.md
       - Phase 55 — relay bring-up: reference-design/build/13-game-networking-foundation/02-64-phase-55-relay-bring-up/index.md
+      - Phase 56 — Minecraft server performance (MSPT headroom & player scale): reference-design/build/13-game-networking-foundation/03-67-phase-56-minecraft-server-performance/index.md
     - Part XIV — Backups and disaster recovery:
       - Overview: reference-design/build/14-backups-and-disaster-recovery/index.md
       - Phase 56 — RKE2 etcd snapshots: reference-design/build/14-backups-and-disaster-recovery/00-65-phase-56-rke2-etcd-snapshots/index.md

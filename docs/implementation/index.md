@@ -40,13 +40,13 @@ edit/correct).
 
 ## Overall progress
 
-**57 / 92** phases/sections complete (**62%**).
+**58 / 93** phases/sections complete (**62%**).
 
-<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:62.0%"></div></div><div class="progress-pct">62%</div></div>
+<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:62.4%"></div></div><div class="progress-pct">62%</div></div>
 
 | Status | Count |
 |--------|-------|
-| ✅ done | 57 |
+| ✅ done | 58 |
 | 🔶 in-progress | 0 |
 | ⬜ not-started | 32 |
 | ❌ blocked | 1 |
@@ -3520,10 +3520,11 @@ blocked on this network and `--protocol http2` forces the TCP/443 path.
 
 ### 100% — Part XIII — Game networking foundation
 
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:100.0%"></div></div><div class="progress-pct" style="font-size:.85em;">100%</div><div class="tip-box"><strong>Done (3)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:100.0%"></div></div><div class="progress-pct" style="font-size:.85em;">100%</div><div class="tip-box"><strong>Done (4)</strong>
 • Phase 53 — keep game workloads in Kubernetes for now
 • Phase 54 — why game edge is separate from Cloudflare web
 • Phase 55 — relay bring-up
+• Phase 56 — Minecraft server performance (MSPT headroom & player scale)
 <hr style="opacity:.3;margin:6px 0;"><strong>Pending (0)</strong>
 —</div></div>
 
@@ -3896,6 +3897,7 @@ Reference-design Phase 54/55 updated to reflect this verified solution.
 
 </details>
 
+- ✅ `done` — [Phase 56 — Minecraft server performance (MSPT headroom & player scale)](../reference-design/build/13-game-networking-foundation/03-67-phase-56-minecraft-server-performance/index.md)
 
 ### 0% — Part XIV — Backups and disaster recovery
 
