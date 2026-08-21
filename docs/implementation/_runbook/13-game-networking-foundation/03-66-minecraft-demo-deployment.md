@@ -162,3 +162,28 @@ interface (`Line unrecognized: PostUp=iptables-tnat-...`). Fixes:
 - Game edge (UAE relay → WireGuard → NodePort range `30000-30199`) is live,
   persisted, and range-based. For dev, `kubectl port-forward` still exposes
   the server locally.
+
+## 6a. TabListPing plugin (added later)
+
+**Intent:** add only the **TabListPing** plugin so the tab list shows each
+player's real ping (ms). It is a Bukkit/Paper plugin, so a **vanilla** server
+cannot load it — `TYPE` is switched `VANILLA` → `PAPER`. Nothing else in the
+manifests changed (`service.yaml`, `pvc.yaml`, `networkpolicy.yaml` untouched).
+
+Changes in `infra/kubernetes/tenants/minecraft-demo/deployment.yaml`:
+
+- `TYPE: VANILLA` → `TYPE: PAPER` (keeps `VERSION: latest`; image picks the
+  latest Paper-supported Minecraft release).
+- Added `MODRINTH_MODS: MwLGimob` — the itzg image auto-downloads TabListPing
+  from Modrinth (project id `MwLGimob`, Bobcat) into `/data/plugins/` on first
+  start, so the `.jar` persists on the world PVC across pod restarts.
+
+No egress change needed: the NetworkPolicy already allows outbound internet,
+which now also covers the Paper jar + plugin download.
+
+Command:
+
+```bash
+python3 -c "import yaml; yaml.safe_load(open('infra/kubernetes/tenants/minecraft-demo/deployment.yaml')); print('deployment.yaml valid')"
+# -> deployment.yaml valid
+```

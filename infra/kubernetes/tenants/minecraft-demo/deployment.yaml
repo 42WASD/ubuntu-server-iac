@@ -37,11 +37,16 @@ spec:
               value: "FALSE"
             - name: MEMORY
               value: "2G"
-            # Vanilla latest jar is downloaded on first start.
+            # Paper (latest supported release) is used so the TabListPing
+            # plugin can load; vanilla cannot run plugins.
             - name: TYPE
-              value: "VANILLA"
+              value: "PAPER"
             - name: VERSION
               value: "LATEST"
+            # Auto-download TabListPing from Modrinth on first start (project
+            # id MwLGimob). Only this mod is installed; nothing else changed.
+            - name: MODRINTH_MODS
+              value: "MwLGimob"
           securityContext:
             allowPrivilegeEscalation: false
             runAsNonRoot: true
@@ -70,6 +75,7 @@ spec:
           persistentVolumeClaim:
             claimName: minecraft-demo-data
       # The games namespace is default-deny; egress to the DNS resolver must be
-      # allowed for the server to reach Mojang endpoints / resolve hostnames.
-      # platform-networkpolicies already installs an allow-cluster-dns rule.
-      # (No explicit egress needed beyond DNS for a demo.)
+      # allowed for the server to reach Mojang/Paper endpoints and resolve
+      # hostnames. platform-networkpolicies already installs an
+      # allow-cluster-dns rule; the app NetworkPolicy allows outbound internet
+      # (needed to download Paper and the TabListPing plugin on first start).
