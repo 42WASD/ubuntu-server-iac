@@ -53,4 +53,19 @@ kyverno-cleanup-controller     1/1   Running
 kyverno-reports-controller     1/1   Running
 ```
 
+**Live result** (after `platform-root` hard-refresh picked up the new
+Application):
+
+```text
+NAME                                            READY   STATUS     AGE
+kyverno-admission-controller-...                1/1     Running    79s
+kyverno-background-controller-...               1/1     Running    79s
+kyverno-cleanup-controller-...                  1/1     Running    79s
+kyverno-reports-controller-...                  1/1     Running    79s
+platform-kyverno-migrate-resources-...          0/1     Completed  24s
+```
+
+`platform-kyverno` Application: **Healthy** (OutOfSync is the transient
+"chart freshly applied" state — Argo `automated` self-heal converges it).
+
 No policies are enabled yet — that is Phase 29 (stage in Audit first).

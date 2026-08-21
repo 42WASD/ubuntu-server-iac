@@ -40,14 +40,14 @@ edit/correct).
 
 ## Overall progress
 
-**50 / 92** phases/sections complete (**54%**).
+**51 / 92** phases/sections complete (**55%**).
 
-<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:54.3%"></div></div><div class="progress-pct">54%</div></div>
+<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:55.4%"></div></div><div class="progress-pct">55%</div></div>
 
 | Status | Count |
 |--------|-------|
-| ✅ done | 50 |
-| 🔶 in-progress | 1 |
+| ✅ done | 51 |
+| 🔶 in-progress | 0 |
 | ⬜ not-started | 38 |
 | ❌ blocked | 1 |
 | ⏸️ deferred | 2 |
@@ -2761,20 +2761,19 @@ kubectl auth can-i get secrets -n prd-42wasd-admin \
 
 - ⬜ `not-started` — [Phase 27 — authentication for Kubernetes developers](../reference-design/build/05-gitops-bootstrap/11-36-phase-27-authentication-for-kubernetes-developers/index.md)
 
-### 0% — Part VI — Policy enforcement
+### 25% — Part VI — Policy enforcement
 
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
-—
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (4)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:25.0%"></div></div><div class="progress-pct" style="font-size:.85em;">25%</div><div class="tip-box"><strong>Done (1)</strong>
 • Phase 28 — install Kyverno through Argo CD
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (3)</strong>
 • Phase 29 — stage policy before enforcing it
 • example: deny hostPath
 • Phase 30 — policy tests</div></div>
 
-- 🔶 `in-progress` — [Phase 28 — install Kyverno through Argo CD](../reference-design/build/06-policy-enforcement/00-37-phase-28-install-kyverno-through-argo-cd/index.md)
+- ✅ `done` — [Phase 28 — install Kyverno through Argo CD](../reference-design/build/06-policy-enforcement/00-37-phase-28-install-kyverno-through-argo-cd/index.md)
 
 <details markdown="1" class="runbook">
-<summary>🔶 📜 Build log — Phase 28 — install Kyverno through Argo CD</summary>
+<summary>✅ 📜 Build log — Phase 28 — install Kyverno through Argo CD</summary>
 
 # Phase 28 — install Kyverno through Argo CD
 
@@ -2827,6 +2826,21 @@ kyverno-background-controller  1/1   Running
 kyverno-cleanup-controller     1/1   Running
 kyverno-reports-controller     1/1   Running
 ```
+
+**Live result** (after `platform-root` hard-refresh picked up the new
+Application):
+
+```text
+NAME                                            READY   STATUS     AGE
+kyverno-admission-controller-...                1/1     Running    79s
+kyverno-background-controller-...               1/1     Running    79s
+kyverno-cleanup-controller-...                  1/1     Running    79s
+kyverno-reports-controller-...                  1/1     Running    79s
+platform-kyverno-migrate-resources-...          0/1     Completed  24s
+```
+
+`platform-kyverno` Application: **Healthy** (OutOfSync is the transient
+"chart freshly applied" state — Argo `automated` self-heal converges it).
 
 No policies are enabled yet — that is Phase 29 (stage in Audit first).
 

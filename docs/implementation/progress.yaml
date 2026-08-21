@@ -60,7 +60,7 @@
 "05-gitops-bootstrap/08-35-phase-26-rbac": "done"
 
 # --- Part VI — Policy enforcement ---
-"06-policy-enforcement/00-37-phase-28-install-kyverno-through-argo-cd": "in-progress"
+"06-policy-enforcement/00-37-phase-28-install-kyverno-through-argo-cd": "done"
 "06-policy-enforcement/01-38-phase-29-stage-policy-before-enforcing-it": "not-started"
 "06-policy-enforcement/01-38-phase-29-stage-policy-before-enforcing-it/example-deny-hostpath": "not-started"
 "06-policy-enforcement/03-39-phase-30-policy-tests": "not-started"
