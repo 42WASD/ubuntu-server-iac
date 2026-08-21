@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minecraft-demo
+  namespace: dev-games-42wasd-admin
+  labels:
+    app: minecraft-demo
+spec:
+  replicas: 1
+  # Vanilla Minecraft is a single in-memory process holding the world on the PVC;
+  # it MUST NOT run more than one replica. Use Recreate so a new pod does not
+  # start before the old one (which owns the world file) is gone.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: minecraft-demo
+  template:
+    metadata:
+      labels:
+        app: minecraft-demo
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: minecraft
+          image: itzg/minecraft-server:latest
+          env:
+            - name: EULA
+              value: "TRUE"
+            - name: ONLINE_MODE
+              value: "FALSE"
+            - name: MEMORY
+              value: "2G"
+            # Vanilla latest jar is downloaded on first start.
+            - name: TYPE
+              value: "VANILLA"
+            - name: VERSION
+              value: "LATEST"
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          ports:
+            - name: game
+              containerPort: 25565
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: "2"
+              memory: 3Gi
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: minecraft-demo-data
+      # The games namespace is default-deny; egress to the DNS resolver must be
+      # allowed for the server to reach Mojang endpoints / resolve hostnames.
+      # platform-networkpolicies already installs an allow-cluster-dns rule.
+      # (No explicit egress needed beyond DNS for a demo.)

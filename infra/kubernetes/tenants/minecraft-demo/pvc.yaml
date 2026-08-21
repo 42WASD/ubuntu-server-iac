@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: minecraft-demo-data
+  namespace: dev-games-42wasd-admin
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nvme-fast
+  resources:
+    requests:
+      storage: 5Gi
+  volumeMode: Filesystem

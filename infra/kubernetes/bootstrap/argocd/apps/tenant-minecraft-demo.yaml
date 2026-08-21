@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: minecraft-demo
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  project: tenant-42wasd-admin
+
+  source:
+    repoURL: https://github.com/42WASD/ubuntu-server-iac.git
+    targetRevision: main
+    path: infra/kubernetes/tenants/minecraft-demo
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: dev-games-42wasd-admin
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true

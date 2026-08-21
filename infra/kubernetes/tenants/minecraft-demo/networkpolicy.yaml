@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-game-ingress
+  namespace: dev-games-42wasd-admin
+spec:
+  podSelector:
+    matchLabels:
+      app: minecraft-demo
+  policyTypes:
+    - Ingress
+    - Egress
+  # The games namespace is default-deny (both directions).
+  ingress:
+    # Allow the MC game TCP port from the game-edge path (currently reached via
+    # `kubectl port-forward` / the future UAE relay -> WireGuard).
+    - ports:
+        - protocol: TCP
+          port: 25565
+  egress:
+    # On first start the itzg image downloads the vanilla jar from Mojang and
+    # may contact Mojang session endpoints. Allow outbound internet for this
+    # workload. Cluster DNS is already covered by the platform allow-cluster-dns
+    # rule (matches podSelector {}), so we only add the internet path here.
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
