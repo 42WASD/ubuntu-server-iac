@@ -115,13 +115,34 @@ NodePort over the existing WireGuard tunnel (`10.200.0.2`).
 3. `/etc/wireguard/wg0.conf` `[Interface]` `PostUp = /usr/local/bin/mc-relay-nat.sh`
    — re-applies the rules every time `wg-quick up wg0` runs.
 
-**Verified (live):** a full `wg-quick down wg0 && wg-quick up wg0` re-created
-the rules idempotently (exactly one DNAT + one MASQ rule) and the tunnel
-re-handshook. External probe confirmed the path end-to-end:
+### Range-based relay (Option A)
+
+Instead of one DNAT per game server, the VPS forwards a **reserved game
+NodePort range** (`30000-30199`) straight through the tunnel. So a new game
+server needs **only** a Service manifest with a NodePort in that range — no
+iptables edit on the VPS.
+
+Rules the script programs (idempotent via `iptables-save | grep`):
 
 ```text
-RELAY ONLINE: 26.2 | players 0 / 20   # mcstatus on 89.36.162.171:25565
+PREROUTING  -d 89.36.162.171 -p tcp --dport 30000:30199 -j DNAT --to-destination 10.200.0.2
+PREROUTING  -d 89.36.162.171 -p tcp --dport 25565     -j DNAT --to-destination 10.200.0.2:30079  # alias (back-compat)
+POSTROUTING -d 10.200.0.2/32                          -j MASQUERADE                                 # one rule for whole peer
 ```
+
+The single `MASQUERADE` covers the whole tunnel peer — no per-port MASQ rule.
+The `25565` alias keeps existing player addresses working (they connect to
+`89.36.162.171:25565` → minecraft NodePort).
+
+**Kyverno guard:** rule `constrain-game-nodeport-range` in
+`restrict-exposure-and-image-tags` (Audit mode) flags any game-namespace
+NodePort outside `30000-30199`, so a Service can't silently pick a port the
+relay doesn't forward.
+
+**Verified (live):** `mcstatus` confirmed both the alias and the range
+pass-through to Minecraft (MC 26.2, players 0/20). A full `wg-quick
+down/up` re-creates the rules idempotently (exactly one DNAT + one MASQ, no
+duplicates) and the tunnel re-handshakes.
 
 **Debugging note — inline PostUp is fragile:** appending
 `PostUp = iptables -t nat -A ...` (with spaces in the command) after the
@@ -138,5 +159,6 @@ interface (`Line unrecognized: PostUp=iptables-tnat-...`). Fixes:
 - `ONLINE_MODE=false` accepts any offline client — dev lane only.
 - Egress to the whole internet is currently allowed (jar bootstrap). Tighten to
   an allow-list of Mojang IPs before production.
-- Game edge (UAE relay → WireGuard → NodePort 30079) is live and persisted.
-  For dev, `kubectl port-forward` still exposes the server locally.
+- Game edge (UAE relay → WireGuard → NodePort range `30000-30199`) is live,
+  persisted, and range-based. For dev, `kubectl port-forward` still exposes
+  the server locally.
