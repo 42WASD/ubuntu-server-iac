@@ -40,15 +40,15 @@ edit/correct).
 
 ## Overall progress
 
-**47 / 92** phases/sections complete (**51%**).
+**49 / 92** phases/sections complete (**53%**).
 
-<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:51.1%"></div></div><div class="progress-pct">51%</div></div>
+<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:53.3%"></div></div><div class="progress-pct">53%</div></div>
 
 | Status | Count |
 |--------|-------|
-| ✅ done | 47 |
-| 🔶 in-progress | 0 |
-| ⬜ not-started | 42 |
+| ✅ done | 49 |
+| 🔶 in-progress | 1 |
+| ⬜ not-started | 39 |
 | ❌ blocked | 1 |
 | ⏸️ deferred | 2 |
 
@@ -2946,18 +2946,235 @@ blocked on this network and `--protocol http2` forces the TCP/443 path.
 - ⬜ `not-started` — [Phase 51 — GPU policy](../reference-design/build/12-gpu-validation-phase/02-60-phase-51-gpu-policy/index.md)
 - ⬜ `not-started` — [Phase 52 — HAMi validation](../reference-design/build/12-gpu-validation-phase/03-61-phase-52-hami-validation/index.md)
 
-### 0% — Part XIII — Game networking foundation
+### 67% — Part XIII — Game networking foundation
 
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
-—
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (3)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:67.0%"></div></div><div class="progress-pct" style="font-size:.85em;">67%</div><div class="tip-box"><strong>Done (2)</strong>
 • Phase 53 — keep game workloads in Kubernetes for now
 • Phase 54 — why game edge is separate from Cloudflare web
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (1)</strong>
 • Phase 55 — relay bring-up</div></div>
 
-- ⬜ `not-started` — [Phase 53 — keep game workloads in Kubernetes for now](../reference-design/build/13-game-networking-foundation/00-62-phase-53-keep-game-workloads-in-kubernetes-for-now/index.md)
-- ⬜ `not-started` — [Phase 54 — why game edge is separate from Cloudflare web](../reference-design/build/13-game-networking-foundation/01-63-phase-54-why-game-edge-is-separate-from-cloudflare-web/index.md)
-- ⬜ `not-started` — [Phase 55 — relay bring-up](../reference-design/build/13-game-networking-foundation/02-64-phase-55-relay-bring-up/index.md)
+- ✅ `done` — [Phase 53 — keep game workloads in Kubernetes for now](../reference-design/build/13-game-networking-foundation/00-62-phase-53-keep-game-workloads-in-kubernetes-for-now/index.md)
+
+<details markdown="1" class="runbook">
+<summary>✅ 📜 Build log — Phase 53 — keep game workloads in Kubernetes for now</summary>
+
+# Phase 53 — keep game workloads in Kubernetes for now
+
+**Intent:** keep game hosting inside the same infrastructure discipline as the
+rest of the platform. Do not solve individual game stacks yet. The two game
+lanes get the full governance treatment now, so later we can pick per-game
+`StatefulSet` / `Agones` / operator / proxy / controller without touching the
+host platform.
+
+## 53.1 The two game lanes
+
+The namespace baseline (Part V) already created both namespaces under
+`infra/kubernetes/platform/namespaces/tenants.yaml`:
+
+```text
+prd-games-42wasd-admin   canonical production lane (deep-copy source)
+dev-games-42wasd-admin   ephemeral, on-demand staging lane (throwaway)
+```
+
+`dev-games-42wasd-admin` holds at most one deep-copied game server at a time,
+is not a source of truth, and is excluded from canonical backups.
+
+## 53.2 Governance already applied (Part V, verified live)
+
+Each game lane already gets, via GitOps + Argo CD (Part 5):
+
+```text
+ResourceQuota   infra/kubernetes/platform/quotas/games.yaml
+LimitRange      infra/kubernetes/platform/limitranges/games.yaml
+NetworkPolicy   infra/kubernetes/platform/networkpolicies/games.yaml
+RBAC            infra/kubernetes/platform/rbac/games.yaml
+Namespace       infra/kubernetes/platform/namespaces/tenants.yaml
+```
+
+Verified against the cluster:
+
+```bash
+kubectl -n prd-games-42wasd-admin get resourcequota,limitrange,networkpolicy
+kubectl -n dev-games-42wasd-admin get resourcequota,limitrange,networkpolicy
+```
+
+Both lanes show:
+
+```text
+resourcequota/namespace-budget     present
+limitrange/container-defaults      present
+networkpolicy/default-deny         present (Ingress+Egress)
+networkpolicy/allow-cluster-dns    present (UDP/TCP 53)
+```
+
+Quota ceilings (prd canonical): `requests.cpu: 4`, `limits.cpu: 8`,
+`requests.memory: 8Gi`, `limits.memory: 16Gi`, `requests.storage: 200Gi`,
+`pods: 30`. Dev staging lane is intentionally smaller
+(`requests.cpu: 2`, `requests.memory: 4Gi`, `requests.storage: 50Gi`).
+
+## 53.3 Persistent storage & monitoring — dependencies on earlier parts
+
+- **Persistent storage** for game worlds: OpenEBS LocalPV LVM is not yet
+  installed (Part 7, Phase 31/32 pending). StorageClasses `nvme-fast` /
+  `hdd-bulk` are designed in the reference but not yet live. Game world PVCs
+  will use those once Part 7 lands.
+- **Monitoring**: Prometheus/Grafana stack is Part 8 (pending). Game lane
+  visibility will come with it.
+
+Phase 53's scope is the **platform decision + governance objects**, which are
+complete and live; the storage/monitoring backing is tracked by its own parts.
+
+## 53.4 Controlled external ports (Phase 54 connection)
+
+`default-deny` currently blocks all external ingress. Per Phase 54 the game
+edge is a **separate plane** from Cloudflare web: game TCP/UDP enters via
+`UAE VPS -> WireGuard -> alpha game Service`, so controlled external ports
+will be exposed explicitly by a NetworkPolicy once a game server actually
+lands (Phase 53 explicitly defers "controlled external ports" until a real
+game workload exists, so none are opened now).
+
+</details>
+
+- ✅ `done` — [Phase 54 — why game edge is separate from Cloudflare web](../reference-design/build/13-game-networking-foundation/01-63-phase-54-why-game-edge-is-separate-from-cloudflare-web/index.md)
+
+<details markdown="1" class="runbook">
+<summary>✅ 📜 Build log — Phase 54 — why game edge is separate from Cloudflare web</summary>
+
+# Phase 54 — why game edge is separate from Cloudflare web
+
+**Intent:** record the deliberate design decision that the public **game**
+edge is a separate traffic plane from the public **web** edge. This keeps
+Cloudflare's strengths on HTTP/HTTPS and avoids forcing raw game TCP/UDP
+through a path that cannot carry it cleanly.
+
+## 54.1 The two planes
+
+Web:
+
+```text
+Cloudflare Tunnel / proxy
+```
+
+Generic game TCP/UDP:
+
+```text
+UAE VPS
+  -> WireGuard
+  -> alpha / game Service
+```
+
+## 54.2 Why not route games through Cloudflare
+
+- Cloudflare Tunnel is an HTTP(S)-centric proxy; it is **not** the generic
+  free raw-UDP solution. Arbitrary game protocols (high-volume TCP + UDP, low
+  latency, client-controlled ports) do not map cleanly onto the web tunnel.
+- Game traffic wants a low-latency public endpoint close to players. The UAE
+  relay VPS + WireGuard gives a generic TCP/UDP path into the cluster when
+  home networking cannot expose ports cleanly.
+
+## 54.3 Implementation consequence
+
+The two planes stay separate end to end:
+
+```text
+public web   -> Cloudflare  -> cloudflared -> Traefik   -> HTTP Service
+public game  -> UAE VPS     -> WireGuard   -> game Service (UDP/TCP)
+```
+
+Phase 53's `default-deny` NetworkPolicy stays; when a real game workload
+lands, a **controlled external ports** policy exposes exactly the required
+game ports on the game lane (not on the web plane).
+
+</details>
+
+- 🔶 `in-progress` — [Phase 55 — relay bring-up](../reference-design/build/13-game-networking-foundation/02-64-phase-55-relay-bring-up/index.md)
+
+<details markdown="1" class="runbook">
+<summary>🔶 📜 Build log — Phase 55 — relay bring-up</summary>
+
+# Phase 55 — relay bring-up
+
+**Intent:** start with **one relay candidate**, benchmark it honestly, and pick
+it (or not) on measured data — never on provider marketing. The relay
+candidate is the **confirmed-UAE Melbicom VPS** (the "low-cost UAE VPS" tier).
+
+Reference order (tiers in order):
+
+```text
+1. OCI UAE Always Free        (if capacity/account conditions allow)
+2. low-cost Dubai VPS         <- current candidate (Melbicom, confirmed UAE)
+3. paid OCI/AWS/Azure UAE     (only if reliability requirements justify it)
+```
+
+## 55.1 Candidate
+
+- Host: `89.36.162.171` (hostname `263347.melbi.space`, KVM-2-FJR)
+- Confirmed **physically in UAE**: Cloudflare colo `DXB`, city Fujairah,
+  AS `8849` (Melbikomas). Not a "paperwork AE" — a genuinely UAE-located box.
+
+## 55.2 Benchmark suite (measured)
+
+Tool `iperf3`/`traceroute`/`mtr` installed on the VPS. All runs from alpha.
+
+**Latency (`ping`, 8 pkt):**
+
+```text
+min/avg/max/mdev = 21.8 / 28.6 / 33.9 / 3.9 ms, 0% loss
+```
+
+### `mtr` path (alpha -> VPS, 30 pkt):
+
+```text
+1  homerouter.cpe        0.4ms
+3  10.100.136.54        18ms   (UAE backbone)
+4  10.100.37.90         17ms
+12 89.36.162.171       28.5ms  (3.3% loss, ICMP-only final hop)
+```
+
+### `iperf3` TCP (alpha -> VPS):
+
+```text
+single stream : 25.7 Mbits/sec sender, 16 retransmits
+reverse (-R)  : 13.9 Mbits/sec (VPS -> alpha return path)
+4 streams (-P4): 84.4 Mbit/s send / 81.6 recv
+```
+
+### `iperf3 -u` UDP (alpha -> VPS):
+
+```text
+10M       9.97 Mbit/s   jitter 1.477ms  loss  0.011%
+20M (1200B game-size) 19.9 Mbit/s  jitter 0.514ms loss 0.012%
+50M      49.4 Mbit/s   jitter 0.213ms loss  0.78%
+100M     99.2 Mbit/s   jitter 0.172ms loss  0.34%
+```
+
+## 55.3 Interpretation
+
+- Latency ~28 ms and 0% loss confirm a genuine, low-latency UAE path.
+- UDP is the important one for games: even at 100 Mbit/s only 0.34% loss with
+  ~0.17 ms jitter. At realistic game rates (10–20 Mbit/s) loss is ~0.01% —
+  excellent.
+- TCP single-stream ~25 Mbit/s is a per-flow/window limit, not the link: 4
+  parallel streams reach ~84 Mbit/s, so the ceiling is well above single-game
+  needs.
+- The relay candidate passes the benchmark; the exact game-edge architecture
+  and port mapping are intentionally **deferred** to a later decision
+  (per Phase 53/54, the game edge plane is separate and chosen independently).
+
+## 55.4 Tooling / notes
+
+- `wireguard` + `wireguard-tools` are installed on the VPS (kernel module
+  `wireguard` loaded) as groundwork for the game edge, but no game path is
+  configured yet — that waits for the architecture decision.
+- **Secrets:** the VPS root password is stored **outside the repo** at
+  `~/.config/iac-secrets/` (0600, never committed). Alpha's SSH pubkey is
+  authorized on the VPS for non-interactive admin.
+- Evening-peak / real-UAE-mobile / GCC-path measurements are **ongoing** and
+  will be appended here as they're taken.
+
+</details>
+
 
 ### 0% — Part XIV — Backups and disaster recovery
 

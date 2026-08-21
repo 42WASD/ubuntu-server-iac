@@ -61,3 +61,8 @@
 
 # --- Part XI — Public web path ---
 "11-public-web-path/00-55-phase-46-cloudflare-tunnel": "done"
+
+# --- Part XIII — Game networking foundation ---
+"13-game-networking-foundation/00-62-phase-53-keep-game-workloads-in-kubernetes-for-now": "done"
+"13-game-networking-foundation/01-63-phase-54-why-game-edge-is-separate-from-cloudflare-web": "done"
+"13-game-networking-foundation/02-64-phase-55-relay-bring-up": "in-progress"
