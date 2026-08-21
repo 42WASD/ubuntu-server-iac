@@ -1,0 +1,12 @@
+# Policy test fixture — INTENTIONALLY BAD (do NOT apply).
+# Should be DENIED by require-approved-registry-in-prod (unapproved registry)
+# and :latest-in-prod. Phase 30 fixture for the prd lane.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-unapproved-registry-prod
+  namespace: prd-42wasd-admin
+spec:
+  containers:
+    - name: nginx
+      image: some-unapproved.io/team/app:latest

@@ -1,0 +1,13 @@
+# Policy test fixture — INTENTIONALLY BAD (do NOT apply).
+# Should be flagged/denied by require-resource-limits (no requests/limits).
+# Phase 30 fixture. Note: this pod runs as root, so the restricted PSA would
+# also reject it — that's fine, the resource-limits policy targets the request.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-no-resource-limits
+  namespace: dev-42wasd-admin
+spec:
+  containers:
+    - name: nginx
+      image: nginx:latest

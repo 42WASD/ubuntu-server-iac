@@ -1,0 +1,15 @@
+# Policy test fixture — INTENTIONALLY BAD (do NOT apply).
+# Should be DENIED by restrict-storage-priority-gpu (unapproved PriorityClass).
+# Phase 30 fixture.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-high-priority
+  namespace: dev-42wasd-admin
+  # scheduling.k8s.io/v1 PriorityClass would be referenced; the Pod would set
+  # priorityClassName to a disallowed class.
+spec:
+  priorityClassName: platform-critical-custom
+  containers:
+    - name: nginx
+      image: nginx:latest

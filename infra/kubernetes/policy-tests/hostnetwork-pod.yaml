@@ -1,0 +1,13 @@
+# Policy test fixture — INTENTIONALLY BAD (do NOT apply).
+# Should be DENIED by disallow-privileged-host-settings (hostNetwork rule) /
+# restricted PSA. Phase 30 fixture.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-hostnetwork
+  namespace: dev-42wasd-admin
+spec:
+  hostNetwork: true
+  containers:
+    - name: nginx
+      image: nginx:latest
