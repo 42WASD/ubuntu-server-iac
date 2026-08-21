@@ -67,7 +67,7 @@
 
 # --- Part VII — Persistent storage ---
 "07-persistent-storage/00-40-phase-31-install-openebs-through-argo-cd": "done"
-"07-persistent-storage/01-41-phase-32-storageclasses": "not-started"
+"07-persistent-storage/01-41-phase-32-storageclasses": "done"
 "07-persistent-storage/02-42-phase-33-prove-pvc-lifecycle-before-deploying-databases": "not-started"
 
 # --- Part XI — Public web path ---
