@@ -3785,50 +3785,77 @@ The WireGuard overhead is negligible — tunnel throughput actually matched the
 public-IP path. No game ports are DNAT'd through it yet; that happens with the
 game-edge architecture decision.
 
-## 55.5 Source-IP preservation — validated approach (research)
+## 55.5 Source-IP preservation — attempted, proven **not feasible** for a pod
 
-**Goal:** the game server/pod should see the **real player IP**, not the
-relay's tunnel address.
+**Goal:** make the game pod see the **real player IP** instead of the relay's
+tunnel address (`10.200.0.1`).
 
-**Why not MASQUERADE:** MASQUERADE rewrites the source to the relay's WireGuard
-IP (`10.200.0.1`) so the pod sees that instead of the player. It works but
-hides the player IP.
+**Outcome: NOT achievable via L3/L4 NAT in this topology.** We implemented and
+tested both Pro Custodibus return-path techniques on the live relay, then
+reverted. The working state keeps the VPS **MASQUERADE** (pod sees
+`10.200.0.1`).
 
-**Validated technique — Policy Routing on alpha (Pro Custodibus, "WireGuard
-Port Forwarding From the Internet"):** keep the VPS DNAT but **drop the
-MASQUERADE**; on alpha, route only the return traffic back through the tunnel
-via a custom table:
+### What was implemented and tested
 
-```text
-alpha /etc/wireguard/wg0.conf
-[Interface]
-  Table = 123
-  PreUp   = ip rule add from 10.200.0.2 table 123 priority 456
-  PostDown= ip rule del from 10.200.0.2 table 123 priority 456
-  AllowedIPs = 0.0.0.0/0    # peer -> becomes default route of table 123
+1. **VPS:** removed the `POSTROUTING -d 10.200.0.2 -j MASQUERADE` rule (kept the
+   range + alias DNATs), added an MSS clamp for the tunnel:
+
+```bash
+# on VPS 89.36.162.171
+iptables -t nat -D POSTROUTING -d 10.200.0.2 -j MASQUERADE
+iptables -t mangle -A POSTROUTING -o wg0 -p tcp --tcp-flags SYN,RST SYN \
+        -j TCPMSS --set-mss 1380
 ```
 
-Only packets sourced from alpha's WireGuard IP go through the tunnel; all other
-alpha traffic keeps its normal ISP gateway.
+2. **Policy Routing attempt (alpha):** route only `from 10.200.0.2` return
+   traffic back via wg0 (custom table + `ip rule`).
+3. **Connection Marking attempt (alpha):** mark NEW connections arriving via
+   wg0 with `CONNMARK --set-mark 1`, mark return packets from `connmark 1` to a
+   fwmark, policy-route `fwmark 1` via a custom table whose default route goes
+   via wg0, plus `externalTrafficPolicy: Local` on the NodePort service.
 
-**Kubernetes caveat:** a Service can re-SNAT before the pod. Use
-`externalTrafficPolicy: Cluster` and verify the source IP all the way:
+### Result (verified with external TCP probe)
 
 ```text
-VPS sees  <player_ip>     alpha sees <player_ip>     pod sees <player_ip>  (important)
+VPS MASQUERADE OFF  -> external probe to 89.36.162.171:30079 TIMES OUT
+                       (SNAT/policy-route counters on alpha stay at 0)
+VPS MASQUERADE ON   -> external probe SUCCEEDS (port OPEN)
 ```
 
-If the pod sees a `10.x`/node IP, the rewrite is inside Kubernetes (CNI), not
-WireGuard.
+Root cause: the **pod replies with its own pod IP** (`10.42.0.x`), not alpha's
+tunnel IP (`10.200.0.2`). The VPS conntrack only knows the DNAT target
+`10.200.0.2`, so a reply sourced from a pod IP doesn't match any tracked
+connection → treated as a brand-new flow → dropped. The `SYN` reaches the pod
+but the `SYN-ACK` never returns to the client. This breaks for **any** workload
+behind a bridge/pod that doesn't source replies from the tunnel IP.
 
-**Fallback (pods/containers on a bridge):** Connection Marking
-(`CONNMARK --set-mark` on NEW via wg0; restore mark on return; route marked
-packets via custom table). Only needed when simple policy routing can't pick
-the return path.
+### Reverted to working state
 
-> **Status:** research/validation complete; design recorded in reference
-> Phase 54 + 55. **Not yet implemented** — implementation is a follow-up change
-> (removes VPS MASQUERADE, adds alpha policy routing, verifies pod source IP).
+```bash
+# VPS: re-added the MASQUERADE (working state)
+iptables -t nat -A POSTROUTING -d 10.200.0.2 -j MASQUERADE
+# alpha: removed all experimental connmark / policy-route / SNAT rules,
+#        removed /usr/local/bin/alpha-game-return.sh
+```
+
+`externalTrafficPolicy: Local` on the `minecraft-demo` Service was left in
+place (harmless on a single node; keeps the player source up to the node's
+NodePort if the VPS ever stops MASQUERADing).
+
+### Real ways to expose the player IP into a pod
+
+- **Minecraft proxy** (BungeeCord/Velocity) that re-injects the real player IP
+  (proxy protocol / handshake) — the only clean L7 solution.
+- **Bind the game to `10.200.0.2`** as a plain process on alpha (not a pod) so
+  Pro Custodibus policy routing applies.
+- **Accept MASQUERADE** (current) and log the player address at a layer that
+  still has it (reverse proxy before NAT).
+
+Reference-design Phase 54/55 updated to reflect this tested finding.
+
+> **Status:** complete (tried-and-reverted). The relay works and is
+> boot-persistent with MASQUERADE; player-IP-into-pod is documented as not
+> achievable via NAT here.
 
 ## 55.6 Tooling / notes
 

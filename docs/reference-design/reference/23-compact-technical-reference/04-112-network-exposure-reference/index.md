@@ -17,8 +17,10 @@ public 80/443
     ideally Cloudflare path, not home-router direct exposure
 
 game ports
-    VPS relay -> WireGuard -> explicit Kubernetes/game service
-    (policy-routing return path; NO MASQUERADE -> game sees real player IP)
+    VPS relay -> WireGuard -> Kubernetes/game Service
+    (relay MASQUERADEs; pod sees relay tunnel IP 10.200.0.1)
+    (preserving the real player IP into a pod requires a game proxy or
+     binding the game to the relay IP — see Phase 54)
 ```
 
 When additional RKE2 nodes join, follow RKE2's current Cilium-specific node-to-node port requirements and restrict those ports to the node network only.
