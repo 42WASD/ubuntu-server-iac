@@ -193,3 +193,80 @@ Command:
 python3 -c "import yaml; yaml.safe_load(open('infra/kubernetes/tenants/minecraft-demo/deployment.yaml')); print('deployment.yaml valid')"
 # -> deployment.yaml valid
 ```
+
+## 6b. Player latency profiling (mac → VPS → WG → alpha → pod)
+
+**Intent:** explain the player-reported TabListPing values (49 ms / 100 ms) by
+splitting the full path into measurable legs and rule out a server compute
+bottleneck.
+
+### Measured latency breakdown (round-trip, ms)
+
+| Leg | RTT | Method |
+|---|---|---|
+| macbook → VPS (internet) | **~27–44** (variable) | `mcstatus` from macbook (57–74 total, minus below) |
+| VPS → alpha (WireGuard tunnel) | **~28 avg, max 40** | `ping 10.200.0.1/10.200.0.2` |
+| alpha → Minecraft pod | **1–4** | `mcstatus` / NodePort `127.0.0.1:30079` |
+| **Total (player perspective)** | **57–74** | `mcstatus` on macbook to `minecraft.42base.com:25565` |
+
+**Why TabListPing shows 49 / 100 and nothing in between:**
+
+- TabListPing measures **Keep-Alive RTT**, sampled every 15–25 s, averaged over
+  the last 3. Replies are only processed on a server tick (~50 ms) boundary, so
+  the value **snaps up to tick multiples** (~50 → 100).
+- Real RTT 57–74 ms → displayed as **100 ms** (2 ticks); a dip toward ~45 ms →
+  **49 ms** (1 tick). **Neither number is the true network value.**
+- No regression: the tunnel is healthy (0% loss), the total 57–74 ms is normal
+  for mac → VPS → tunnel → alpha → pod, and matches the earlier runbook claim
+  of VPS→alpha ~30 ms (that is just one leg).
+
+### Compute-bottleneck check (alpha host + Minecraft pod)
+
+Gathered live with the workload running; TPS is perfect and nothing is
+bottlenecked:
+
+```text
+# Server tick health (via RCON)
+TPS from last 1m, 5m, 15m: 20.0, 20.0, 20.0
+
+# Java process (PID 434): -Xmx2G, RSS 2.4 GB (at heap cap, healthy)
+# alpha host: 107 GiB RAM (95 GiB available), load 0.8–2.4
+# CPU governor: schedutil @ 1.5 GHz, max 2.25 GHz (idle 0.2–1.5%)
+# Disk (nvme): ~19 w/s, await ~2 ms, %util 4%  -> no storage pressure
+```
+
+Correlation test: 10 pings over 20 s with host load/cpu sampled alongside —
+load 0.8–1.3, cpu 0.2–1.5% the whole time, yet tunnel RTT still hit a 40 ms
+max / 5.5 ms mdev. **The jitter is not from alpha's CPU, RAM, or disk.**
+
+### WireGuard latency-spike research (mitigation options, not applied)
+
+WireGuard itself is a thin UDP wrapper; the spike is usually **not** the
+crypto. Factors that add request/response latency on a tunnel:
+
+- **CPU frequency scaling / C-states** — idle cores wake slowly to handle
+  packet softirq (governor here is `schedutil`). Latency-sensitive setups set
+  `performance` governor and cap C-states (e.g. `intel_idle.max_cstate=1`).
+- **MTU / fragmentation** — MTU is 1420 here; a mis-sized MTU causes
+  re-segmentation spikes. Validate with `ping -M do -s 1380`. Not the issue
+  here (RTT is consistent, just one tunnel hop).
+- **Interrupt coalescing / busy-poll** — `ethtool -C eth0 rx-usecs 0`,
+  `sysctl net.core.busy_read/busy_poll=50` reduce NIC batching latency.
+- **Kernel buffer sizing** — `net.core.rmem_max/wmem_max` default 212992 may be
+  small for high-bandwidth tunnels, but for low-PPS game traffic this is not a
+  factor.
+
+For a single player over one tunnel hop, the ~40 ms tail is dominated by the
+**internet transit (mac → VPS)**, which is outside our control. The only real
+reductions would be moving the relay closer to the player or using a game proxy
+(Velocity) to trim the Minecraft-layer tick quantization — both are
+architecture changes, **not** applied here.
+
+### Reusable latency check
+
+Install `mcstatus` (already in `projects/` venv): `uv run mcstatus` or:
+
+```bash
+# player perspective (run on the player's machine)
+python3 -c "from mcstatus import JavaServer; s=JavaServer.lookup('minecraft.42base.com:25565'); print('player leg:', round(s.ping()), 'ms')"
+```
