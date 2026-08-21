@@ -1,0 +1,100 @@
+# Stage 1 (Audit): deny privileged / host-level workload settings.
+# Reference Phase 29 — Pod Security restricted already blocks most of these;
+# Kyverno adds organization rules + clearer per-resource exceptions later.
+# These run in Audit (non-blocking) mode; flip selected rules to Enforce after
+# reports are clean (Phase 29 sequence).
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: disallow-privileged-host-settings
+  annotations:
+    policies.kyverno.io/title: Disallow privileged & host settings
+    policies.kyverno.io/category: Security
+    policies.kyverno.io/severity: medium
+spec:
+  background: true
+  validationFailureAction: Audit
+  rules:
+    - name: disallow-privileged
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - "dev-*"
+                - "prd-*"
+                - "*-games-*"
+                - "games-*"
+      validate:
+        message: "Privileged containers are not allowed."
+        pattern:
+          spec:
+            =(containers):
+              - securityContext:
+                  =(privileged): "false"
+    - name: disallow-host-path
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - "dev-*"
+                - "prd-*"
+                - "*-games-*"
+                - "games-*"
+      validate:
+        message: "Tenant Pods may not use hostPath volumes."
+        pattern:
+          spec:
+            =(volumes):
+              - X(hostPath): "null"
+    - name: disallow-host-network
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - "dev-*"
+                - "prd-*"
+                - "*-games-*"
+                - "games-*"
+      validate:
+        message: "Host networking is not allowed."
+        pattern:
+          spec:
+            =(hostNetwork): "false"
+    - name: disallow-host-pid
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - "dev-*"
+                - "prd-*"
+                - "*-games-*"
+                - "games-*"
+      validate:
+        message: "hostPID is not allowed."
+        pattern:
+          spec:
+            =(hostPID): "false"
+    - name: disallow-host-ipc
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - "dev-*"
+                - "prd-*"
+                - "*-games-*"
+                - "games-*"
+      validate:
+        message: "hostIPC is not allowed."
+        pattern:
+          spec:
+            =(hostIPC): "false"

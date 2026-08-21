@@ -1,0 +1,11 @@
+# Argo CD source for Kyverno ClusterPolicies (Phase 29).
+# Kyverno watches and applies ClusterPolicies automatically — Argo just
+# ensures the policy YAML stays in sync with the repo.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - disallow-privileged-host-settings.yaml
+  - require-resource-limits.yaml
+  - restrict-exposure-and-image-tags.yaml
+  - restrict-storage-priority-gpu.yaml
+  - require-approved-registry-in-prod.yaml

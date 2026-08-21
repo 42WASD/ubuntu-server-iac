@@ -1,0 +1,29 @@
+# Stage 1 (Audit): require production images to come from an approved registry.
+# Per Phase 29 list: "require approved registry in prod". The platform registry
+# (Part IX) will be the canonical source; adjust the approved list as it lands.
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-approved-registry-in-prod
+  annotations:
+    policies.kyverno.io/title: Require approved registry in production
+    policies.kyverno.io/category: Supply Chain Security
+    policies.kyverno.io/severity: high
+spec:
+  background: true
+  validationFailureAction: Audit
+  rules:
+    - name: require-approved-registry
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - "prd-*"
+      validate:
+        message: "Production images must come from an approved registry."
+        pattern:
+          spec:
+            containers:
+              - image: "ghcr.io/* | 42wasd/* | registry.42base.com/*"

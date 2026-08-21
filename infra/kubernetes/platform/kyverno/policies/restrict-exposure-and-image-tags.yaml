@@ -1,0 +1,82 @@
+# Stage 1 (Audit): restrict expose-ability (NodePort/LoadBalancer/hostPort)
+# and image safety (:latest in prod, no digest). All Audit mode initially.
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: restrict-exposure-and-image-tags
+  annotations:
+    policies.kyverno.io/title: Restrict exposure and image tags
+    policies.kyverno.io/category: Security
+    policies.kyverno.io/severity: medium
+spec:
+  background: true
+  validationFailureAction: Audit
+  rules:
+    - name: restrict-nodeport
+      match:
+        any:
+          - resources:
+              kinds:
+                - Service
+      validate:
+        message: "NodePort Services are restricted; use ClusterIP + explicit ingress."
+        pattern:
+          spec:
+            =(type): "ClusterIP"
+    - name: restrict-loadbalancer
+      match:
+        any:
+          - resources:
+              kinds:
+                - Service
+      validate:
+        message: "LoadBalancer Services are not approved; use ingress/LB via platform."
+        pattern:
+          spec:
+            =(type): "ClusterIP"
+    - name: restrict-hostport
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - "dev-*"
+                - "prd-*"
+                - "*-games-*"
+                - "games-*"
+      validate:
+        message: "hostPort is not allowed unless explicitly approved."
+        pattern:
+          spec:
+            =(containers):
+              - =(ports):
+                  - X(hostPort): "null"
+    - name: forbid-latest-tag-in-prod
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - "prd-*"
+      validate:
+        message: "Using the :latest tag in production is not allowed."
+        foreach:
+          - list: request.object.spec.containers
+            pattern:
+              image: "!*:latest"
+    - name: prefer-immutable-digest-in-prod
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - "prd-*"
+      validate:
+        message: "Production images should use an immutable digest (sha256:...)."
+        pattern:
+          spec:
+            containers:
+              - image: "*@sha256:*"

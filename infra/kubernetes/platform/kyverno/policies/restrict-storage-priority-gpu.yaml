@@ -1,0 +1,64 @@
+# Stage 1 (Audit): restrict storage classes, high PriorityClass, GPU resources.
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: restrict-storage-priority-gpu
+  annotations:
+    policies.kyverno.io/title: Restrict storage, priority, GPU
+    policies.kyverno.io/category: Security
+    policies.kyverno.io/severity: medium
+spec:
+  background: true
+  validationFailureAction: Audit
+  rules:
+    - name: allow-approved-storage-classes
+      match:
+        any:
+          - resources:
+              kinds:
+                - PersistentVolumeClaim
+              namespaces:
+                - "dev-*"
+                - "prd-*"
+                - "*-games-*"
+                - "games-*"
+      validate:
+        message: "Only approved storage classes are allowed (nvme-fast, nvme-db, hdd-bulk)."
+        pattern:
+          spec:
+            =(storageClassName): "nvme-fast | nvme-db | hdd-bulk"
+    - name: restrict-priority-class
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - "dev-*"
+                - "prd-*"
+                - "*-games-*"
+                - "games-*"
+      validate:
+        message: "Only approved PriorityClasses are allowed (dev-normal, prod-high)."
+        pattern:
+          spec:
+            =(priorityClassName): "dev-normal | prod-high"
+    - name: restrict-gpu-resources
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - "dev-*"
+                - "prd-*"
+                - "*-games-*"
+                - "games-*"
+      validate:
+        message: "GPU resources require explicit approval."
+        pattern:
+          spec:
+            containers:
+              - =(resources):
+                  =(limits):
+                    X(nvidia.com/gpu): "null"
