@@ -3162,14 +3162,64 @@ reverse (-R)  : 13.9 Mbits/sec (VPS -> alpha return path)
   and port mapping are intentionally **deferred** to a later decision
   (per Phase 53/54, the game edge plane is separate and chosen independently).
 
-## 55.4 Tooling / notes
+## 55.4 WireGuard relay tunnel (established)
 
-- `wireguard` + `wireguard-tools` are installed on the VPS (kernel module
-  `wireguard` loaded) as groundwork for the game edge, but no game path is
-  configured yet — that waits for the architecture decision.
+The generic encrypted pipe between the VPS and alpha is **up and verified**.
+This is transport infrastructure only — it carries no game-specific decision
+(which ports, gateway shape, etc. are still deferred to the later
+architecture choice, per Phase 53/54).
+
+Topology: alpha is behind NAT, so **alpha connects out** to the VPS.
+
+```text
+alpha (wg0 10.200.0.2)  --outbound-->  VPS (public 89.36.162.171:51820, wg0 10.200.0.1)
+```
+
+Config (keys kept out of Git; the private keys live only on each host):
+
+```text
+/etc/wireguard/wg0.conf   on alpha   : Address 10.200.0.2/24, PersistentKeepalive 25
+/etc/wireguard/wg0.conf   on VPS     : Address 10.200.0.1/24, ListenPort 51820
+```
+
+Both ends are boot-persistent:
+
+```bash
+systemctl enable wg-quick@wg0        # both alpha and VPS
+```
+
+VPS has forwarding enabled for the relay:
+
+```bash
+echo "net.ipv4.ip_forward = 1" > /etc/sysctl.d/99-wg-relay.conf && sysctl -p ...
+```
+
+Verify (both directions across tunnel `10.200.0.0/24`):
+
+```bash
+ping -c 5 10.200.0.1   # alpha -> VPS   : 0% loss, ~28ms
+ping -c 5 10.200.0.2   # VPS   -> alpha : 0% loss, ~30ms
+```
+
+Tunnel throughput (iperf3 over the tunnel, VPS bound to 10.200.0.1):
+
+```text
+TCP through tunnel : 38.6 Mbit/s receiver (alpha -> VPS, 8s)
+UDP through tunnel : 9.95 Mbit/s, jitter 1.9ms, loss 0.041% (10M game-like)
+```
+
+The WireGuard overhead is negligible — tunnel throughput actually matched the
+public-IP path. No game ports are DNAT'd through it yet; that happens with the
+game-edge architecture decision.
+
+## 55.5 Tooling / notes
+
+- `wireguard` + `wireguard-tools` installed on both the VPS and alpha (kernel
+  module `wireguard` loaded).
 - **Secrets:** the VPS root password is stored **outside the repo** at
-  `~/.config/iac-secrets/` (0600, never committed). Alpha's SSH pubkey is
-  authorized on the VPS for non-interactive admin.
+  `~/.config/iac-secrets/` (0600, never committed). WireGuard private keys
+  also live only on each host, never in Git. Alpha's SSH pubkey is authorized
+  on the VPS for non-interactive admin.
 - Evening-peak / real-UAE-mobile / GCC-path measurements are **ongoing** and
   will be appended here as they're taken.
 
