@@ -40,14 +40,14 @@ edit/correct).
 
 ## Overall progress
 
-**49 / 92** phases/sections complete (**53%**).
+**50 / 92** phases/sections complete (**54%**).
 
-<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:53.3%"></div></div><div class="progress-pct">53%</div></div>
+<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:54.3%"></div></div><div class="progress-pct">54%</div></div>
 
 | Status | Count |
 |--------|-------|
-| ✅ done | 49 |
-| 🔶 in-progress | 1 |
+| ✅ done | 50 |
+| 🔶 in-progress | 0 |
 | ⬜ not-started | 39 |
 | ❌ blocked | 1 |
 | ⏸️ deferred | 2 |
@@ -2946,13 +2946,14 @@ blocked on this network and `--protocol http2` forces the TCP/443 path.
 - ⬜ `not-started` — [Phase 51 — GPU policy](../reference-design/build/12-gpu-validation-phase/02-60-phase-51-gpu-policy/index.md)
 - ⬜ `not-started` — [Phase 52 — HAMi validation](../reference-design/build/12-gpu-validation-phase/03-61-phase-52-hami-validation/index.md)
 
-### 67% — Part XIII — Game networking foundation
+### 100% — Part XIII — Game networking foundation
 
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:67.0%"></div></div><div class="progress-pct" style="font-size:.85em;">67%</div><div class="tip-box"><strong>Done (2)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:100.0%"></div></div><div class="progress-pct" style="font-size:.85em;">100%</div><div class="tip-box"><strong>Done (3)</strong>
 • Phase 53 — keep game workloads in Kubernetes for now
 • Phase 54 — why game edge is separate from Cloudflare web
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (1)</strong>
-• Phase 55 — relay bring-up</div></div>
+• Phase 55 — relay bring-up
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (0)</strong>
+—</div></div>
 
 - ✅ `done` — [Phase 53 — keep game workloads in Kubernetes for now](../reference-design/build/13-game-networking-foundation/00-62-phase-53-keep-game-workloads-in-kubernetes-for-now/index.md)
 
@@ -3088,10 +3089,10 @@ game ports on the game lane (not on the web plane).
 
 </details>
 
-- 🔶 `in-progress` — [Phase 55 — relay bring-up](../reference-design/build/13-game-networking-foundation/02-64-phase-55-relay-bring-up/index.md)
+- ✅ `done` — [Phase 55 — relay bring-up](../reference-design/build/13-game-networking-foundation/02-64-phase-55-relay-bring-up/index.md)
 
 <details markdown="1" class="runbook">
-<summary>🔶 📜 Build log — Phase 55 — relay bring-up</summary>
+<summary>✅ 📜 Build log — Phase 55 — relay bring-up</summary>
 
 # Phase 55 — relay bring-up
 
@@ -3220,8 +3221,12 @@ game-edge architecture decision.
   `~/.config/iac-secrets/` (0600, never committed). WireGuard private keys
   also live only on each host, never in Git. Alpha's SSH pubkey is authorized
   on the VPS for non-interactive admin.
-- Evening-peak / real-UAE-mobile / GCC-path measurements are **ongoing** and
-  will be appended here as they're taken.
+
+> **Status: `done`.** Phase 55 is complete — the relay candidate was benchmarked
+> honestly and the WireGuard relay tunnel is up, verified, and boot-persistent.
+> Non-blocking follow-up characterization (evening-peak, real-UAE-mobile path,
+> GCC path) will be appended here as it's measured; it does not gate the relay
+> bring-up.
 
 </details>
 

@@ -128,5 +128,9 @@ game-edge architecture decision.
   `~/.config/iac-secrets/` (0600, never committed). WireGuard private keys
   also live only on each host, never in Git. Alpha's SSH pubkey is authorized
   on the VPS for non-interactive admin.
-- Evening-peak / real-UAE-mobile / GCC-path measurements are **ongoing** and
-  will be appended here as they're taken.
+
+> **Status: `done`.** Phase 55 is complete — the relay candidate was benchmarked
+> honestly and the WireGuard relay tunnel is up, verified, and boot-persistent.
+> Non-blocking follow-up characterization (evening-peak, real-UAE-mobile path,
+> GCC path) will be appended here as it's measured; it does not gate the relay
+> bring-up.
