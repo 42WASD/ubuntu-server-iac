@@ -65,6 +65,11 @@
 "06-policy-enforcement/01-38-phase-29-stage-policy-before-enforcing-it/example-deny-hostpath": "done"
 "06-policy-enforcement/03-39-phase-30-policy-tests": "done"
 
+# --- Part VII — Persistent storage ---
+"07-persistent-storage/00-40-phase-31-install-openebs-through-argo-cd": "done"
+"07-persistent-storage/01-41-phase-32-storageclasses": "not-started"
+"07-persistent-storage/02-42-phase-33-prove-pvc-lifecycle-before-deploying-databases": "not-started"
+
 # --- Part XI — Public web path ---
 "11-public-web-path/00-55-phase-46-cloudflare-tunnel": "done"
 
