@@ -4,15 +4,16 @@ metadata:
   name: minecraft-demo
   namespace: dev-games-42wasd-admin
 spec:
-  # ClusterIP — game edge is fronted by the UAE relay -> WireGuard -> this
-  # Service (reference Phase 54). Avoids NodePort/LoadBalancer which Kyverno
-  # restrict-exposure policy flags. For a dev demo, `kubectl port-forward`
-  # reaches it from the LAN.
-  type: ClusterIP
+  # NodePort exposes the game on every node at <nodeIP>:<nodePort> so the UAE
+  # relay (via the WireGuard tunnel) can DNAT to it without any cluster-facing
+  # load balancer. A future game-edge LB can replace this; the Kyverno
+  # restrict-nodeport rule is currently Audit mode (flags, not blocks).
+  type: NodePort
   selector:
     app: minecraft-demo
   ports:
     - name: game
       port: 25565
       targetPort: 25565
+      nodePort: 30079
       protocol: TCP
