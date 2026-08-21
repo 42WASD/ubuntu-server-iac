@@ -1,0 +1,31 @@
+# OpenEBS Helm values — pinned chart, single-node local-storage design.
+# Chart: openebs (repo https://openebs.github.io/openebs/)  version 4.5.1
+#
+# Design (reference Phase 31): single node, local storage only.
+#   - Enable  LocalPV LVM  (the engine we will actually provision with).
+#   - Disable Mayastor  (replicated engine — do NOT imitate replication on a
+#     single-node cluster; it only adds control-plane cost and complexity).
+#   - Disable ZFS / Rawfile / Hostpath engines we do not use.
+#   - Disable the bundled Loki + Alloy log/observability stack; we already
+#     run a separate monitoring stack and do not want a second one.
+
+engines:
+  local:
+    hostpath:
+      enabled: true   # openebs localpv-hostpath used by the chart's own loki/minio defs if any
+    lvm:
+      enabled: true   # the engine backing nvme-fast / nvme-db / hdd-bulk StorageClasses
+    rawfile:
+      enabled: false
+    zfs:
+      enabled: false
+  replicated:
+    mayastor:
+      enabled: false  # single node -> no replication needed
+
+# The unified chart bundles a Loki+Loki backend for its own log shipping.
+# We do not need a second observability stack on this host; disable both.
+loki:
+  enabled: false
+alloy:
+  enabled: false
