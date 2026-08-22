@@ -3358,6 +3358,81 @@ kubectl get pods          # -> meme-site (defaults to dev-42wasd-admin)
 
 Also back-ported to `infra/kubernetes/platform/dex/developer-kubeconfig.template.yaml`.
 
+### Pre-configured contexts for every tenant namespace
+
+A developer who wants to operate a namespace other than the default had to
+create a context by hand — and the naive command drops `user:`, leaving an
+empty user that makes kubectl fall back to a basic-auth prompt:
+
+```text
+# WRONG: no --user -> context has user:"" -> "Please enter Username:" prompt
+kubectl config set-context 42wasd-prd --cluster=alpha --namespace=prd-42wasd-admin
+```
+
+The role now pre-renders a context for **every** namespace the
+`42WASD:tenant-42wasd-admin` group can reach, each reusing the SAME exec user
+(the device-code credential), so switching is just `kubectl config use-context`.
+
+`defaults/main.yml` drives the list:
+
+```yaml
+# infra/ansible/roles/developer_kubeconfig/defaults/main.yml
+developer_kubeconfig_contexts:
+  - name: dev            # -> alpha-dev            -> dev-42wasd-admin
+  - name: prd            # -> alpha-prd            -> prd-42wasd-admin
+  - name: games-dev      # -> alpha-games-dev      -> dev-games-42wasd-admin
+  - name: games-prd      # -> alpha-games-prd      -> prd-games-42wasd-admin
+  - name: mlops          # -> alpha-mlops          -> mlops
+```
+
+Each rendered context is `cluster: alpha`, `user: <dev>` (the exec credential),
+`namespace: <ns>`; names follow the `CLUSTER-LANE` convention so they are
+descriptive and unambiguous. `templates/kubeconfig.j2` loops over the list and
+emits a block per entry, always setting `user: {{ developer_kubeconfig_user }}`
+— never leaving it empty.
+
+Redeploy (`--tags kubeconfig`), then as a developer:
+
+```bash
+kubectl config get-contexts                  # -> jyao-42admin, alpha-dev,
+                                             #    alpha-prd, alpha-games-dev,
+                                             #    alpha-games-prd, alpha-mlops
+kubectl config use-context alpha-prd
+kubectl get pods                             # -> prd-42wasd-admin (reader)
+kubectl config use-context alpha-dev
+kubectl get pods                             # -> dev-42wasd-admin (meme-site)
+```
+
+The `current-context` stays `jyao-42admin` (the default dev namespace) so new
+shells land somewhere safe; developers opt into another namespace with
+`use-context`. Back-ported to
+`infra/kubernetes/platform/dex/developer-kubeconfig.template.yaml`.
+
+Verified locally by rendering the template with jinja2 and parsing the result
+as YAML — every one of the 6 contexts (the default + `alpha-dev`, `alpha-prd`,
+`alpha-games-dev`, `alpha-games-prd`, `alpha-mlops`) carries a non-empty
+`user:` and the correct `namespace:`:
+
+```bash
+source projects/.venv/bin/activate
+python - <<'EOF'   # render kubeconfig.j2 -> yaml.safe_load -> assert each context.user
+...
+EOF
+# jyao-42admin    -> dev-42wasd-admin       user=OK
+# alpha-dev       -> dev-42wasd-admin       user=OK
+# alpha-prd       -> prd-42wasd-admin       user=OK
+# alpha-games-dev -> dev-games-42wasd-admin user=OK
+# alpha-games-prd -> prd-games-42wasd-admin user=OK
+# alpha-mlops     -> mlops                  user=OK
+# VALID YAML: OK
+```
+
+Redeploy of the new kubeconfigs (`sudo ansible-playbook -i
+inventory/production.yml ansible/site.yml --limit alpha --connection local
+--tags kubeconfig`) is **pending** — the agent session had no passwordless
+`sudo`, so the playbook could not be invoked directly. Run it as the platform
+admin, then have each developer confirm the new contexts appear.
+
 ## 27.6 Verification
 
 ```bash

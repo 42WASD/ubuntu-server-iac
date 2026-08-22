@@ -63,4 +63,51 @@ Kubernetes RBAC (Phase 26 RoleBindings by group)
 - Do **not** store the GitHub OAuth secret or Dex signing key in Git.
 - Do **not** use Cloudflare Access as the Kubernetes OIDC IdP (it is not a standard OIDC provider for `kubelogin`).
 
+### 27.1.4 Context model (every tenant namespace pre-configured)
+
+Each developer kubeconfig ships with **one context per tenant namespace** in
+addition to the default dev context. This is the ergonomic core of the OIDC
+setup: developers switch between namespaces with a single
+`kubectl config use-context <name>` instead of typing `-n` or hand-editing
+contexts.
+
+Design rules (research-backed):
+
+- **Always set `user:` on every context.** The exec credential (kubelogin
+  device-code) is what authenticates. A context created with
+  `kubectl config set-context <n> --cluster=alpha --namespace=<ns>` leaves
+  `user:` empty and kubectl falls back to a **basic-auth prompt**
+  (`Please enter Username`). Every pre-rendered context reuses the SAME exec
+  `user:` — only the `namespace:` differs.
+- **Encode environment into the context name** so switching is unambiguous
+  and deployment-safe. Generic names (`dev`, `test`) are ambiguous; descriptive
+  `CLUSTER-LANE` names make the target clear at a glance.
+- **Keep a safe default.** `current-context` points at the dev namespace so a
+  new shell always lands somewhere least-privileged by default; the developer
+  opts into other namespaces with `use-context`.
+
+The tenant group `42WASD:tenant-42wasd-admin` can reach exactly these
+namespaces, so exactly these contexts are pre-configured (all on cluster
+`alpha`, all under the same exec user):
+
+| Context name | Namespace | Access |
+|---|---|---|
+| `alpha-dev` | `dev-42wasd-admin` | developer (write) |
+| `alpha-prd` | `prd-42wasd-admin` | reader |
+| `alpha-games-dev` | `dev-games-42wasd-admin` | developer (write) |
+| `alpha-games-prd` | `prd-games-42wasd-admin` | reader |
+| `alpha-mlops` | `mlops` | reader |
+
+The list is data-driven in the `developer_kubeconfig` role
+(`developer_kubeconfig_contexts` in `defaults/main.yml`) and rendered by
+`templates/kubeconfig.j2`, so adding a namespace is a one-line change. When a
+new tenant is onboarded, the same pattern applies: enumerate its namespaces and
+render one context per namespace.
+
+```bash
+kubectl config get-contexts                  # alpha, alpha-prd, alpha-games-dev, ...
+kubectl config use-context alpha-games-prd
+kubectl get pods                             # -> prd-games-42wasd-admin (reader)
+```
+
 ---
