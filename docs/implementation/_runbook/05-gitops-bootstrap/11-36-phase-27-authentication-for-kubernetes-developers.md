@@ -365,17 +365,35 @@ kubeconfig to each developer's `~/.kube/config`:
   after `rke2_server`.
 
 ```bash
-# from infra/
+# from infra/ (run as root to avoid become password prompt)
 cd /home/jyao/ubuntu-server-iac/infra
-ansible-playbook -i inventory/production.yml ansible/site.yml --limit alpha \
-  --tags kubeconfig
+sudo ansible-playbook -i inventory/production.yml ansible/site.yml \
+  --limit alpha --connection local --tags kubeconfig
 ```
 
-Verified: the rendered kubeconfig is functionally identical to the hand-made
+Deployed on alpha as root (become is then a root→root no-op; `--connection
+local` since alpha has no passwordless self-SSH; `--limit alpha` skips the
+unreachable `build01`). Result: `PLAY RECAP alpha ok=7 changed=2 failed=0`.
+
+Verified the rendered kubeconfig is functionally identical to the hand-made
 `config-oidc-jyao-42admin` (same `client` exec block, server, and CA; only the
 context/user name differs). Each developer then runs
 `kubectl oidc-login get-token --grant-type=device-code` (auto-invoked by the
 exec credential) once, and `kubectl` works.
+
+Deployment notes / bugs hit on first run:
+
+- The role must create `/home/<user>/.kube` (mode `0700`) first — only
+  `ehammoud` had it. Added an explicit `ansible.builtin.file` task.
+- All tasks must carry the `kubeconfig` tag, otherwise `--tags kubeconfig`
+  skips the `slurp`/`set_fact` that populates `developer_kubeconfig_ca_data`
+  ("undefined" error).
+- The template loop `{%- for %}` trimming collapsed `--oidc-extra-scope` and
+  `command: kubectl` onto one line. Fixed by using `{% for %}` with
+  `trim_blocks`/`lstrip_blocks` (content on the loop line).
+
+Each developer now has `/home/<user>/.kube/config` (owner/user, mode `0600`)
+with a valid OIDC exec credential.
 
 ### Final end-to-end verification
 
