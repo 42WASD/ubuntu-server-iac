@@ -12,18 +12,33 @@
   ansible.builtin.slurp:
     src: "{{ developer_kubeconfig_ca_file }}"
   register: _devkc_admin_kubeconfig
+  tags:
+    - kubeconfig
 
 - name: Extract certificate-authority-data from the admin kubeconfig
   ansible.builtin.set_fact:
     developer_kubeconfig_ca_data: >-
       {{ (_devkc_admin_kubeconfig.content | b64decode | from_yaml)
          .clusters[0].cluster['certificate-authority-data'] }}
+  tags:
+    - kubeconfig
 
 # ---------------------------------------------------------------------------
 # Render + place one kubeconfig per developer. The file content is identical
 # except for the context/user NAME (cosmetic). Each developer's OS identity is
 # what kubelogin resolves, so there is no per-user secret to embed.
 # ---------------------------------------------------------------------------
+- name: Ensure each developer's .kube directory exists
+  ansible.builtin.file:
+    path: "/home/{{ item }}/.kube"
+    state: directory
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: "0700"
+  loop: "{{ developer_kubeconfig_users }}"
+  tags:
+    - kubeconfig
+
 - name: Deploy OIDC kubeconfig to each developer's home
   ansible.builtin.template:
     src: kubeconfig.j2
