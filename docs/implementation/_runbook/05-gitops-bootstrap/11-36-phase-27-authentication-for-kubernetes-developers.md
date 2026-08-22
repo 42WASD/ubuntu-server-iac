@@ -141,17 +141,89 @@ sudo ps aux | grep kube-apiserver | grep -o "oidc-[a-z-]*=[^ ]*" | sort -u
 kubectl cluster-info && kubectl get nodes    # api up, node Ready
 ```
 
-## 27.5 Developer login (manual, per developer)
+## 27.5 Developer login (per developer)
 
-1. Install the kubelogin plugin (separate binary; `kubectl oidc-login`).
-2. Create a kubeconfig for the developer with the OIDC exec credential:
-   `idp-issuer-url=https://alpha.taild82ced.ts.net`, `client-id=kubernetes`,
-   `exec: kubectl oidc-login get-token`.
-3. On first use, `kubectl` opens the device-code flow: prints a URL + code;
-   the developer approves on any device's browser; the token returns to
-   alpha.
+1. Install the kubelogin plugin (separate binary exposing `kubectl oidc-login`).
+   For Linux amd64 on the host, kubelogin `v1.36.3`:
 
-## 27.5 Verification
+   ```bash
+   cd /tmp
+   curl -sL -o kubelogin.zip \
+     https://github.com/int128/kubelogin/releases/download/v1.36.3/kubelogin_linux_amd64.zip
+   unzip -o -q kubelogin.zip
+   sudo cp kubelogin /usr/local/bin/kubectl-oidc_login && sudo chmod +x /usr/local/bin/kubectl-oidc_login
+   kubectl oidc-login version
+   ```
+
+2. Create a kubeconfig for the developer with the OIDC exec credential. Reuse
+   the cluster CA from the admin config (`sudo cat /etc/rancher/rke2/rke2.yaml`,
+   `certificate-authority-data`), point the server at
+   `https://alpha.taild82ced.ts.net:6443`, and use the device-code grant:
+
+   ```bash
+   CA=$(sudo cat /etc/rancher/rke2/rke2.yaml | grep 'certificate-authority-data:' | awk '{print $2}')
+   cat > ~/.kube/config-oidc-jyao-42admin <<EOF
+   apiVersion: v1
+   kind: Config
+   clusters:
+   - cluster:
+       certificate-authority-data: $CA
+       server: https://alpha.taild82ced.ts.net:6443
+     name: alpha
+   contexts:
+   - context: { cluster: alpha, user: jyao-42admin }
+     name: jyao-42admin
+   current-context: jyao-42admin
+   users:
+   - name: jyao-42admin
+     user:
+       exec:
+         apiVersion: client.authentication.k8s.io/v1
+         args:
+         - oidc-login
+         - get-token
+         - --oidc-issuer-url=https://alpha.taild82ced.ts.net
+         - --oidc-client-id=kubernetes
+         command: kubectl
+         interactiveMode: IfAvailable
+         provideClusterInfo: true
+   EOF
+   ```
+
+   > Do **not** embed a `client-secret` — the `kubernetes` Dex client uses the
+   > public device-code grant (RFC 8628), so there is none to leak.
+
+3. Log in with the device-code grant (headless-friendly; prints a URL + code
+   because no browser is available on the host):
+
+   ```bash
+   KUBECONFIG=~/.kube/config-oidc-jyao-42admin \
+     kubectl oidc-login get-token --grant-type=device-code \
+     --oidc-issuer-url=https://alpha.taild82ced.ts.net --oidc-client-id=kubernetes
+   ```
+
+   Open `https://alpha.taild82ced.ts.net/device?user_code=<CODE>` in any
+   browser, approve on GitHub as a member of `tenant-jya0` /
+   `tenant-42wasd-admin`, and the token is written back to the kubeconfig.
+
+4. Verify identity + groups reach the API server:
+
+   ```bash
+   KUBECONFIG=~/.kube/config-oidc-jyao-42admin kubectl auth whoami
+   KUBECONFIG=~/.kube/config-oidc-jyao-42admin kubectl get pods
+   ```
+
+### Device-code flow requires `/device/callback`
+
+Dex's device authorization flow (RFC 8628) redirects the browser to
+`/device/callback` while a GitHub connector auth is in flight. That path must
+be listed in the static client's `redirectURIs` — otherwise Dex returns
+**`Unregistered redirect_uri`** and the code never exchanges. Added
+`"/device/callback"` to the `kubernetes` client. Verified end-to-end: the Dex
+pod log showed the connector rejecting only on team membership, i.e. the whole
+chain (device code → GitHub OAuth → Dex → groups claim) works.
+
+## 27.6 Verification
 
 ```bash
 kubectl -n security get pods -l app=dex            # 1/1 Running
