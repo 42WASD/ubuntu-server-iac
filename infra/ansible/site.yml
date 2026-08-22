@@ -1,0 +1,43 @@
+---
+# Site playbook — the full, repeatable bootstrap for the platform hosts.
+# `make ansible` / `make bootstrap` runs this. Host membership comes from
+# infra/inventory/production.yml (groups: rke2_servers, build_nodes,
+# linux_platform).
+#
+# Each role is idempotent and phase-scoped. Roles with no tasks yet are
+# listed so the topology is visible; add tasks as phases land.
+- name: Configure all Linux platform nodes
+  hosts: linux_platform
+  become: true
+  roles:
+    - base
+    - ssh
+    - users
+    - tailscale
+    - developer_limits
+    - quota
+    - firewall
+    - storage
+
+- name: Configure RKE2 servers
+  hosts: rke2_servers
+  become: true
+  roles:
+    - rke2_server
+
+# Phase 27: after RKE2 + Dex + RBAC are in place, distribute the OIDC
+# developer kubeconfigs so each developer can `kubectl oidc-login`.
+- name: Distribute OIDC developer kubeconfigs (Phase 27)
+  hosts: rke2_servers
+  become: true
+  roles:
+    - developer_kubeconfig
+
+- name: Configure build nodes
+  hosts: build_nodes
+  become: true
+  roles:
+    - build_node
+    - build_client
+    - nvidia_host
+    - storage

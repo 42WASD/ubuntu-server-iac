@@ -342,6 +342,41 @@ authenticator initializes and a `TokenReview` succeeds:
 {"authenticated":true,"user":{"groups":["42WASD:tenant-42wasd-admin","system:authenticated"],"username":"jinxiuyao@gmail.com"}}
 ```
 
+### Automated distribution via the `developer_kubeconfig` role
+
+To onboard all tenant developers in one GitOps-reproducible step, a new
+Ansible role `infra/ansible/roles/developer_kubeconfig/` renders and deploys a
+kubeconfig to each developer's `~/.kube/config`:
+
+- `defaults/main.yml` — `developer_kubeconfig_users` lists the Linux usernames
+  (jyao-42admin, ehammoud, mayan, mtangalv). It derives the OIDC issuer, client
+  id, extra scopes, and API server address from the RKE2 role vars
+  (`rke2_oidc_*`, `rke2_admin_kubeconfig_server`) so there is a single source
+  of truth, with explicit fallbacks so the role is runnable standalone.
+- `tasks/main.yml` — slurps the root-only RKE2 admin kubeconfig
+  (`/etc/rancher/rke2/rke2.yaml`) and extracts `certificate-authority-data`
+  **live**, so the CA is never committed to Git. Then renders the kubeconfig
+  template per user and writes it to `/home/<user>/.kube/config` mode `0600`.
+- `templates/kubeconfig.j2` — embeds the OIDC `kubectl oidc-login` exec
+  credential. Content is identical for every developer except the cosmetic
+  context/user NAME; the real identity is resolved by kubelogin under each OS
+  user's home (device-code flow, so no per-user secret).
+- `site.yml` — a dedicated play runs `developer_kubeconfig` on `rke2_servers`
+  after `rke2_server`.
+
+```bash
+# from infra/
+cd /home/jyao/ubuntu-server-iac/infra
+ansible-playbook -i inventory/production.yml ansible/site.yml --limit alpha \
+  --tags kubeconfig
+```
+
+Verified: the rendered kubeconfig is functionally identical to the hand-made
+`config-oidc-jyao-42admin` (same `client` exec block, server, and CA; only the
+context/user name differs). Each developer then runs
+`kubectl oidc-login get-token --grant-type=device-code` (auto-invoked by the
+exec credential) once, and `kubectl` works.
+
 ### Final end-to-end verification
 
 With the ID token written directly into a kubeconfig (`token:`), `kubectl`

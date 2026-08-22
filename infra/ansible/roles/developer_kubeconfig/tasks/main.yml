@@ -1,0 +1,38 @@
+---
+# developer_kubeconfig — Phase 27: distribute a per-developer OIDC kubeconfig
+# at each developer's ~/.kube/config so they can authenticate via Dex +
+# `kubectl oidc-login` (kubelogin device flow).
+
+# ---------------------------------------------------------------------------
+# Read the cluster CA live from the root-only admin kubeconfig so the CA is
+# never committed to Git. This role runs with become (ansible.cfg), so it can
+# read /etc/rancher/rke2/rke2.yaml.
+# ---------------------------------------------------------------------------
+- name: Load API server CA data from the RKE2 admin kubeconfig
+  ansible.builtin.slurp:
+    src: "{{ developer_kubeconfig_ca_file }}"
+  register: _devkc_admin_kubeconfig
+
+- name: Extract certificate-authority-data from the admin kubeconfig
+  ansible.builtin.set_fact:
+    developer_kubeconfig_ca_data: >-
+      {{ (_devkc_admin_kubeconfig.content | b64decode | from_yaml)
+         .clusters[0].cluster['certificate-authority-data'] }}
+
+# ---------------------------------------------------------------------------
+# Render + place one kubeconfig per developer. The file content is identical
+# except for the context/user NAME (cosmetic). Each developer's OS identity is
+# what kubelogin resolves, so there is no per-user secret to embed.
+# ---------------------------------------------------------------------------
+- name: Deploy OIDC kubeconfig to each developer's home
+  ansible.builtin.template:
+    src: kubeconfig.j2
+    dest: "/home/{{ item }}/.kube/config"
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: "0600"
+  loop: "{{ developer_kubeconfig_users }}"
+  vars:
+    developer_kubeconfig_user: "{{ item }}"
+  tags:
+    - kubeconfig
