@@ -47,11 +47,6 @@ spec:
                 secretKeyRef:
                   name: dex-github-oauth
                   key: client-secret
-            - name: DEX_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: dex-client
-                  key: client-secret
           ports:
             - name: http
               containerPort: 5556

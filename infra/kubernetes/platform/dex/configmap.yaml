@@ -32,9 +32,15 @@ data:
     # The kube-apiserver trusts tokens from this client id (set in the RKE2
     # kube-apiserver-arg: --oidc-client-id=kubernetes).
     staticClients:
+      # This is a PUBLIC client: the device-code flow (RFC 8628) and kubelogin
+      # never send a client_secret, so the client must have an empty secret.
+      # If a secret is configured, Dex's device callback performs a constant-time
+      # comparison of client.Secret vs the (empty) device request secret and
+      # returns "invalid_client". See Dex examples/config-dev.yaml which marks
+      # its device-flow client `public: true`.
       - id: kubernetes
         name: Kubernetes
-        secretEnv: DEX_CLIENT_SECRET
+        public: true
         redirectURIs:
           - "http://localhost:5556/callback"
           - "http://localhost:8000/callback"
