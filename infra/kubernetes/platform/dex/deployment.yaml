@@ -1,0 +1,120 @@
+# Dex OIDC provider (Phase 27 — authentication for Kubernetes developers).
+# Serves the OIDC issuer over HTTPS on the tailnet via Traefik TLS (the
+# Tailscale cert for alpha.taild82ced.ts.net on port 443). kube-apiserver
+# stays on 6443 — no port conflict.
+#
+# GitHub connector authenticates users; the device-code flow (RFC 8628)
+# enables headless `kubectl oidc-login` on alpha.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dex
+  namespace: security
+  labels:
+    app: dex
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dex
+  template:
+    metadata:
+      labels:
+        app: dex
+    spec:
+      serviceAccountName: dex
+      containers:
+        - name: dex
+          image: ghcr.io/dexidp/dex:v2.45.1
+          args:
+            - dex
+            - serve
+            - /etc/dex/config.yaml
+          env:
+            - name: GITHUB_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: dex-github-oauth
+                  key: client-id
+            - name: GITHUB_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: dex-github-oauth
+                  key: client-secret
+            - name: DEX_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: dex-client
+                  key: client-secret
+          ports:
+            - name: http
+              containerPort: 5556
+            - name: grpc
+              containerPort: 5557
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          volumeMounts:
+            - name: config
+              mountPath: /etc/dex
+              readOnly: true
+            - name: data
+              mountPath: /var/lib/dex
+      volumes:
+        - name: config
+          configMap:
+            name: dex-config
+        - name: data
+          persistentVolumeClaim:
+            claimName: dex-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dex
+  namespace: security
+  labels:
+    app: dex
+spec:
+  selector:
+    app: dex
+  ports:
+    - name: http
+      port: 5556
+      targetPort: http
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dex-data
+  namespace: security
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nvme-fast
+  resources:
+    requests:
+      storage: 1Gi
+  volumeMode: Filesystem
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: dex
+  namespace: security

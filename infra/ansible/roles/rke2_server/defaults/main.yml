@@ -40,13 +40,31 @@ rke2_ingress_controller: traefik
 rke2_disable_kube_proxy: true
 
 # TLS SANs added to the serving certificate. The management address must be
-# present so kubectl over Tailscale presents a valid cert. Prefer the stable
+# present so the cert for kubectl over Tailscale presents a valid cert. Prefer the stable
 # MagicDNS hostname over the raw 100.x IP (Tailscale can reallocate the IP;
 # the DNS name stays tied to the node).
 rke2_tls_sans:
   - "{{ network.management_tailscale_dnsname
         if network.management_tailscale_dnsname is defined
         else network.management_tailscale_ipv4 }}"
+
+# ---------------------------------------------------------------------------
+# OIDC integration (Phase 27 — Dex + GitHub, kubelogin device flow)
+# ---------------------------------------------------------------------------
+# kube-apiserver authenticates users via Dex (OIDC issuer). Dex runs on the
+# tailnet at the node's MagicDNS name (Tailscale only issues certs for the
+# node's own FQDN — no subdomains). The issuer is reached via Traefik on
+# port 443; kube-apiserver itself stays on 6443, so there is no conflict.
+#
+# The issuer URL MUST exactly match what kubelogin sends in discovery
+# (.well-known/openid-configuration) — kube-apiserver rejects mismatches.
+rke2_oidc_enabled: false
+rke2_oidc_issuer_url: "https://{{ network.management_tailscale_dnsname
+                        if network.management_tailscale_dnsname is defined
+                        else network.management_tailscale_ipv4 }}"
+rke2_oidc_client_id: "kubernetes"
+rke2_oidc_username_claim: "email"
+rke2_oidc_groups_claim: "groups"
 
 # Admin kubeconfig stays root/platform-admin controlled (readable by the
 # platform-admin group, not world-readable).

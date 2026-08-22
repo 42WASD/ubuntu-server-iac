@@ -57,7 +57,7 @@ metadata:
   namespace: dev-jya0
 subjects:
   - kind: Group
-    name: tenant-jya0
+    name: 42WASD:tenant-jya0
     apiGroup: rbac.authorization.k8s.io
 roleRef:
   kind: Role
@@ -111,7 +111,7 @@ metadata:
   namespace: prd-jya0
 subjects:
   - kind: Group
-    name: tenant-jya0
+    name: 42WASD:tenant-jya0
     apiGroup: rbac.authorization.k8s.io
 roleRef:
   kind: Role

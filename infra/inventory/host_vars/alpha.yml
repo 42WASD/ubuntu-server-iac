@@ -55,3 +55,9 @@ network:
   # Second wired NIC and the wireless adapter are present but not in use.
   spare_nic: enp194s0
   wireless: wlx6083e75da3bf
+
+# OIDC / Dex authentication (Phase 27). Enabled for alpha now that Dex is
+# deployed. Issuer uses the MagicDNS name (Tailscale serves certs only for the
+# node's own FQDN, so the issuer shares `alpha.taild82ced.ts.net` on port 443
+# via Traefik; the kube-apiserver stays on 6443).
+rke2_oidc_enabled: true

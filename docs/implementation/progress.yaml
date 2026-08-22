@@ -58,6 +58,7 @@
 "05-gitops-bootstrap/06-33-phase-24-limitrange": "done"
 "05-gitops-bootstrap/07-34-phase-25-default-deny-networkpolicy": "done"
 "05-gitops-bootstrap/08-35-phase-26-rbac": "done"
+"05-gitops-bootstrap/11-36-phase-27-authentication-for-kubernetes-developers": "done"
 
 # --- Part VI — Policy enforcement ---
 "06-policy-enforcement/00-37-phase-28-install-kyverno-through-argo-cd": "done"

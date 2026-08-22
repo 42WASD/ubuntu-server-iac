@@ -20,6 +20,17 @@ tls-san:
   - "{{ san }}"
 {%- endfor %}
 
+{% if rke2_oidc_enabled %}
+# OIDC (Dex + GitHub, Phase 27). Issuer must match the tailnet-visible Dex URL
+# that kubelogin discovers. API stays on the tailnet only (port 6443); the
+# issuer is served over HTTPS via Traefik.
+kube-apiserver-arg:
+  - "oidc-issuer-url={{ rke2_oidc_issuer_url }}"
+  - "oidc-client-id={{ rke2_oidc_client_id }}"
+  - "oidc-username-claim={{ rke2_oidc_username_claim }}"
+  - "oidc-groups-claim={{ rke2_oidc_groups_claim }}"
+{% endif %}
+
 # Admin kubeconfig remains root/platform-admin controlled.
 write-kubeconfig-mode: "{{ rke2_write_kubeconfig_mode }}"
 

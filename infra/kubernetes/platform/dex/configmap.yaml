@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dex-config
+  namespace: security
+data:
+  config.yaml: |
+    # Dex OIDC provider — Phase 27 authentication for Kubernetes developers.
+    #
+    # Issuer must exactly match the URL kubelogin/kube-apiserver discover.
+    # The API is Tailnet-only; the issuer is served via Traefik TLS at the
+    # node's MagicDNS name on port 443 (Tailscale issues certs only for the
+    # node's own FQDN, so Dex shares `alpha.tail82ced.ts.net` with kubectl's
+    # API on a different port).
+    issuer: https://alpha.taild82ced.ts.net
+
+    storage:
+      type: sqlite3
+      config:
+        file: /var/lib/dex/dex.db
+
+    # Dex signs ID tokens; rotate by deleting /var/lib/dex/dex.db keys.
+    web:
+      http: 0.0.0.0:5556
+      # Dex is served behind Traefik (TLS terminated there). Allow the
+      # public tailnet origin so browser device-flow pages load.
+      allowedOrigins: ["https://alpha.taild82ced.ts.net"]
+
+    grpc:
+      addr: 0.0.0.0:5557
+
+    # The kube-apiserver trusts tokens from this client id (set in the RKE2
+    # kube-apiserver-arg: --oidc-client-id=kubernetes).
+    staticClients:
+      - id: kubernetes
+        name: Kubernetes
+        secretEnv: DEX_CLIENT_SECRET
+        redirectURIs:
+          - "http://localhost:5556/callback"
+          - "http://localhost:8000/callback"
+        # kubelogin uses the device-authorization grant (RFC 8628).
+        publicGrantTypes: ["urn:ietf:params:oauth:grant-type:device_code"]
+
+    # GitHub OAuth connector. Credentials are injected from the
+    # dex-github-oauth Secret (never committed to Git).
+    connectors:
+      - type: github
+        id: github
+        name: GitHub
+        config:
+          clientID: $GITHUB_CLIENT_ID
+          clientSecret: $GITHUB_CLIENT_SECRET
+          redirectURI: https://alpha.taild82ced.ts.net/callback
+          # Only members of these orgs/teams can authenticate. The GitHub
+          # connector emits group claims as "<org>:<team>"; RBAC (Phase 26)
+          # binds groups "42WASD:tenant-jya0" and "42WASD:tenant-42wasd-admin".
+          orgs:
+            - name: 42WASD
+              teams:
+                - tenant-jya0
+                - tenant-42wasd-admin
+          teamNameField: slug
+
+    # Emit the standard groups claim for kube-apiserver --oidc-groups-claim.
+    oauth2:
+      responseTypes: ["code"]
+      skipApprovalScreen: true
+    expiry:
+      idTokens: "24h"
+      refreshTokens:
+        reuseInterval: "3s"
+        validIfNotUsedFor: "720h"
+        absoluteLifetime: "0"
