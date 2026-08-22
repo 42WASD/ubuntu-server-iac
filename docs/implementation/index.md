@@ -3302,6 +3302,35 @@ kubectl get secrets -n dev-42wasd-admin  # -> FORBIDDEN (dev role has no secrets
 Apply/sync: Argo CD `platform-rbac` app picks it up from the `rbac/` path
 (manual for the first apply).
 
+### Default namespace in the developer kubeconfig
+
+By default, `kubectl` operates in the `default` namespace, which the tenant
+group has no access to. Set the context's `namespace:` so every `kubectl`
+command targets the tenant's dev namespace by default:
+
+```yaml
+# infra/ansible/roles/developer_kubeconfig/defaults/main.yml
+developer_kubeconfig_namespace: "dev-42wasd-admin"
+
+# templates/kubeconfig.j2
+contexts:
+- name: {{ developer_kubeconfig_cluster_name }}
+  context:
+    cluster: {{ developer_kubeconfig_cluster_name }}
+    user: {{ developer_kubeconfig_user }}
+    namespace: {{ developer_kubeconfig_namespace }}
+```
+
+Redeploy with `--tags kubeconfig`, then verify (no `-n` needed):
+
+```bash
+$ kubectl config view --minify -o jsonpath='{.contexts[0].context.namespace}'
+# dev-42wasd-admin
+kubectl get pods          # -> meme-site (defaults to dev-42wasd-admin)
+```
+
+Also back-ported to `infra/kubernetes/platform/dex/developer-kubeconfig.template.yaml`.
+
 ## 27.6 Verification
 
 ```bash
