@@ -23,6 +23,12 @@ spec:
         app: dex
     spec:
       serviceAccountName: dex
+      securityContext:
+        # Dex runs as UID 1000 (non-root). fsGroup 1000 makes the kubelet set
+        # group ownership on the SQLite PVC so Dex can write its DB.
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
       containers:
         - name: dex
           image: ghcr.io/dexidp/dex:v2.45.1
