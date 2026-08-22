@@ -41,7 +41,7 @@ developer_kubeconfig_issuer_url: >-
             if network.management_tailscale_dnsname is defined
             else 'https://localhost' }}
 developer_kubeconfig_client_id: "{{ rke2_oidc_client_id | default('kubernetes') }}"
-developer_kubeconfig_extra_scopes: "{{ rke2_oidc_extra_scopes | default(['groups']) }}"
+developer_kubeconfig_extra_scopes: "{{ rke2_oidc_extra_scopes | default(['groups', 'email']) }}"
 
 # ---------------------------------------------------------------------------
 # Cluster connection. The API server address over Tailscale (with a valid

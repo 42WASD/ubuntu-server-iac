@@ -421,6 +421,59 @@ plugin path was never exercised):
 Verified: after the fix, `sudo -u jyao-42admin kubectl get pods` invokes
 kubelogin's device flow and prints the device URL (no more basic-auth prompt).
 
+### Missing `email` scope → `Unauthorized` after a successful device login
+
+Symptom: the Dex pod log showed `login successful ... groups=[42WASD:tenant-42wasd-admin]`, the kubelogin cache held a valid 24h ID token with the right `groups` claim, yet `kubectl auth whoami` returned `You must be logged in to the server (Unauthorized)`.
+
+Root cause: the deployed kubeconfig only requested the `groups` extra scope,
+so the issued ID token had **no `email` claim**. But kube-apiserver was
+configured with `--oidc-username-claim=email`, so the OIDC authenticator could
+not extract a username and rejected the token (401). The token was valid and
+signed; the *claim set* was simply incomplete for the apiserver's username
+claim.
+
+```bash
+# Decode the cached ID token (kubelogin cache) to confirm missing email claim:
+sudo -n cat /home/<dev>/.kube/cache/oidc-login/<hash> \
+  | python3 -c "import sys,json;print(json.load(sys.stdin)['id_token'])" \
+  | cut -d. -f2 | base64 -d 2>/dev/null   # shows keys iss,sub,aud,exp,groups — NO email
+```
+
+Fix: add `email` to the requested extra scopes so the ID token carries the
+claim the apiserver's `--oidc-username-claim=email` expects.
+
+```bash
+# infra/ansible/roles/developer_kubeconfig/defaults/main.yml
+developer_kubeconfig_extra_scopes: "{{ rke2_oidc_extra_scopes | default(['groups', 'email']) }}"
+```
+
+Redeploy the role (creates the config with the extra `--oidc-extra-scope=email`
+arg), then each developer re-runs the device-code flow. After re-login the
+decoded token includes `email` and `kubectl auth whoami` succeeds. Also
+back-ported the fix to the reference template
+`infra/kubernetes/platform/dex/developer-kubeconfig.template.yaml` (which still
+had the older `client:` block + `groups`-only scope).
+
+### `stdout_callback = yaml` removed plugin → playbook failed to start
+
+Redeploying the role with the system-wide `ansible-core 2.20.1` failed before
+any task ran:
+
+```
+[ERROR]: The 'community.general.yaml' callback plugin has been removed.
+  The plugin has been superseded by the option `result_format=yaml` in
+  callback plugin ansible.builtin.default from ansible-core 2.13 onwards.
+```
+
+`infra/ansible/ansible.cfg` still referenced the old
+`stdout_callback = yaml`, which pointed at a plugin removed from
+`community.general` v12. Fix:
+
+```ini
+stdout_callback = default
+result_format = yaml
+```
+
 ### Final end-to-end verification
 
 With the ID token written directly into a kubeconfig (`token:`), `kubectl`
