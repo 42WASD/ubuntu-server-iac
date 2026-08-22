@@ -5,11 +5,10 @@
 # (user-<UID>.slice.d/50-platform-limits.conf) and reload systemd. Limits
 # apply on the next login of that user. We look up UIDs from the passwd db.
 
-- name: Look up UID for each developer
+- name: Load all passwd entries so each developer's UID is available
   ansible.builtin.getent:
     database: passwd
-    key: "{{ item.name }}"
-  loop: "{{ developer_limits_users }}"
+  # Populates getent_passwd with ALL users; developers looked up by name below.
 
 - name: Create slice drop-in directory for each developer
   ansible.builtin.file:

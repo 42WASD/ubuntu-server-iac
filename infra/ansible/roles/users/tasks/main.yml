@@ -43,3 +43,16 @@
     group: root
     mode: "0440"
     validate: /usr/sbin/visudo -cf %s
+
+# --- fastfetch banner on login (Phase 27 follow-up) ---
+# Only deploy when a group is configured. A group membership check at runtime
+# ensures only tenant developers get the banner.
+
+- name: Deploy fastfetch login banner for tenant developers
+  ansible.builtin.template:
+    src: fastfetch-profile.sh.j2
+    dest: /etc/profile.d/platform-fastfetch.sh
+    owner: root
+    group: root
+    mode: "0644"
+  when: fastfetch_profile_group | length > 0

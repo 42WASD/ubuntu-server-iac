@@ -323,6 +323,33 @@ tenant-42wasd-admin`.
 Kept `/etc/sudoers` untouched. `jyao` retains `(ALL:ALL) ALL`; no convenience
 `NOPASSWD` rules for tenants.
 
+## Addendum — fastfetch banner on login (Phase 27 follow-up)
+
+Members of `tenant-42wasd-admin` get a `fastfetch` system summary on interactive
+**login** shells via `/etc/profile.d/platform-fastfetch.sh`. The snippet checks
+group membership at runtime, so only that group's members see the banner.
+
+```bash
+# Deployed by the `users` role (template fastfetch-profile.sh.j2)
+# /etc/profile.d/platform-fastfetch.sh
+if id -nG | grep -qw tenant-42wasd-admin; then
+    if command -v fastfetch >/dev/null 2>&1; then
+        fastfetch
+    fi
+fi
+```
+
+Verified: login shell as `jyao-42admin` (member) prints the banner; as `jyao`
+(non-member) it does not. Config via `users` role defaults
+(`fastfetch_profile_group: tenant-42wasd-admin`).
+
+**Also fixed while running the full playbook:**
+- `developer_limits` role: variable was `developer_limited_users` in defaults
+  but `developer_limits_users` in tasks → renamed to match the tasks (and the
+  runbook). Getent now loads all passwd entries once.
+- `platform-admin.j2` lacked a trailing newline → visudo failed validation;
+  added the newline.
+
 **Checkpoint 3 (verified):**
 - As a normal developer: `sudo -l` → not allowed.
 - As `jyao`: `sudo -v` → works.

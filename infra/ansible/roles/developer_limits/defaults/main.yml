@@ -26,7 +26,7 @@ developer_limits_normal:
 
 # Owner username -> gets the owner profile; everyone else on this list gets
 # the normal profile. Keys are usernames; the role looks up their UID.
-developer_limited_users:
+developer_limits_users:
   - name: jyao
     profile: owner
   - name: jyao-42admin

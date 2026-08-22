@@ -42,6 +42,11 @@ platform_forbidden_groups:
   - disk
   - root
 
+# --- Fastfetch banner on login (Phase 27 follow-up) ---
+# Group whose members see a `fastfetch` system summary on interactive login
+# via /etc/profile.d/. Set to '' to disable.
+fastfetch_profile_group: tenant-42wasd-admin
+
 # --- sudo policy (Phase 4 / 13.3) ---
 # Keep /etc/sudoers minimal: only platform-admins get a rule here.
 platform_admin_user: jyao

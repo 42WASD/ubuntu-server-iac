@@ -1,0 +1,16 @@
+# Fastfetch system-info banner for tenant developers (Phase 27 follow-up).
+#
+# On interactive LOGIN shells, if the current user is a member of the
+# tenant-42wasd-admin group, print a fastfetch system summary so developers
+# immediately see host/OS/hardware on login. Non-members (admins, other
+# tenants) get no banner, keeping their prompt unchanged.
+#
+# Runs for login shells only (/etc/profile -> profile.d). Interactive
+# non-login shells (a fresh terminal tab in an existing GUI session) do not
+# source this — expected behavior for "on login".
+
+if id -nG | grep -qw {{ fastfetch_profile_group }}; then
+    if command -v fastfetch >/dev/null 2>&1; then
+        fastfetch
+    fi
+fi
