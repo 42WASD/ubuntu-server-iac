@@ -223,6 +223,143 @@ be listed in the static client's `redirectURIs` — otherwise Dex returns
 pod log showed the connector rejecting only on team membership, i.e. the whole
 chain (device code → GitHub OAuth → Dex → groups claim) works.
 
+### Device client must be `public: true` (invalid_client fix)
+
+When the browser callback `/device/callback` returned
+`{"error":"invalid_client","error_description":"Invalid client credentials."}`
+the Dex pod log still showed `login successful` with the right groups — so
+GitHub auth worked but the **client binding** failed. Root cause (from Dex
+source `server/device/device.go`, `completeDeviceAuthorization`):
+
+```go
+// Constant-time comparison of the client secret.
+if subtle.ConstantTimeCompare([]byte(client.Secret), []byte(deviceReq.ClientSecret)) != 1 {
+    return invalid_client
+}
+```
+
+The device-code flow never sends a `client_secret`, but the `kubernetes`
+client was configured with `secretEnv: DEX_CLIENT_SECRET`, so
+`client.Secret != deviceReq.ClientSecret` (empty) → `invalid_client`.
+
+**Fix** (matches Dex's own `examples/config-dev.yaml`, which marks its
+device-flow client `public: true`): drop the secret and mark the client
+`public: true` so `client.Secret` is empty and the comparison passes.
+
+```yaml
+- id: kubernetes
+  name: Kubernetes
+  public: true          # device-code flow sends no secret; must be a public client
+  redirectURIs: [ ..., "/device/callback" ]
+  publicGrantTypes: ["urn:ietf:params:oauth:grant-type:device_code"]
+```
+
+Also removed the now-unused `DEX_CLIENT_SECRET` env + `dex-client` Secret ref
+from the Deployment. Committed as `b27fceb`. After this, the browser flow
+returned **"Login Successful for Kubernetes"**.
+
+### Client-side token verification (manual device exchange)
+
+`kubectl oidc-login` hangs in a headless terminal (no `xdg-open`), so verify
+the flow manually with curl. Request a device code, approve it in a browser,
+then poll the token endpoint:
+
+```bash
+# 1. Request a device code (scope must include what the apiserver needs:
+#    email for --oidc-username-claim=email, groups for --oidc-groups-claim=groups)
+curl -sk -X POST https://alpha.taild82ced.ts.net/device/code \
+  -d "client_id=kubernetes&scope=openid email groups"
+# => user_code=XXXX-XXXX, device_code=...
+
+# 2. Authorize in a browser: https://alpha.taild82ced.ts.net/device?user_code=<USER_CODE>
+
+# 3. Exchange device_code for tokens
+curl -sk -X POST https://alpha.taild82ced.ts.net/token \
+  -d "grant_type=urn:ietf:params:oauth:grant-type:device_code" \
+  -d "device_code=<DEVICE_CODE>" -d "client_id=kubernetes"
+# => id_token with iss, aud=kubernetes, email, groups
+
+# 4. Decode the ID token (JWT payload) to confirm claims:
+#    iss=https://alpha.taild82ced.ts.net, aud=kubernetes,
+#    email=<user email>, groups=["42WASD:tenant-42wasd-admin"]
+```
+
+A token requested with only `scope=openid` omits `email` and `groups`; request
+`openid email groups` (which is what kubelogin's default `--oidc-extra-scope`
+sends).
+
+### `oidc: authenticator not initialized` — restart kube-apiserver
+
+A `TokenReview` against a valid Dex ID token returned:
+
+```json
+{ "error": "[invalid bearer token, oidc: authenticator not initialized]" }
+```
+
+The kube-apiserver's OIDC authenticator failed to **initialize at startup**
+(because the issuer `https://alpha.taild82ced.ts.net` via Dex/Traefik was not
+yet reachable when the apiserver booted). When that happens the apiserver
+silently disables OIDC and rejects every ID token, even ones with valid
+signature/issuer/aud (verified via `/keys` `kid` match). Fix: restart the
+control plane once the issuer is healthy:
+
+```bash
+kubectl -n security get deploy dex          # 1/1 Running
+curl -s https://alpha.taild82ced.ts.net/.well-known/openid-configuration  # 200
+sudo systemctl restart rke2-server
+```
+
+After restart, re-test with the manual token exchange from above then
+`kubectl auth whoami`.
+
+**Real root cause (beyond the restart): apiserver cannot resolve the Tailscale
+issuer hostname.** Even after `systemctl restart rke2-server`, the TokenReview
+still failed. The apiserver container logs showed:
+
+```
+oidc authenticator: initializing plugin: Get "https://alpha.taild82ced.ts.net/...
+ dial tcp: lookup alpha.taild82ced.ts.net on 8.8.8.8:53: no such host
+```
+
+The kube-apiserver **static-pod container** gets a generated `resolv.conf`
+pointing at `8.8.8.8`, which cannot resolve the Tailscale **MagicDNS** name.
+The host resolves it fine (systemd-resolved `127.0.0.53` → MagicDNS →
+`100.112.202.47`), but the container does not. Fix: mount the host
+`resolv.conf` into the apiserver via RKE2's `kube-apiserver-extra-mount`:
+
+```bash
+# /etc/rancher/rke2/config.yaml  (mirrored in the rke2_server role template)
+kube-apiserver-extra-mount:
+  - "/etc/resolv.conf:/etc/resolv.conf:ro"
+sudo systemctl restart rke2-server
+```
+
+Optional belt-and-braces: pin the hostname in `/etc/hosts`
+(`100.112.202.47 alpha.taild82ced.ts.net`). After the resolv mount, the OIDC
+authenticator initializes and a `TokenReview` succeeds:
+
+```json
+{"authenticated":true,"user":{"groups":["42WASD:tenant-42wasd-admin","system:authenticated"],"username":"jinxiuyao@gmail.com"}}
+```
+
+### Final end-to-end verification
+
+With the ID token written directly into a kubeconfig (`token:`), `kubectl`
+resolves the real user and group and RBAC is enforced:
+
+```bash
+kubectl auth whoami
+# Username: jinxiuyao@gmail.com
+# Groups:   [42WASD:tenant-42wasd-admin system:authenticated]
+
+kubectl get pods -n dev-42wasd-admin   # allowed  -> sees meme-site
+kubectl get cm -n prd-42wasd-admin     # allowed  (reader)
+kubectl get ns                          # FORBIDDEN (cluster scope)
+```
+
+This confirms least-privilege: the developer can operate only their
+tenant namespaces, not cluster-scoped resources.
+
 ## 27.6 Verification
 
 ```bash
