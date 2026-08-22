@@ -4,19 +4,23 @@
 # the `tailscale-cert` Secret (run `sudo tailscale cert` and `kubectl create
 # secret tls`), matching how the cloudflared-token Secret is handled — never
 # committed to Git.
+#
+# `ingressClassName: traefik` is REQUIRED: RKE2's Traefik runs with
+# `--providers.kubernetescrd.ingressClass=traefik`, so it only processes
+# IngressRoutes matching that class. Without it, Traefik ignores this route
+# and serves its default certificate with a 404.
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
   name: dex
   namespace: security
-  annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
 spec:
+  ingressClassName: traefik
   entryPoints:
     - websecure
   routes:
     - kind: Rule
-      match: Host(`alpha.taild82ced.ts.net`) && PathPrefix(`/`)
+      match: Host(`alpha.taild82ced.ts.net`)
       services:
         - name: dex
           port: 5556
