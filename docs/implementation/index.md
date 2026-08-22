@@ -220,6 +220,19 @@ sudo systemctl reset-failed grub-initrd-fallback          # transient, not a rea
 `handlers`, `templates/50unattended-upgrades.j2` (security+updates, reboot at
 03:00).
 
+## Addendum — fastfetch (Phase 27 follow-up)
+
+System info fetch utility, installed via apt (candidate 2.57.1+dfsg-1ubuntu1):
+
+```bash
+sudo -n apt-get install -y fastfetch
+# /usr/bin/fastfetch 2.57.1 (x86_64)
+```
+
+Verified with `fastfetch` — renders host/OS/kernel/CPU/GPU summary (Ubuntu
+26.04 LTS, EPYC 7742 128-core, 2× RTX 3090). Apt also pulled a kernel header
+refresh (7.0.0-30-generic pending reboot).
+
 </details>
 
   - ✅ `done` — [unattended security updates](../reference-design/build/03-build-the-host/02-11-phase-2-update-ubuntu-and-install-base-administration-tools/unattended-security-updates/index.md)
