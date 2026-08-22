@@ -395,6 +395,32 @@ Deployment notes / bugs hit on first run:
 Each developer now has `/home/<user>/.kube/config` (owner/user, mode `0600`)
 with a valid OIDC exec credential.
 
+### First-time login must use `exec:` + device-code (critical fix)
+
+Two bugs surfaced only when an actual developer ran `kubectl` (the earlier
+"final verification" had injected a raw `token:` directly, so the credential
+plugin path was never exercised):
+
+1. **`user.client:` is not a kubectl credential key.** The template rendered
+   the kubelogin plugin under `user.client:`, which kubectl does not recognize.
+   kubectl then got a 401 and fell back to a **basic-auth username/password
+   prompt** (`Please enter Username/Password`). Fix: use `user.exec:` (the
+   schema `kubectl config set-credentials --exec-*` produces), with
+   `interactiveMode: IfAvailable` and `provideClusterInfo: true` at the `exec:`
+   level.
+
+2. **Authorization-code flow vs device-code.** Without `--grant-type`, kubelogin
+   used the authcode-browser flow and failed headless (`could not open the
+   browser`). Fix: add `--grant-type=device-code` so it prints a device URL/code:
+
+   ```text
+   Please visit the following URL in your browser manually:
+   https://alpha.taild82ced.ts.net/device?user_code=DFSH-RHHS
+   ```
+
+Verified: after the fix, `sudo -u jyao-42admin kubectl get pods` invokes
+kubelogin's device flow and prints the device URL (no more basic-auth prompt).
+
 ### Final end-to-end verification
 
 With the ID token written directly into a kubeconfig (`token:`), `kubectl`
