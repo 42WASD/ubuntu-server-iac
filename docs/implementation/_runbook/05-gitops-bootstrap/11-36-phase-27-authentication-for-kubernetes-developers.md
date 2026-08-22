@@ -82,7 +82,66 @@ kubectl -n argocd patch application platform-dex \
   --type merge -p '{"operation":{"sync":{"syncStrategy":{"apply":{"force":true}}}}}'
 ```
 
-## 27.4 Developer login (manual, per developer)
+### Debug fixes
+
+1. **Dex CrashLoopBackOff — SQLite write permission.** Fresh hostpath/LVM
+   PVC is root-owned but the Dex image runs as UID 1000. Fixed with a pod
+   `securityContext` on the Deployment (`runAsUser: 1000, runAsGroup: 1000,
+   fsGroup: 1000`). Had to force-delete the old pod to release the RWO PVC
+   before the fixed pod could mount.
+
+2. **Issuer 404 with the default Traefik cert.** RKE2's bundled Traefik runs
+   with `--providers.kubernetescrd.ingressClass=traefik`, so an IngressRoute
+   without `spec.ingressClassName: traefik` is **ignored** (default cert +
+   404). Added `ingressClassName: traefik`, dropped the redundant
+   `traefik.ingress.kubernetes.io/router.entrypoints` annotation and the
+   `PathPrefix('/')` from the Host rule. Verified issuer returns 200 with the
+   Let's Encrypt cert for `CN=alpha.tail.iota.ts.net`.
+
+### 27.3.1 Apply the RKE2 OIDC flags (control-plane change)
+
+RKE2 renders its config from `/etc/rancher/rke2/config.yaml`. Add the
+`kube-apiserver-arg` block, validate YAML, then restart `rke2-server` (brief
+API downtime). A timestamped backup is written before editing.
+
+```bash
+sudo cp /etc/rancher/rke2/config.yaml /etc/rancher/rke2/config.yaml.bak-$(date +%Y%m%d-%H%M%S)
+# insert the kube-apiserver-arg OIDC block (see 27.2 manifests / role template)
+sudo python3 - <<'PY'
+from pathlib import Path
+p = Path('/etc/rancher/rke2/config.yaml')
+txt = p.read_text()
+block = '''
+# OIDC (Dex + GitHub, Phase 27). Issuer must match the tailnet-visible Dex URL
+# that kubelogin discovers. API stays on the tailnet only (port 6443); the
+# issuer is served over HTTPS via Traefik.
+kube-apiserver-arg:
+  - "oidc-issuer-url=https://alpha.taild82ced.ts.net"
+  - "oidc-client-id=kubernetes"
+  - "oidc-username-claim=email"
+  - "oidc-groups-claim=groups"
+'''
+marker = '# Admin kubeconfig remains root/platform-admin controlled.'
+if 'oidc-issuer-url' not in txt:
+    p.write_text(txt.replace(marker, block + marker))
+PY
+
+sudo python3 -c "import yaml; yaml.safe_load(open('/etc/rancher/rke2/config.yaml'))"  # validate
+sudo systemctl restart rke2-server
+```
+
+Verify the flags landed on the running process and the cluster is healthy:
+
+```bash
+sudo ps aux | grep kube-apiserver | grep -o "oidc-[a-z-]*=[^ ]*" | sort -u
+# oidc-client-id=kubernetes
+# oidc-groups-claim=groups
+# oidc-issuer-url=https://alpha.taild82ced.ts.net
+# oidc-username-claim=email
+kubectl cluster-info && kubectl get nodes    # api up, node Ready
+```
+
+## 27.5 Developer login (manual, per developer)
 
 1. Install the kubelogin plugin (separate binary; `kubectl oidc-login`).
 2. Create a kubeconfig for the developer with the OIDC exec credential:
