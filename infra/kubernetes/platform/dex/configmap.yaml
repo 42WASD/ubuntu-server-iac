@@ -38,6 +38,10 @@ data:
         redirectURIs:
           - "http://localhost:5556/callback"
           - "http://localhost:8000/callback"
+          # Device-code flow (RFC 8628) redirects to Dex's internal device
+          # callback path, which must be registered or Dex returns
+          # "Unregistered redirect_uri".
+          - "/device/callback"
         # kubelogin uses the device-authorization grant (RFC 8628).
         publicGrantTypes: ["urn:ietf:params:oauth:grant-type:device_code"]
 
