@@ -1,5 +1,18 @@
 # Agent Instructions
 
+## Elevated Privileges (sudo)
+
+- **Whenever a task requires root/sudo privileges, run the `sudo` command
+  directly and then prompt the user to enter the password interactively in the
+  terminal.** Do **not** substitute another approach, work around the missing
+  privilege, skip the step, or mark it "pending" just because you lack sudo.
+- The user will type the password into the terminal prompt themselves (never
+  send passwords through chat or the model). You run the privileged command;
+  they authenticate.
+- Run exactly one `sudo` command at a time, wait for it to complete, then
+  continue. If a command needs input (like the sudo password prompt), send it
+  to the terminal and let the user authenticate interactively.
+
 ## Repository Layout & File Placement (Overarching Rule)
 
 - **Whenever creating or adding any new file, always stop and consider whether

@@ -623,11 +623,33 @@ EOF
 # VALID YAML: OK
 ```
 
-Redeploy of the new kubeconfigs (`sudo ansible-playbook -i
-inventory/production.yml ansible/site.yml --limit alpha --connection local
---tags kubeconfig`) is **pending** — the agent session had no passwordless
-`sudo`, so the playbook could not be invoked directly. Run it as the platform
-admin, then have each developer confirm the new contexts appear.
+Deployed live to all 4 developers:
+
+```bash
+cd /home/jyao/ubuntu-server-iac/infra
+sudo ansible-playbook -i inventory/production.yml ansible/site.yml \
+  --limit alpha --connection local --tags kubeconfig
+# PLAY RECAP alpha: ok=7 changed=1 failed=0  (4 kubeconfigs re-rendered)
+```
+
+Verified on alpha as a developer (all 6 contexts present, default marked `*`):
+
+```text
+CURRENT   NAME              CLUSTER   AUTHINFO       NAMESPACE
+          alpha-dev         alpha     jyao-42admin   dev-42wasd-admin
+          alpha-games-dev   alpha     jyao-42admin   dev-games-42wasd-admin
+          alpha-games-prd   alpha     jyao-42admin   prd-games-42wasd-admin
+          alpha-mlops       alpha     jyao-42admin   mlops
+          alpha-prd         alpha     jyao-42admin   prd-42wasd-admin
+*         jyao-42admin      alpha     jyao-42admin   dev-42wasd-admin
+```
+
+And a non-default context authenticates end-to-end (reader, empty ns):
+
+```bash
+kubectl config use-context alpha-prd
+kubectl get pods -n prd-42wasd-admin   # -> No resources found in prd-42wasd-admin namespace
+```
 
 ## 27.6 Verification
 

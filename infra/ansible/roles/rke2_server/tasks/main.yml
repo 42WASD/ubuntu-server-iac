@@ -145,3 +145,30 @@
     path: "{{ rke2_admin_kubeconfig_dest }}"
     regexp: "https://127\\.0\\.0\\.1:6443"
     replace: "{{ rke2_admin_kubeconfig_server }}"
+
+# --- k9s (companion kubectl UI, system-wide) ---
+# k9s is not in the Ubuntu apt archive, so install the official pinned .deb
+# (checksum-verified). Installed into /usr/bin/k9s so ALL users can run it
+# against their own OIDC kubeconfig (Phase 27).
+# Tagged `k9s` so it can be (re)run on its own:
+#   sudo ansible-playbook -i inventory/production.yml ansible/site.yml \
+#     --limit alpha --connection local --tags k9s
+- name: Download the k9s .deb package
+  ansible.builtin.get_url:
+    url: "{{ rke2_k9s_deb_url }}"
+    dest: "{{ rke2_k9s_deb_dest }}"
+    mode: "0644"
+    checksum: "sha256:{{ rke2_k9s_deb_checksum }}"
+  tags: k9s
+
+- name: Install k9s from the pinned .deb
+  ansible.builtin.apt:
+    deb: "{{ rke2_k9s_deb_dest }}"
+    state: present
+  tags: k9s
+
+- name: Remove the staged k9s .deb
+  ansible.builtin.file:
+    path: "{{ rke2_k9s_deb_dest }}"
+    state: absent
+  tags: k9s

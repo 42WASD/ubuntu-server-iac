@@ -175,3 +175,19 @@ rke2_admin_kubeconfig_server: "{{ 'https://' ~ network.management_tailscale_dnsn
 rke2_admin_kubeconfig_source: /etc/rancher/rke2/rke2.yaml
 # Per-admin copy (absolute path; `~` does not expand in the copy task).
 rke2_admin_kubeconfig_dest: "/home/{{ rke2_admin_user }}/.kube/config"
+
+# ---------------------------------------------------------------------------
+# k9s — terminal UI for Kubernetes (companion to kubectl, system-wide).
+# ---------------------------------------------------------------------------
+# k9s is NOT in the Ubuntu apt repos, so we install the official GitHub
+# `.deb`, pinned to an exact release with its checksum verified (never float
+# on "latest"). The binary lands in /usr/bin/k9s so every user can run it
+# against their own OIDC kubeconfig (Phase 27). Source of truth for the
+# latest release: https://github.com/derailed/k9s/releases
+rke2_k9s_version: "v0.51.0"
+# Debian/Ubuntu x86_64 package for the pinned version.
+rke2_k9s_deb_url: "https://github.com/derailed/k9s/releases/download/{{ rke2_k9s_version }}/k9s_Linux_amd64.deb"
+# SHA256 of that exact .deb (from checksums.sha256 in the same release).
+rke2_k9s_deb_checksum: "56b539a509eb2d6357cf4f575ed38c089f0e4880c95f79a70196b54f14954908"
+# Local staging path for the downloaded .deb before `apt` installs it.
+rke2_k9s_deb_dest: /tmp/k9s_linux_amd64.deb

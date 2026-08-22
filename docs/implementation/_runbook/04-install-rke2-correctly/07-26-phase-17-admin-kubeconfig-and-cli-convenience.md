@@ -85,6 +85,50 @@ alpha   Ready    control-plane,etcd   16m   v1.36.3+rke2r1   containerd://2.3.3-
 Admin access over Tailscale with a valid serving certificate is confirmed.
 Developers keep their own identities per Phase 26.
 
+## Addendum — k9s (terminal cluster UI, system-wide)
+
+k9s is a companion terminal UI to `kubectl`. It is **not** in the Ubuntu apt
+archive, so the `rke2_server` role installs the official pinned `.deb`
+(checksum-verified) into `/usr/bin/k9s` — available to **every** user, who
+then runs it against their own OIDC kubeconfig (Phase 27).
+
+Version pinned to `v0.51.0` (release `2026-06-06`, Linux amd64). Pinned in
+`infra/ansible/roles/rke2_server/defaults/main.yml`:
+
+```yaml
+rke2_k9s_version: "v0.51.0"
+rke2_k9s_deb_url: "https://github.com/derailed/k9s/releases/download/v0.51.0/k9s_Linux_amd64.deb"
+rke2_k9s_deb_checksum: "56b539a509eb2d6357cf4f575ed38c089f0e4880c95f79a70196b54f14954908"
+rke2_k9s_deb_dest: /tmp/k9s_linux_amd64.deb
+```
+
+`tasks/main.yml` downloads the `.deb` with `get_url` (asserting the sha256
+checksum), installs it with `apt: deb:`, then removes the staged file.
+
+Verified the pinned artifact before wiring it in: downloaded the exact `.deb`
+and confirmed `sha256sum -c` passes and `k9s version` reports `v0.51.0`
+(commit `558caafe7b`).
+
+Deployment is handled by the playbook (run as root), or targeted with the
+`k9s` tag:
+
+```bash
+cd /home/jyao/ubuntu-server-iac/infra
+sudo ansible-playbook -i inventory/production.yml ansible/site.yml \
+  --limit alpha --connection local --tags k9s
+# PLAY RECAP alpha: ok=6 changed=3 failed=0
+```
+
+Installed on alpha:
+
+```bash
+which k9s          # /usr/bin/k9s
+k9s version        # v0.51.0 (commit 558caafe7b, 2026-06-06)
+```
+
+After install, any user can launch against their context, e.g.
+`k9s --context alpha-dev` (or just `k9s` for the default context).
+
 ## 17.7 Live ingress validation — `demo-meme` tenant app
 
 Used the working admin kubeconfig to deploy a throwaway tenant app that
