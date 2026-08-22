@@ -367,3 +367,19 @@ kubectl -n security get pods -l app=dex            # 1/1 Running
 kubectl -n argocd get app platform-dex             # Synced  Healthy
 curl -sk https://alpha.taild82ced.ts.net/.well-known/openid-configuration
 ```
+### Git credential helper cleanup (local gh → system-wide gh)
+
+The `gh` CLI was moved from `/home/jyao/.local/bin/gh` to `/usr/local/bin/gh`
+so all users can access it. This left stale URL-scoped credential helpers in
+`~/.gitconfig` pointing at the deleted path:
+
+```bash
+# showed: helper = !/home/jyao/.local/bin/gh auth git-credential
+git config --global --unset-all credential.https://github.com.helper
+git config --global --unset-all credential.https://gist.github.com.helper
+git config --global credential.https://github.com.helper '/usr/local/bin/gh auth git-credential'
+git config --global credential.https://gist.github.com.helper '/usr/local/bin/gh auth git-credential'
+```
+
+Verified all three helpers now point to `/usr/local/bin/gh`, and `git fetch`
+authenticates successfully.
