@@ -3250,11 +3250,44 @@ kubectl auth whoami
 
 kubectl get pods -n dev-42wasd-admin   # allowed  -> sees meme-site
 kubectl get cm -n prd-42wasd-admin     # allowed  (reader)
-kubectl get ns                          # FORBIDDEN (cluster scope)
+kubectl get ns                          # names visible (see namespace-viewer below)
 ```
 
 This confirms least-privilege: the developer can operate only their
 tenant namespaces, not cluster-scoped resources.
+
+### Namespace discoverability (tenant-namespace-viewer)
+
+A developer with only namespace-scoped RoleBindings **cannot** `kubectl get
+namespaces` — the Namespace object is cluster-scoped (see
+kubernetes/kubernetes#112686). So developers had no way to see which
+namespaces to switch to. Added a `ClusterRole` + `ClusterRoleBinding` bound to
+the OIDC group `42WASD:tenant-42wasd-admin` in
+`infra/kubernetes/platform/rbac/namespace-viewers.yaml`.
+
+**Kubernetes RBAC limitation (honest scope):** `resourceNames` is not
+compatible with the `list` verb (a list request has an empty resource name), so
+no RBAC construct can make `kubectl get namespaces` return *only* the tenant's
+namespaces. The ClusterRole therefore:
+
+- grants `list` on `namespaces` broadly (reveals namespace NAMES only — grants
+  NO access inside any namespace; in-namespace access stays enforced by the
+  per-namespace `tenant-developer` / `tenant-reader` RoleBindings), and
+- grants `get`/`watch` on `namespaces` scoped to the tenant's own namespaces via
+  `resourceNames` (`dev-42wasd-admin`, `prd-42wasd-admin`,
+  `dev-games-42wasd-admin`, `prd-games-42wasd-admin`, `mlops`).
+
+```bash
+# As the developer:
+kubectl get namespaces                  # -> all names, for context switching
+kubectl get ns dev-42wasd-admin          # -> ok (tenant ns, resourceNames)
+kubectl get ns kube-system               # -> FORBIDDEN (get scoped to tenant ns)
+kubectl get pods -n kube-system          # -> FORBIDDEN (list ns grants no in-ns access)
+kubectl get secrets -n dev-42wasd-admin  # -> FORBIDDEN (dev role has no secrets)
+```
+
+Apply/sync: Argo CD `platform-rbac` app picks it up from the `rbac/` path
+(manual for the first apply).
 
 ## 27.6 Verification
 

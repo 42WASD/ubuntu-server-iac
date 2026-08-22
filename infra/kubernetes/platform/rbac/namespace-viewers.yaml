@@ -1,0 +1,54 @@
+# Namespace discoverability for tenant developers (Phase 27).
+#
+# A developer with only namespace-scoped RoleBindings cannot run
+# `kubectl get namespaces` — the Namespace object is cluster-scoped, and a
+# Role/RoleBinding does not grant visibility of the namespace itself (see
+# kubernetes/kubernetes#112686). This ClusterRole + ClusterRoleBinding makes
+# the namespace NAMES visible to each tenant group so developers know which
+# context/namespace to use.
+#
+# Kubernetes RBAC limitation (honest scope):
+#  - `resourceNames` is NOT compatible with the `list` verb: a list request
+#    carries an empty resource name, so a resourceNames-scoped rule does not
+#    authorize it. There is NO RBAC construct that makes `kubectl get
+#    namespaces` return only the namespaces a user can access.
+#  - We therefore grant `list` on the namespaces object broadly (reveals
+#    namespace NAMES only — cluster layout; grants NO access inside any
+#    namespace; actual in-namespace access stays enforced by the per-namespace
+#    RoleBindings tenant-developer / tenant-reader).
+#  - `get`/`watch` are scoped to the tenant's own namespaces via resourceNames,
+#    so `kubectl get ns <tenant-ns>` works while `get ns <foreign-ns>` is denied.
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: tenant-namespace-viewer
+rules:
+  # Broad list so `kubectl get namespaces` works (names visible, no in-ns access).
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["list"]
+  # get/watch scoped to the tenant's own namespaces only.
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["get", "watch"]
+    resourceNames:
+      - dev-42wasd-admin
+      - prd-42wasd-admin
+      - dev-games-42wasd-admin
+      - prd-games-42wasd-admin
+      - mlops
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: tenant-42wasd-admin-namespace-viewers
+subjects:
+  - kind: Group
+    name: 42WASD:tenant-42wasd-admin
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: tenant-namespace-viewer
+  apiGroup: rbac.authorization.k8s.io
+---
