@@ -4720,13 +4720,14 @@ Reference-design Phase 54/55 updated to reflect this verified solution.
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 67 — what OpenTofu should own</summary>
 
-# Phase 67/68 — OpenTofu for external infrastructure
+# Phase 67 — what OpenTofu should own
 
-Set up OpenTofu to securely store the *connection details* of the three
-external components that this platform depends on, using encrypted remote
-state in Cloudflare R2 (S3-compatible backend). Per phase 68, state is
-sensitive and must never be committed — it lives in R2; only the lockfile and
-`terraform.tfvars.example` are committed.
+Set up OpenTofu to own/store the *connection details* of the external
+components this platform depends on (the two VPSes + the Cloudflare tunnel
+credential), per Phase 67: OpenTofu is responsible for resources created
+through external APIs and their connection data. Ansible remains responsible
+for host configuration (apt packages, `sshd_config`, RKE2 systemd), which is
+out of OpenTofu's scope.
 
 ## 67.1 What was set up
 
@@ -4868,5 +4869,67 @@ vps/terraform.tfstate          2201 bytes
 </details>
 
 - ✅ `done` — [Phase 68 — state is sensitive](../reference-design/build/17-opentofu-for-external-infrastructure/01-77-phase-68-state-is-sensitive/index.md)
+
+<details markdown="1" class="runbook">
+<summary>✅ 📜 Build log — Phase 68 — state is sensitive</summary>
+
+# Phase 68 — state is sensitive
+
+Acknowledgment note for Phase 68: OpenTofu state can contain sensitive values,
+so it must never be committed. This phase's requirement is enforced by the
+setup done in Phase 67.
+
+## 68.1 What was enforced
+
+Per Phase 68, the following are **never committed** to Git:
+
+```text
+terraform.tfstate
+*.tfstate
+```
+
+Instead we use **encrypted remote state** — Cloudflare R2 (S3-compatible)
+bucket `42base` — with backups. The dependency lock file is committed so
+provider versions are reproducible.
+
+This is encoded in `infra/tofu/.gitignore`:
+
+```gitignore
+# OpenTofu state is sensitive (reference-design Phase 68). Never commit.
+*.tfstate
+*.tfstate.*
+.terraform/
+# CRASH logs
+crash.log
+# Real secret files (gitignored)
+terraform.tfvars
+# But keep the example so the variable shape is documented:
+!terraform.tfvars.example
+```
+
+## 68.2 Command used to verify state is not committed
+
+Confirm the real secret files and state are ignored while the example files are
+tracked:
+
+```bash
+git check-ignore -v infra/tofu/vps/terraform.tfvars        # -> ignored
+git check-ignore -v infra/tofu/cloudflare/terraform.tfvars # -> ignored
+git ls-files infra/tofu | grep tfvars                      # -> only *.example
+```
+
+Result: only `terraform.tfvars.example` files are committed; the real
+`terraform.tfvars` and all state files stay local/remote-only.
+
+## 68.3 What was acknowledged / used
+
+- **Remote state:** Cloudflare R2 bucket `42base`, keys
+  `vps/terraform.tfstate` and `cloudflare/terraform.tfstate`, encrypted at rest
+  by R2.
+- **Lockfile:** committed so provider versions are reproducible.
+- **No state committed:** verified via the `git ls-files` / `git check-ignore`
+  checks above.
+
+</details>
 
 <!-- END_GENERATED_IMPLEMENTATION -->

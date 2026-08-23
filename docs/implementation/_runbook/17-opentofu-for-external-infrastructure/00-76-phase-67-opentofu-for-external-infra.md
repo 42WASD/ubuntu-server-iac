@@ -1,13 +1,14 @@
 ---
 phase: 17-opentofu-for-external-infrastructure/00-76-phase-67-what-opentofu-should-own
 ---
-# Phase 67/68 — OpenTofu for external infrastructure
+# Phase 67 — what OpenTofu should own
 
-Set up OpenTofu to securely store the *connection details* of the three
-external components that this platform depends on, using encrypted remote
-state in Cloudflare R2 (S3-compatible backend). Per phase 68, state is
-sensitive and must never be committed — it lives in R2; only the lockfile and
-`terraform.tfvars.example` are committed.
+Set up OpenTofu to own/store the *connection details* of the external
+components this platform depends on (the two VPSes + the Cloudflare tunnel
+credential), per Phase 67: OpenTofu is responsible for resources created
+through external APIs and their connection data. Ansible remains responsible
+for host configuration (apt packages, `sshd_config`, RKE2 systemd), which is
+out of OpenTofu's scope.
 
 ## 67.1 What was set up
 
