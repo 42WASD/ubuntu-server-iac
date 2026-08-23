@@ -1,8 +1,4 @@
----
-order: 8
----
-
-# Phase I — reproducibility
+# reproducibility
 
 Once everything is proven:
 

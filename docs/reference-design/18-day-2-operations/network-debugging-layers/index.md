@@ -1,7 +1,3 @@
----
-order: 6
----
-
 # Network-debugging layers
 
 Debug in this order:

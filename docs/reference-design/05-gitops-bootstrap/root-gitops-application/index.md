@@ -1,8 +1,4 @@
----
-order: 20
----
-
-# Phase 20 — root GitOps application
+# root GitOps application
 
 Use a small **App-of-Apps** bootstrap rather than pointing one Application at an arbitrary directory tree.
 

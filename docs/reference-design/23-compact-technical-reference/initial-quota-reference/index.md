@@ -1,7 +1,3 @@
----
-order: 2
----
-
 # Initial quota reference
 
 Use these as starting ceilings, then tune from monitoring.

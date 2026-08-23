@@ -1,8 +1,4 @@
----
-order: 54
----
-
-# Phase 54 — why game edge is separate from Cloudflare web
+# why game edge is separate from Cloudflare web
 
 Web:
 

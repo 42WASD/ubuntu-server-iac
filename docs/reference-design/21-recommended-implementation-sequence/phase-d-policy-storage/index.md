@@ -1,8 +1,4 @@
----
-order: 3
----
-
-# Phase D — policy + storage
+# policy + storage
 
 Build:
 

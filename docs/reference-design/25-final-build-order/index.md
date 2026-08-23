@@ -1,8 +1,4 @@
----
-order: 25
----
-
-# Part XXV — Final build order
+# Final build order
 
 For this exact platform, do it in this order:
 

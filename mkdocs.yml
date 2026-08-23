@@ -69,7 +69,7 @@ nav:
     - System Test Results: guides/operations/system-test-results.md
 - Reference Design:
   - Overview: reference-design/index.md
-  - Part I — Understand the platform before installing anything:
+  - I — Understand the platform before installing anything:
     - Overview: reference-design/01-understand-the-platform-before-installing-anything/index.md
     - The one-sentence idea: reference-design/01-understand-the-platform-before-installing-anything/the-one-sentence-idea/index.md
     - The target architecture: reference-design/01-understand-the-platform-before-installing-anything/the-target-architecture/index.md
@@ -83,12 +83,12 @@ nav:
       - Tenant application control plane: reference-design/01-understand-the-platform-before-installing-anything/five-control-planes-not-one/tenant-application-control-plane/index.md
       - Kubernetes platform control plane: reference-design/01-understand-the-platform-before-installing-anything/five-control-planes-not-one/kubernetes-platform-control-plane/index.md
     - Why this guide is phased: reference-design/01-understand-the-platform-before-installing-anything/why-this-guide-is-phased/index.md
-  - Part II — Verified stack and current caveats:
+  - II — Verified stack and current caveats:
     - Overview: reference-design/02-verified-stack-and-current-caveats/index.md
     - Stack selection: reference-design/02-verified-stack-and-current-caveats/stack-selection/index.md
     - Current verification caveats — read before installing: reference-design/02-verified-stack-and-current-caveats/current-verification-caveats-read-before-installing/index.md
     - Version policy: reference-design/02-verified-stack-and-current-caveats/version-policy/index.md
-  - Part III — Build the host:
+  - III — Build the host:
     - Overview: reference-design/03-build-the-host/index.md
     - Phase 0 — create the infrastructure repository first: reference-design/03-build-the-host/create-the-infrastructure-repository-first/index.md
     - Phase 1 — inventory the actual machine: reference-design/03-build-the-host/inventory-the-actual-machine/index.md
@@ -124,7 +124,7 @@ nav:
       - Kubernetes bulk VG: reference-design/03-build-the-host/storage-architecture/kubernetes-bulk-vg/index.md
     - Phase 11 — filesystem quotas for developer homes: reference-design/03-build-the-host/filesystem-quotas-for-developer-homes/index.md
     - Phase 12 — NVIDIA host driver baseline: reference-design/03-build-the-host/nvidia-host-driver-baseline/index.md
-  - Part IV — Install RKE2 correctly:
+  - IV — Install RKE2 correctly:
     - Overview: reference-design/04-install-rke2-correctly/index.md
     - Phase 13 — choose and pin the RKE2 release: reference-design/04-install-rke2-correctly/choose-and-pin-the-rke2-release/index.md
     - Phase 14 — RKE2 configuration:
@@ -137,7 +137,7 @@ nav:
       - verify RKE2 Secrets encryption: reference-design/04-install-rke2-correctly/install-and-start-rke2/verify-rke2-secrets-encryption/index.md
     - Phase 17 — admin kubeconfig and CLI convenience: reference-design/04-install-rke2-correctly/admin-kubeconfig-and-cli-convenience/index.md
     - Phase 18 — verify reboot recovery now, not later: reference-design/04-install-rke2-correctly/verify-reboot-recovery-now-not-later/index.md
-  - Part V — GitOps bootstrap:
+  - V — GitOps bootstrap:
     - Overview: reference-design/05-gitops-bootstrap/index.md
     - Phase 19 — install Argo CD exactly once by hand: reference-design/05-gitops-bootstrap/install-argo-cd-exactly-once-by-hand/index.md
     - Phase 20 — root GitOps application:
@@ -153,28 +153,28 @@ nav:
       - dev Role: reference-design/05-gitops-bootstrap/rbac/dev-role/index.md
       - production is intentionally different: reference-design/05-gitops-bootstrap/rbac/production-is-intentionally-different/index.md
     - Phase 27 — authentication for Kubernetes developers: reference-design/05-gitops-bootstrap/authentication-for-kubernetes-developers/index.md
-  - Part VI — Policy enforcement:
+  - VI — Policy enforcement:
     - Overview: reference-design/06-policy-enforcement/index.md
     - Phase 28 — install Kyverno through Argo CD: reference-design/06-policy-enforcement/install-kyverno-through-argo-cd/index.md
     - Phase 29 — stage policy before enforcing it:
       - reference-design/06-policy-enforcement/stage-policy-before-enforcing-it/index.md
       - "example: deny hostPath": reference-design/06-policy-enforcement/stage-policy-before-enforcing-it/example-deny-hostpath/index.md
     - Phase 30 — policy tests: reference-design/06-policy-enforcement/policy-tests/index.md
-  - Part VII — Persistent storage:
+  - VII — Persistent storage:
     - Overview: reference-design/07-persistent-storage/index.md
     - Phase 31 — install OpenEBS through Argo CD: reference-design/07-persistent-storage/install-openebs-through-argo-cd/index.md
     - Phase 32 — StorageClasses: reference-design/07-persistent-storage/storageclasses/index.md
     - Phase 33 — prove PVC lifecycle before deploying databases: reference-design/07-persistent-storage/prove-pvc-lifecycle-before-deploying-databases/index.md
-  - Part VIII — Monitoring and logs:
+  - VIII — Monitoring and logs:
     - Overview: reference-design/08-monitoring-and-logs/index.md
     - Phase 34 — metrics stack: reference-design/08-monitoring-and-logs/metrics-stack/index.md
     - Phase 35 — logs: reference-design/08-monitoring-and-logs/logs/index.md
     - Phase 36 — alert before things are full: reference-design/08-monitoring-and-logs/alert-before-things-are-full/index.md
-  - Part IX — Registry:
+  - IX — Registry:
     - Overview: reference-design/09-registry/index.md
     - Phase 37 — install Harbor: reference-design/09-registry/install-harbor/index.md
     - Phase 38 — configure RKE2 registry trust: reference-design/09-registry/configure-rke2-registry-trust/index.md
-  - Part X — Developer build experience:
+  - X — Developer build experience:
     - Overview: reference-design/10-developer-build-experience/index.md
     - Phase 39 — alpha does NOT run a developer Docker daemon: reference-design/10-developer-build-experience/alpha-does-not-run-a-developer-docker-daemon/index.md
     - Phase 40 — local developer work on alpha: reference-design/10-developer-build-experience/local-developer-work-on-alpha/index.md
@@ -183,46 +183,46 @@ nav:
     - Phase 43 — remote BuildKit: reference-design/10-developer-build-experience/remote-buildkit/index.md
     - Phase 44 — continuous dev loop: reference-design/10-developer-build-experience/continuous-dev-loop/index.md
     - Phase 45 — CI pipeline: reference-design/10-developer-build-experience/ci-pipeline/index.md
-  - Part XI — Public web path:
+  - XI — Public web path:
     - Overview: reference-design/11-public-web-path/index.md
     - Phase 46 — Cloudflare Tunnel: reference-design/11-public-web-path/cloudflare-tunnel/index.md
     - Phase 47 — public vs private names: reference-design/11-public-web-path/public-vs-private-names/index.md
     - Phase 48 — Traefik routing: reference-design/11-public-web-path/traefik-routing/index.md
-  - Part XII — GPU validation phase:
+  - XII — GPU validation phase:
     - Overview: reference-design/12-gpu-validation-phase/index.md
     - Phase 49 — GPU integration is optional until proven: reference-design/12-gpu-validation-phase/gpu-integration-is-optional-until-proven/index.md
     - "Phase 50 — first GPU goal: whole-GPU scheduling": reference-design/12-gpu-validation-phase/first-gpu-goal-whole-gpu-scheduling/index.md
     - Phase 51 — GPU policy: reference-design/12-gpu-validation-phase/gpu-policy/index.md
     - Phase 52 — HAMi validation: reference-design/12-gpu-validation-phase/hami-validation/index.md
-  - Part XIII — Game networking foundation:
+  - XIII — Game networking foundation:
     - Overview: reference-design/13-game-networking-foundation/index.md
     - Phase 53 — keep game workloads in Kubernetes for now: reference-design/13-game-networking-foundation/keep-game-workloads-in-kubernetes-for-now/index.md
     - Phase 54 — why game edge is separate from Cloudflare web: reference-design/13-game-networking-foundation/why-game-edge-is-separate-from-cloudflare-web/index.md
     - Phase 55 — relay bring-up: reference-design/13-game-networking-foundation/relay-bring-up/index.md
-    - Phase 69 — Minecraft server performance (MSPT headroom & player scale): reference-design/13-game-networking-foundation/minecraft-server-performance/index.md
-    - "Phase 70 — game server orchestration: operator, not raw manifests": reference-design/13-game-networking-foundation/game-server-orchestration-operator/index.md
-  - Part XIV — Backups and disaster recovery:
+    - Phase 56 — Minecraft server performance (MSPT headroom & player scale): reference-design/13-game-networking-foundation/minecraft-server-performance/index.md
+    - "Phase 57 — game server orchestration: operator, not raw manifests": reference-design/13-game-networking-foundation/game-server-orchestration-operator/index.md
+  - XIV — Backups and disaster recovery:
     - Overview: reference-design/14-backups-and-disaster-recovery/index.md
-    - Phase 56 — RKE2 etcd snapshots: reference-design/14-backups-and-disaster-recovery/rke2-etcd-snapshots/index.md
-    - Phase 57 — what must be backed up: reference-design/14-backups-and-disaster-recovery/what-must-be-backed-up/index.md
-    - Phase 58 — local vs offsite: reference-design/14-backups-and-disaster-recovery/local-vs-offsite/index.md
-    - Phase 59 — restore tests: reference-design/14-backups-and-disaster-recovery/restore-tests/index.md
-  - Part XV — Consolidate and enforce the Ansible source of truth:
+    - Phase 58 — RKE2 etcd snapshots: reference-design/14-backups-and-disaster-recovery/rke2-etcd-snapshots/index.md
+    - Phase 59 — what must be backed up: reference-design/14-backups-and-disaster-recovery/what-must-be-backed-up/index.md
+    - Phase 60 — local vs offsite: reference-design/14-backups-and-disaster-recovery/local-vs-offsite/index.md
+    - Phase 61 — restore tests: reference-design/14-backups-and-disaster-recovery/restore-tests/index.md
+  - XV — Consolidate and enforce the Ansible source of truth:
     - Overview: reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/index.md
-    - Phase 60 — Ansible control environment: reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/ansible-control-environment/index.md
-    - Phase 61 — inventory: reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/inventory/index.md
-    - Phase 62 — role ownership: reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/role-ownership/index.md
-    - Phase 63 — Ansible must be idempotent: reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/ansible-must-be-idempotent/index.md
-  - Part XVI — Ubuntu Autoinstall:
+    - Phase 62 — Ansible control environment: reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/ansible-control-environment/index.md
+    - Phase 63 — inventory: reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/inventory/index.md
+    - Phase 64 — role ownership: reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/role-ownership/index.md
+    - Phase 65 — Ansible must be idempotent: reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/ansible-must-be-idempotent/index.md
+  - XVI — Ubuntu Autoinstall:
     - Overview: reference-design/16-ubuntu-autoinstall/index.md
-    - Phase 64 — use Autoinstall for future clean rebuilds: reference-design/16-ubuntu-autoinstall/use-autoinstall-for-future-clean-rebuilds/index.md
-    - Phase 65 — minimal safe autoinstall skeleton: reference-design/16-ubuntu-autoinstall/minimal-safe-autoinstall-skeleton/index.md
-    - Phase 66 — validate Autoinstall in a VM first: reference-design/16-ubuntu-autoinstall/validate-autoinstall-in-a-vm-first/index.md
-  - Part XVII — OpenTofu for external infrastructure:
+    - Phase 66 — use Autoinstall for future clean rebuilds: reference-design/16-ubuntu-autoinstall/use-autoinstall-for-future-clean-rebuilds/index.md
+    - Phase 67 — minimal safe autoinstall skeleton: reference-design/16-ubuntu-autoinstall/minimal-safe-autoinstall-skeleton/index.md
+    - Phase 68 — validate Autoinstall in a VM first: reference-design/16-ubuntu-autoinstall/validate-autoinstall-in-a-vm-first/index.md
+  - XVII — OpenTofu for external infrastructure:
     - Overview: reference-design/17-opentofu-for-external-infrastructure/index.md
-    - Phase 67 — what OpenTofu should own: reference-design/17-opentofu-for-external-infrastructure/what-opentofu-should-own/index.md
-    - Phase 68 — state is sensitive: reference-design/17-opentofu-for-external-infrastructure/state-is-sensitive/index.md
-  - Part XVIII — Day-2 operations:
+    - Phase 69 — what OpenTofu should own: reference-design/17-opentofu-for-external-infrastructure/what-opentofu-should-own/index.md
+    - Phase 70 — state is sensitive: reference-design/17-opentofu-for-external-infrastructure/state-is-sensitive/index.md
+  - XVIII — Day-2 operations:
     - Overview: reference-design/18-day-2-operations/index.md
     - Upgrade order: reference-design/18-day-2-operations/upgrade-order/index.md
     - RKE2 upgrade checklist: reference-design/18-day-2-operations/rke2-upgrade-checklist/index.md
@@ -231,7 +231,7 @@ nav:
     - Memory-pressure runbook: reference-design/18-day-2-operations/memory-pressure-runbook/index.md
     - CPU-pressure runbook: reference-design/18-day-2-operations/cpu-pressure-runbook/index.md
     - Network-debugging layers: reference-design/18-day-2-operations/network-debugging-layers/index.md
-  - Part XIX — Failure modes you should explicitly design for:
+  - XIX — Failure modes you should explicitly design for:
     - Overview: reference-design/19-failure-modes-you-should-explicitly-design-for/index.md
     - Root filesystem fills: reference-design/19-failure-modes-you-should-explicitly-design-for/root-filesystem-fills/index.md
     - Developer gets compromised: reference-design/19-failure-modes-you-should-explicitly-design-for/developer-gets-compromised/index.md
@@ -242,25 +242,25 @@ nav:
     - Admission policy locks out platform workloads: reference-design/19-failure-modes-you-should-explicitly-design-for/admission-policy-locks-out-platform-workloads/index.md
     - GPU integration breaks containerd/RKE2: reference-design/19-failure-modes-you-should-explicitly-design-for/gpu-integration-breaks-containerd-rke2/index.md
     - Single server dies: reference-design/19-failure-modes-you-should-explicitly-design-for/single-server-dies/index.md
-  - "Part XX — Observability: how you know the platform works":
+  - "XX — Observability: how you know the platform works":
     - Overview: reference-design/20-observability-how-you-know-the-platform-works/index.md
     - Host SLO-style checks: reference-design/20-observability-how-you-know-the-platform-works/host-slo-style-checks/index.md
     - Kubernetes checks: reference-design/20-observability-how-you-know-the-platform-works/kubernetes-checks/index.md
     - Tenant checks: reference-design/20-observability-how-you-know-the-platform-works/tenant-checks/index.md
     - Build checks: reference-design/20-observability-how-you-know-the-platform-works/build-checks/index.md
     - External-edge checks: reference-design/20-observability-how-you-know-the-platform-works/external-edge-checks/index.md
-  - Part XXI — Recommended implementation sequence:
+  - XXI — Recommended implementation sequence:
     - Overview: reference-design/21-recommended-implementation-sequence/index.md
-    - Phase A — host foundation: reference-design/21-recommended-implementation-sequence/phase-a-host-foundation/index.md
-    - Phase B — Kubernetes foundation: reference-design/21-recommended-implementation-sequence/phase-b-kubernetes-foundation/index.md
-    - Phase C — GitOps + tenancy: reference-design/21-recommended-implementation-sequence/phase-c-gitops-tenancy/index.md
-    - Phase D — policy + storage: reference-design/21-recommended-implementation-sequence/phase-d-policy-storage/index.md
-    - Phase E — platform services: reference-design/21-recommended-implementation-sequence/phase-e-platform-services/index.md
-    - Phase F — developer workflow: reference-design/21-recommended-implementation-sequence/phase-f-developer-workflow/index.md
-    - Phase G — external exposure: reference-design/21-recommended-implementation-sequence/phase-g-external-exposure/index.md
-    - Phase H — GPU: reference-design/21-recommended-implementation-sequence/phase-h-gpu/index.md
-    - Phase I — reproducibility: reference-design/21-recommended-implementation-sequence/phase-i-reproducibility/index.md
-  - Part XXII — Plain-English glossary:
+    - host foundation: reference-design/21-recommended-implementation-sequence/phase-a-host-foundation/index.md
+    - Kubernetes foundation: reference-design/21-recommended-implementation-sequence/phase-b-kubernetes-foundation/index.md
+    - GitOps + tenancy: reference-design/21-recommended-implementation-sequence/phase-c-gitops-tenancy/index.md
+    - policy + storage: reference-design/21-recommended-implementation-sequence/phase-d-policy-storage/index.md
+    - platform services: reference-design/21-recommended-implementation-sequence/phase-e-platform-services/index.md
+    - developer workflow: reference-design/21-recommended-implementation-sequence/phase-f-developer-workflow/index.md
+    - external exposure: reference-design/21-recommended-implementation-sequence/phase-g-external-exposure/index.md
+    - GPU: reference-design/21-recommended-implementation-sequence/phase-h-gpu/index.md
+    - reproducibility: reference-design/21-recommended-implementation-sequence/phase-i-reproducibility/index.md
+  - XXII — Plain-English glossary:
     - Overview: reference-design/22-plain-english-glossary/index.md
     - RKE2: reference-design/22-plain-english-glossary/rke2/index.md
     - CNI: reference-design/22-plain-english-glossary/cni/index.md
@@ -287,7 +287,7 @@ nav:
     - OpenTofu: reference-design/22-plain-english-glossary/opentofu/index.md
     - Idempotent: reference-design/22-plain-english-glossary/idempotent/index.md
     - Reconciliation: reference-design/22-plain-english-glossary/reconciliation/index.md
-  - Part XXIII — Compact technical reference:
+  - XXIII — Compact technical reference:
     - Overview: reference-design/23-compact-technical-reference/index.md
     - Host ownership matrix: reference-design/23-compact-technical-reference/host-ownership-matrix/index.md
     - Namespace reference: reference-design/23-compact-technical-reference/namespace-reference/index.md
@@ -298,9 +298,9 @@ nav:
     - Secret rules: reference-design/23-compact-technical-reference/secret-rules/index.md
     - "\"Bad idea\" reference": reference-design/23-compact-technical-reference/bad-idea-reference/index.md
     - First real application acceptance test: reference-design/23-compact-technical-reference/first-real-application-acceptance-test/index.md
-  - Part XXIV — Current verification references:
+  - XXIV — Current verification references:
     - Overview: reference-design/24-current-verification-references/index.md
-  - Part XXV — Final build order:
+  - XXV — Final build order:
     - Overview: reference-design/25-final-build-order/index.md
 - Implementation:
   - Progress: implementation/index.md

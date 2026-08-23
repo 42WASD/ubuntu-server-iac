@@ -1,8 +1,4 @@
----
-order: 48
----
-
-# Phase 48 — Traefik routing
+# Traefik routing
 
 Prefer Gateway API/HTTPRoute where your installed RKE2 Traefik version supports your required feature cleanly.
 

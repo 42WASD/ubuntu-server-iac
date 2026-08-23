@@ -1,8 +1,4 @@
----
-order: 11
----
-
-# Phase 11 — filesystem quotas for developer homes
+# filesystem quotas for developer homes
 
 Cgroups limit running resources.
 

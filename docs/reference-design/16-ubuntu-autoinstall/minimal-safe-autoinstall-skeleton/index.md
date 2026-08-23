@@ -1,8 +1,4 @@
----
-order: 65
----
-
-# Phase 65 — minimal safe autoinstall skeleton
+# minimal safe autoinstall skeleton
 
 Example:
 

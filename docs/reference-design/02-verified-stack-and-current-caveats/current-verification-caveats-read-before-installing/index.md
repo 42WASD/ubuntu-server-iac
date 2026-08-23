@@ -1,7 +1,3 @@
----
-order: 1
----
-
 # Current verification caveats — read before installing
 
 ## 7.1 Ubuntu 26.04 + RKE2

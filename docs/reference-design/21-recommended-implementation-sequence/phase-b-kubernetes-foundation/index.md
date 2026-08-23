@@ -1,8 +1,4 @@
----
-order: 1
----
-
-# Phase B — Kubernetes foundation
+# Kubernetes foundation
 
 Build exactly:
 

@@ -1,8 +1,4 @@
----
-order: 9
----
-
-# Phase 9 — developer CPU/RAM/PID limits on the host
+# developer CPU/RAM/PID limits on the host
 
 Remote builds will protect alpha from Docker build spikes.
 

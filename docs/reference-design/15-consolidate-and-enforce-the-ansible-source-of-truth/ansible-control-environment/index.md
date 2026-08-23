@@ -1,8 +1,4 @@
----
-order: 60
----
-
-# Phase 60 — Ansible control environment
+# Ansible control environment
 
 You should already have been codifying each completed phase into Ansible. This section makes the final structure explicit and prepares the same repository to configure `build01` and future RKE2 workers.
 

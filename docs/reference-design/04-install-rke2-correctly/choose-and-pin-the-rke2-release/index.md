@@ -1,8 +1,4 @@
----
-order: 13
----
-
-# Phase 13 — choose and pin the RKE2 release
+# choose and pin the RKE2 release
 
 Use the RKE2 v1.36 line for this design.
 

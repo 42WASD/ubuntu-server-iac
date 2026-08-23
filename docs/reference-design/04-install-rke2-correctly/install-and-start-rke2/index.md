@@ -1,8 +1,4 @@
----
-order: 16
----
-
-# Phase 16 — install and start RKE2
+# install and start RKE2
 
 Install the pinned release:
 

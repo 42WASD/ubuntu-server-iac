@@ -1,8 +1,4 @@
----
-order: 2
----
-
-# Part II — Verified stack and current caveats
+# Verified stack and current caveats
 
 ---
 

@@ -1,8 +1,4 @@
----
-order: 6
----
-
-# Phase 6 — Tailscale private management path
+# Tailscale private management path
 
 Install:
 

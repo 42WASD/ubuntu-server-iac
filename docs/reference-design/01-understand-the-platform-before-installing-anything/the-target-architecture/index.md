@@ -1,7 +1,3 @@
----
-order: 1
----
-
 # The target architecture
 
 ```text

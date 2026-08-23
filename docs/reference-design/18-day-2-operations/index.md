@@ -1,8 +1,4 @@
----
-order: 18
----
-
-# Part XVIII — Day-2 operations
+# Day-2 operations
 
 ---
 

@@ -1,7 +1,3 @@
----
-order: 8
----
-
 # First real application acceptance test
 
 Before calling the platform usable, deploy one small app that proves all major layers.

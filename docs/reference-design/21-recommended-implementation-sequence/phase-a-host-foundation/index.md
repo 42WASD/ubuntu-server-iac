@@ -1,8 +1,4 @@
----
-order: 0
----
-
-# Phase A — host foundation
+# host foundation
 
 Build exactly:
 

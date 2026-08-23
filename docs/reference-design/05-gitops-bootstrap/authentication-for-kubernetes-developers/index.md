@@ -1,8 +1,4 @@
----
-order: 27
----
-
-# Phase 27 — authentication for Kubernetes developers
+# authentication for Kubernetes developers
 
 Do not distribute the admin kubeconfig.
 

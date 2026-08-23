@@ -1,7 +1,3 @@
----
-order: 0
----
-
 # Upgrade order
 
 Do not upgrade every layer in one maintenance window.

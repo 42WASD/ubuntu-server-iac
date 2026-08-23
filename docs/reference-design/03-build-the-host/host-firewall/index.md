@@ -1,8 +1,4 @@
----
-order: 7
----
-
-# Phase 7 — host firewall
+# host firewall
 
 The goal is not:
 

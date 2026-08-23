@@ -1,8 +1,4 @@
----
-order: 25
----
-
-# Phase 25 — default-deny NetworkPolicy
+# default-deny NetworkPolicy
 
 Put this in every tenant namespace:
 

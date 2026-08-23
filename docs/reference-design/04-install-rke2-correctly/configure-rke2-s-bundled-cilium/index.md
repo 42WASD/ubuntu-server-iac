@@ -1,8 +1,4 @@
----
-order: 15
----
-
-# Phase 15 — configure RKE2's bundled Cilium
+# configure RKE2's bundled Cilium
 
 Do not install a second upstream Cilium Helm release on top of RKE2's packaged Cilium.
 

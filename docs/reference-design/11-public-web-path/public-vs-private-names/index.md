@@ -1,8 +1,4 @@
----
-order: 47
----
-
-# Phase 47 — public vs private names
+# public vs private names
 
 Recommended categories:
 

@@ -1,8 +1,4 @@
----
-order: 2
----
-
-# Phase C — GitOps + tenancy
+# GitOps + tenancy
 
 Build:
 

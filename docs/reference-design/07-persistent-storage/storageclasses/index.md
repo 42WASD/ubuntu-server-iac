@@ -1,8 +1,4 @@
----
-order: 32
----
-
-# Phase 32 — StorageClasses
+# StorageClasses
 
 Prefer `vgpattern` over permanently coupling manifests to a single exact VG name if you plan to add machines later.
 

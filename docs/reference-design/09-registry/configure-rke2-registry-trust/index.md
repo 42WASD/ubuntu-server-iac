@@ -1,8 +1,4 @@
----
-order: 38
----
-
-# Phase 38 — configure RKE2 registry trust
+# configure RKE2 registry trust
 
 RKE2 uses:
 

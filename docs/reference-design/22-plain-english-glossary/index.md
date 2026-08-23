@@ -1,8 +1,4 @@
----
-order: 22
----
-
-# Part XXII — Plain-English glossary
+# Plain-English glossary
 
 ---
 

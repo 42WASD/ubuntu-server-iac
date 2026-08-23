@@ -1,7 +1,3 @@
----
-order: 2
----
-
 # Version policy
 
 Never build this platform around floating `latest`.

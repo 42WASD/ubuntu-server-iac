@@ -1,8 +1,4 @@
----
-order: 44
----
-
-# Phase 44 — continuous dev loop
+# continuous dev loop
 
 Target command:
 

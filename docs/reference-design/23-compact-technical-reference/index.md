@@ -1,8 +1,4 @@
----
-order: 23
----
-
-# Part XXIII — Compact technical reference
+# Compact technical reference
 
 ---
 

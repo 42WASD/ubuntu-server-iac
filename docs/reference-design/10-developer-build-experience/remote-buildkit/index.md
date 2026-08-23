@@ -1,8 +1,4 @@
----
-order: 43
----
-
-# Phase 43 — remote BuildKit
+# remote BuildKit
 
 The developer runs a build command from alpha.
 

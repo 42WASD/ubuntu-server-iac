@@ -1,7 +1,3 @@
----
-order: 2
----
-
 # Developer has kubectl and tries privilege escalation
 
 Protect against:

@@ -1,8 +1,4 @@
----
-order: 63
----
-
-# Phase 63 — Ansible must be idempotent
+# Ansible must be idempotent
 
 The test:
 

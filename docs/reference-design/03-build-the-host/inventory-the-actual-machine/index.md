@@ -1,8 +1,4 @@
----
-order: 1
----
-
-# Phase 1 — inventory the actual machine
+# inventory the actual machine
 
 Before changing storage or networking, record reality.
 

@@ -1,7 +1,3 @@
----
-order: 5
----
-
 # CPU-pressure runbook
 
 Inspect:

@@ -1,8 +1,4 @@
----
-order: 55
----
-
-# Phase 55 — relay bring-up
+# relay bring-up
 
 Start with one relay candidate.
 

@@ -1,7 +1,3 @@
----
-order: 2
----
-
 # The trust model
 
 The platform has four different identities.

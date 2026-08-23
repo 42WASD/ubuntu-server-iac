@@ -1,8 +1,4 @@
----
-order: 22
----
-
-# Phase 22 — PriorityClasses
+# PriorityClasses
 
 Create only a small set.
 

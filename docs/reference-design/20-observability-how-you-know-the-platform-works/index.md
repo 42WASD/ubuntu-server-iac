@@ -1,8 +1,4 @@
----
-order: 20
----
-
-# Part XX — Observability: how you know the platform works
+# Observability: how you know the platform works
 
 ---
 

@@ -1,8 +1,4 @@
----
-order: 7
----
-
-# Phase H — GPU
+# GPU
 
 Only now:
 

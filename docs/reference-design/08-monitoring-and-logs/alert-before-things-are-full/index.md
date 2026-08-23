@@ -1,8 +1,4 @@
----
-order: 36
----
-
-# Phase 36 — alert before things are full
+# alert before things are full
 
 Alert thresholds should include:
 

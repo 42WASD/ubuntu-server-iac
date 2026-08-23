@@ -1,7 +1,3 @@
----
-order: 10
----
-
 # Why this guide is phased
 
 The most dangerous infrastructure mistake is installing ten moving parts before proving the first two work.

@@ -1,7 +1,3 @@
----
-order: 0
----
-
 # Host ownership matrix
 
 | Resource | Owner |

@@ -1,8 +1,4 @@
----
-order: 19
----
-
-# Part XIX — Failure modes you should explicitly design for
+# Failure modes you should explicitly design for
 
 ---
 

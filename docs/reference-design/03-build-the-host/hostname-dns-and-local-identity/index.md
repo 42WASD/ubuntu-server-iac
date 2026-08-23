@@ -1,8 +1,4 @@
----
-order: 3
----
-
-# Phase 3 — hostname, DNS, and local identity
+# hostname, DNS, and local identity
 
 Set hostname:
 

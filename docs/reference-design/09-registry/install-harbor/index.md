@@ -1,8 +1,4 @@
----
-order: 37
----
-
-# Phase 37 — install Harbor
+# install Harbor
 
 Deploy Harbor through Argo CD into:
 

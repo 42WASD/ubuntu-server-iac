@@ -1,8 +1,4 @@
----
-order: 2
----
-
-# Phase 2 — update Ubuntu and install base administration tools
+# update Ubuntu and install base administration tools
 
 Run:
 

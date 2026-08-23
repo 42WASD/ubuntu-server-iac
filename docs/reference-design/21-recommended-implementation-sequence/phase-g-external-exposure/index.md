@@ -1,8 +1,4 @@
----
-order: 6
----
-
-# Phase G — external exposure
+# external exposure
 
 Build:
 

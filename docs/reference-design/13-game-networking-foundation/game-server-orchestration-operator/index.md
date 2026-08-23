@@ -1,8 +1,4 @@
----
-order: 70
----
-
-# Phase 70 — game server orchestration: operator, not raw manifests
+# game server orchestration: operator, not raw manifests
 
 **Intent:** settle the *how* of managing many game-server instances in
 Kubernetes. Phase 53 deferred the per-game choice ("plain StatefulSet / Agones /

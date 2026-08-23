@@ -1,8 +1,4 @@
----
-order: 61
----
-
-# Phase 61 — inventory
+# inventory
 
 Example:
 

@@ -1,7 +1,3 @@
----
-order: 3
----
-
 # Host developer-limit reference
 
 Normal developer:

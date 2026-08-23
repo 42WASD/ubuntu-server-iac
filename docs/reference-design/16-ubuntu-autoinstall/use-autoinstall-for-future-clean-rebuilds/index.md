@@ -1,8 +1,4 @@
----
-order: 64
----
-
-# Phase 64 — use Autoinstall for future clean rebuilds
+# use Autoinstall for future clean rebuilds
 
 Do **not** rush to reinstall the current working server merely to use Autoinstall.
 

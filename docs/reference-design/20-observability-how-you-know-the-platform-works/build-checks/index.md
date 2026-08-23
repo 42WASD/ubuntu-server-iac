@@ -1,7 +1,3 @@
----
-order: 3
----
-
 # Build checks
 
 Track `build01`:

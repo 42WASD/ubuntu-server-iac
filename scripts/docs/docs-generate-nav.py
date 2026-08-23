@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""Rewrite the MkDocs nav for docs/reference-design based on the live folder tree.
+"""Rewrite the MkDocs nav for docs/reference-design from the sequence manifest.
 
-The reference design is a single linear, chronological sequence. Part folders
-live directly under docs/reference-design/ (NN-slug, sorted by Roman numeral),
-and each part contains section folders named by semantic slug. Ordering is
-driven by the `order:` frontmatter key on each part/section index.md.
+The reading order is defined in ONE place — docs/reference-design/_sequence.yaml
+(the SSOT manifest). This generator reads it and derives the display numbering:
 
-    reference-design/
-        <NN-part-slug>/index.md          -> part landing page
-        <NN-part-slug>/<section-slug>/index.md -> section under that part
+  - Part numeral (I, II, III ...) from a part's position in the manifest
+  - Phase number from a tracked section's global position
+  - Nav labels are built as "Part N — <title>" / "Phase N — <title>"
+
+Because numbers are DERIVED (never stored in page frontmatter or H1s), they can
+never drift or collide.
 
 Run:
     python3 scripts/docs/docs-generate-nav.py
@@ -24,6 +25,9 @@ REPO = Path(__file__).resolve().parent.parent.parent
 MKDOCS = REPO / "mkdocs.yml"
 REF = REPO / "docs" / "reference-design"
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from docs_manifest import assign_phase_numbers, load_sequence, phase_by_slug  # noqa: E402
+
 
 def display_title(index_md: Path) -> str:
     text = index_md.read_text()
@@ -31,31 +35,28 @@ def display_title(index_md: Path) -> str:
     return m.group(1).strip() if m else index_md.parent.name
 
 
-def frontmatter_order(index_md: Path) -> float:
-    """Return the `order:` value from a page's frontmatter, else Infinity."""
-    text = index_md.read_text()
-    m = re.search(r"^---\n(.*?)\n---", text, flags=re.S)
-    if m:
-        m2 = re.search(r"(?m)^order:\s*([\d.]+)\s*$", m.group(1))
-        if m2:
-            return float(m2.group(1))
-    return float("inf")
+def build_subnav(dir_path: Path, rel: str, nodes: list[dict], part_slug: str = "",
+                 tracked: bool = False, section_path: list[str] | None = None,
+                 parts: list[dict] | None = None) -> list:
+    """Recursively build a nav list from the manifest's section tree.
 
-
-def order_key(dir_path: Path) -> float:
-    """Sort key for a dir based on its index.md `order:` frontmatter."""
-    return frontmatter_order(dir_path / "index.md")
-
-
-def build_subnav(dir_path: Path, rel: str) -> list:
-    """Recursively build a nav list for a directory's child sections."""
+    For a tracked part's top-level sections, the nav label is prefixed with the
+    derived phase number (e.g. "Phase 13 — ..."). Deeper sub-sections get their
+    clean title only.
+    """
     entries = []
-    children = [d for d in dir_path.iterdir()
-                if d.is_dir() and (d / "index.md").exists()]
-    for sec_dir in sorted(children, key=order_key):
-        child_rel = f"{rel}/{sec_dir.name}"
-        sub = build_subnav(sec_dir, child_rel)
-        title = display_title(sec_dir / "index.md")
+    section_path = section_path or []
+    for node in nodes:
+        slug = node["slug"]
+        child_rel = f"{rel}/{slug}"
+        title = display_title(dir_path / slug / "index.md")
+        # Phase-prefix only top-level sections of tracked parts.
+        if tracked and not section_path:
+            ph = phase_by_slug(parts or [], part_slug, slug)
+            if ph is not None:
+                title = f"Phase {ph} — {title}"
+        sub = build_subnav(dir_path / slug, child_rel, node["subsections"],
+                           part_slug, tracked, section_path + [slug], parts)
         if sub:
             entries.append({title: [f"{child_rel}/index.md", *sub]})
         else:
@@ -63,16 +64,30 @@ def build_subnav(dir_path: Path, rel: str) -> list:
     return entries
 
 
-def build_nav() -> list:
-    parts = [d for d in REF.iterdir() if d.is_dir() and (d / "index.md").exists()]
+def build_nav(parts: list[dict]) -> list:
     part_list = []
-    for part_dir in sorted(parts, key=order_key):
-        title = display_title(part_dir / "index.md")
-        rel = f"reference-design/{part_dir.name}"
+    for i, part in enumerate(parts, start=1):
+        numeral = _roman(i)
+        title = display_title(REF / part["slug"] / "index.md")
+        rel = f"reference-design/{part['slug']}"
         part_entries = [{"Overview": f"{rel}/index.md"}]
-        part_entries.extend(build_subnav(part_dir, rel))
-        part_list.append({title: part_entries})
+        part_entries.extend(build_subnav(REF / part["slug"], rel, part["sections"],
+                                         part_slug=part["slug"], tracked=part["tracked"],
+                                         parts=parts))
+        part_list.append({f"{numeral} — {title}": part_entries})
     return part_list
+
+
+def _roman(n: int) -> str:
+    vals = [(1000, "M"), (900, "CM"), (500, "D"), (400, "CD"),
+            (100, "C"), (90, "XC"), (50, "L"), (40, "XL"),
+            (10, "X"), (9, "IX"), (5, "V"), (4, "IV"), (1, "I")]
+    out = ""
+    for value, sym in vals:
+        while n >= value:
+            out += sym
+            n -= value
+    return out
 
 
 def dump(node, level: int, lines: list, indent: int = 2) -> None:
@@ -97,6 +112,8 @@ def yaml_scalar(s: str) -> str:
 
 
 def main() -> int:
+    parts = load_sequence()
+    assign_phase_numbers(parts)
     static = [
         {"Home": "index.md"},
         {
@@ -132,7 +149,7 @@ def main() -> int:
                 },
             ]
         },
-        {"Reference Design": [{"Overview": "reference-design/index.md"}, *build_nav()]},
+        {"Reference Design": [{"Overview": "reference-design/index.md"}, *build_nav(parts)]},
         {"Implementation": [
             {"Progress": "implementation/index.md"},
         ]},

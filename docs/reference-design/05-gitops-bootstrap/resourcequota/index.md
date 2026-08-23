@@ -1,8 +1,4 @@
----
-order: 23
----
-
-# Phase 23 — ResourceQuota
+# ResourceQuota
 
 Example `dev-42wasd-admin`:
 

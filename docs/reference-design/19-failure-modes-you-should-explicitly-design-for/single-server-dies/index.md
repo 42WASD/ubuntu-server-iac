@@ -1,7 +1,3 @@
----
-order: 8
----
-
 # Single server dies
 
 Expected behavior:

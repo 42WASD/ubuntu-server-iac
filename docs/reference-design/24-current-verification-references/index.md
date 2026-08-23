@@ -1,8 +1,4 @@
----
-order: 24
----
-
-# Part XXIV — Current verification references
+# Current verification references
 
 The following primary/current documentation was used to verify the implementation direction. Re-audit these before major upgrades because infrastructure contracts change.
 

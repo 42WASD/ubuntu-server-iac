@@ -1,8 +1,4 @@
----
-order: 42
----
-
-# Phase 42 — BuildKit cache policy
+# BuildKit cache policy
 
 BuildKit supports its own garbage collection.
 

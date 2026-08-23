@@ -1,8 +1,4 @@
----
-order: 67
----
-
-# Phase 67 — what OpenTofu should own
+# what OpenTofu should own
 
 Use OpenTofu for resources created through external APIs:
 

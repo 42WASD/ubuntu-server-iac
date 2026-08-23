@@ -1,8 +1,4 @@
----
-order: 30
----
-
-# Phase 30 — policy tests
+# policy tests
 
 Create intentionally-bad manifests under:
 

@@ -1,7 +1,3 @@
----
-order: 6
----
-
 # Secret rules
 
 Never commit:

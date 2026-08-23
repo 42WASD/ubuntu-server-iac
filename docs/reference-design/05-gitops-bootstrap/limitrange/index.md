@@ -1,8 +1,4 @@
----
-order: 24
----
-
-# Phase 24 — LimitRange
+# LimitRange
 
 Example:
 

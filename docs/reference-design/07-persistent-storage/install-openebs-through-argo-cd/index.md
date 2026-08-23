@@ -1,8 +1,4 @@
----
-order: 31
----
-
-# Phase 31 — install OpenEBS through Argo CD
+# install OpenEBS through Argo CD
 
 Install OpenEBS using its pinned chart.
 

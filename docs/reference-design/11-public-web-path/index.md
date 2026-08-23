@@ -1,14 +1,9 @@
----
-order: 11
-tracked: true
----
-
-# Part XI — Public web path
+# Public web path
 
 ---
 
 ## Contents
 
-- [Phase 46 — Cloudflare Tunnel](cloudflare-tunnel/index.md)
-- [Phase 47 — public vs private names](public-vs-private-names/index.md)
-- [Phase 48 — Traefik routing](traefik-routing/index.md)
+- [Cloudflare Tunnel](cloudflare-tunnel/index.md)
+- [public vs private names](public-vs-private-names/index.md)
+- [Traefik routing](traefik-routing/index.md)

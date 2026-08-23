@@ -1,8 +1,4 @@
----
-order: 29
----
-
-# Phase 29 — stage policy before enforcing it
+# stage policy before enforcing it
 
 Do not enable 25 deny policies in one commit.
 

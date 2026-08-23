@@ -1,7 +1,3 @@
----
-order: 2
----
-
 # Tenant checks
 
 Track per tenant:

@@ -1,8 +1,4 @@
----
-order: 49
----
-
-# Phase 49 — GPU integration is optional until proven
+# GPU integration is optional until proven
 
 Base platform checkpoint first:
 

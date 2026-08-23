@@ -1,8 +1,4 @@
----
-order: 68
----
-
-# Phase 68 — state is sensitive
+# state is sensitive
 
 OpenTofu state can contain sensitive values.
 

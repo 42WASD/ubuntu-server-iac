@@ -1,8 +1,4 @@
----
-order: 40
----
-
-# Phase 40 — local developer work on alpha
+# local developer work on alpha
 
 Example:
 

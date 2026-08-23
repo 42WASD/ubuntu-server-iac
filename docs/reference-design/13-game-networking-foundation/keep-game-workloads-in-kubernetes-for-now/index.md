@@ -1,8 +1,4 @@
----
-order: 53
----
-
-# Phase 53 — keep game workloads in Kubernetes for now
+# keep game workloads in Kubernetes for now
 
 Do not solve individual game stacks yet.
 

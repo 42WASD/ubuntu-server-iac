@@ -1,8 +1,4 @@
----
-order: 46
----
-
-# Phase 46 — Cloudflare Tunnel
+# Cloudflare Tunnel
 
 Do this only after an internal service works.
 

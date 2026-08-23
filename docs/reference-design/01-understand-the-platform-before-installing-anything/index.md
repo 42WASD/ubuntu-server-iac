@@ -1,8 +1,4 @@
----
-order: 1
----
-
-# Part I — Understand the platform before installing anything
+# Understand the platform before installing anything
 
 ---
 

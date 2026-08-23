@@ -1,8 +1,4 @@
----
-order: 4
----
-
-# Phase E — platform services
+# platform services
 
 Build:
 

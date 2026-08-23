@@ -1,7 +1,3 @@
----
-order: 7
----
-
 # "Bad idea" reference
 
 Bad:

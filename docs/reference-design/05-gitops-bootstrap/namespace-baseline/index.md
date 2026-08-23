@@ -1,8 +1,4 @@
----
-order: 21
----
-
-# Phase 21 — namespace baseline
+# namespace baseline
 
 Create platform namespaces:
 

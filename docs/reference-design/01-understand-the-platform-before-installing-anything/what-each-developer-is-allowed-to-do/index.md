@@ -1,7 +1,3 @@
----
-order: 3
----
-
 # What each developer is allowed to do
 
 A normal developer should be able to:

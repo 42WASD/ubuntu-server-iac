@@ -1,8 +1,4 @@
----
-order: 12
----
-
-# Phase 12 — NVIDIA host driver baseline
+# NVIDIA host driver baseline
 
 Do this **before** Kubernetes GPU integration.
 

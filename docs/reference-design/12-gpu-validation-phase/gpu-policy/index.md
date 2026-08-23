@@ -1,8 +1,4 @@
----
-order: 51
----
-
-# Phase 51 — GPU policy
+# GPU policy
 
 Once whole-GPU scheduling works:
 

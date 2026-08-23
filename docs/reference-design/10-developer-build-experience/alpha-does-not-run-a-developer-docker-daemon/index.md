@@ -1,8 +1,4 @@
----
-order: 39
----
-
-# Phase 39 — alpha does NOT run a developer Docker daemon
+# alpha does NOT run a developer Docker daemon
 
 On `alpha`, normal developers need:
 

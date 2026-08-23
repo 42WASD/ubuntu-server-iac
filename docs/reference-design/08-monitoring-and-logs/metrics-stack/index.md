@@ -1,8 +1,4 @@
----
-order: 34
----
-
-# Phase 34 — metrics stack
+# metrics stack
 
 Install through Argo CD:
 

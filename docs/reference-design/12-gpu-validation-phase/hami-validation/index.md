@@ -1,8 +1,4 @@
----
-order: 52
----
-
-# Phase 52 — HAMi validation
+# HAMi validation
 
 Do not describe HAMi as MIG.
 

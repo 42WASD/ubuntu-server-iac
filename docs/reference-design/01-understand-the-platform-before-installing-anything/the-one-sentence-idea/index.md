@@ -1,7 +1,3 @@
----
-order: 0
----
-
 # The one-sentence idea
 
 Build the machine in layers and give each layer **one job**:

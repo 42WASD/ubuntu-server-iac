@@ -1,7 +1,3 @@
----
-order: 1
----
-
 # RKE2 upgrade checklist
 
 Before:

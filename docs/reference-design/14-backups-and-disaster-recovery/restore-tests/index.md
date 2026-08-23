@@ -1,8 +1,4 @@
----
-order: 59
----
-
-# Phase 59 — restore tests
+# restore tests
 
 Quarterly or after major architecture changes:
 

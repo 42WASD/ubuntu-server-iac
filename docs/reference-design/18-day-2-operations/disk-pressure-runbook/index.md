@@ -1,7 +1,3 @@
----
-order: 3
----
-
 # Disk-pressure runbook
 
 If disk approaches critical:

@@ -1,8 +1,4 @@
----
-order: 5
----
-
-# Phase F — developer workflow
+# developer workflow
 
 Build:
 

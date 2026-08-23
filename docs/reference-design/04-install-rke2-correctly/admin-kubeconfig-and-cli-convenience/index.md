@@ -1,8 +1,4 @@
----
-order: 17
----
-
-# Phase 17 — admin kubeconfig and CLI convenience
+# admin kubeconfig and CLI convenience
 
 Do not give every developer the RKE2 admin kubeconfig.
 

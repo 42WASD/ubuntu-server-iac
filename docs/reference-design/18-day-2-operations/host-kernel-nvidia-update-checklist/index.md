@@ -1,7 +1,3 @@
----
-order: 2
----
-
 # Host kernel/NVIDIA update checklist
 
 Before reboot:

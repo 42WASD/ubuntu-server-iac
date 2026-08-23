@@ -1,8 +1,4 @@
----
-order: 45
----
-
-# Phase 45 — CI pipeline
+# CI pipeline
 
 Interactive dev and CI are different.
 

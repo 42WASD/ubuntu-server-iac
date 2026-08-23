@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Generate the implementation progress page from reference design + progress.yaml.
+"""Generate the implementation progress page from the manifest + progress.yaml.
 
-Scans docs/reference-design/ for parts marked `tracked: true` (the actionable
-build phases) and docs/implementation/progress.yaml (the implementation status
-source of truth), then writes the progress chart + table into
-docs/implementation/index.md between the generated markers.
+Reads the reading-order SSOT (docs/reference-design/_sequence.yaml) for the
+ordered, tracked build parts, and docs/implementation/progress.yaml for status,
+then writes the progress chart + table into docs/implementation/index.md
+between the generated markers.
 
 Run:
     python3 scripts/docs/docs-generate-implementation.py
@@ -30,6 +30,10 @@ REF = REPO / "docs" / "reference-design"
 PROGRESS = REPO / "docs" / "implementation" / "progress.yaml"
 OUT = REPO / "docs" / "implementation" / "index.md"
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from docs_manifest import assign_phase_numbers, load_sequence, phase_by_slug  # noqa: E402
+import yaml  # noqa: E402
+
 STATUS_ICON = {
     "done": "✅",
     "in-progress": "🔶",
@@ -48,51 +52,15 @@ def display_title(index_md: Path) -> str:
     return m.group(1).strip() if m else index_md.parent.name
 
 
-def frontmatter_order(index_md: Path) -> float:
-    """Return the `order:` value from a page's frontmatter, else Infinity."""
-    text = index_md.read_text()
-    m = re.search(r"^---\n(.*?)\n---", text, flags=re.S)
-    if m:
-        m2 = re.search(r"(?m)^order:\s*([\d.]+)\s*$", m.group(1))
-        if m2:
-            return float(m2.group(1))
-    return float("inf")
-
-
-def order_key(dir_path: Path) -> float:
-    return frontmatter_order(dir_path / "index.md")
-
-
-def tracked(dir_path: Path) -> bool:
-    """Return whether a part is tracked for implementation progress.
-
-    A part is tracked only if it carries `tracked: true` in its frontmatter.
-    Parts that are conceptual/reference (background, failure modes, glossary,
-    compact reference, etc.) are intentionally *not* tracked — they describe or
-    justify the platform rather than being an actionable build phase.
-    """
-    text = (dir_path / "index.md").read_text()
-    m = re.search(r"^---\n(.*?)\n---", text, flags=re.S)
-    if m:
-        m2 = re.search(r"(?m)^tracked:\s*(true|yes)\s*$", m.group(1))
-        return m2 is not None
-    return False
-
-
-def scan_sections(parent: Path) -> list[dict]:
-    """Return [{slug, title, subsections:[...]}] for each dir holding index.md.
-
-    A *section* is a direct child with an index.md. A *sub-section* is any
-    further nesting underneath it. This is recursive, so a section may carry
-    its own `subsections`. Ordering is by frontmatter `order:`.
-    """
+def scan_sections(parent: Path, nodes: list[dict], prefix: str) -> list[dict]:
+    """Return [{slug, title, subsections:[...]}] for the manifest's section tree."""
     sections = []
-    children = [d for d in parent.iterdir() if d.is_dir() and (d / "index.md").exists()]
-    for d in sorted(children, key=order_key):
+    for node in nodes:
+        d = parent / node["slug"]
         sections.append({
-            "slug": d.name,
+            "slug": node["slug"],
             "title": display_title(d / "index.md"),
-            "subsections": scan_sections(d),
+            "subsections": scan_sections(d, node["subsections"], f"{prefix}/{node['slug']}"),
         })
     return sections
 
@@ -100,19 +68,23 @@ def scan_sections(parent: Path) -> list[dict]:
 def scan_reference() -> list[dict]:
     """Return parts: [{slug, title, sections:[{slug,title,subsections:[...]}]}].
 
-    Only *tracked* parts (frontmatter `tracked: true`) are returned. Untracked
-    parts — conceptual/background/reference chapters — are excluded so they do
-    not appear on the implementation progress page.
+    Driven by the SSOT manifest (docs/reference-design/_sequence.yaml). Only
+    parts with `tracked: true` in the manifest are returned. Untracked parts —
+    conceptual/background/reference chapters — are excluded so they do not
+    appear on the implementation progress page.
     """
-    parts = []
-    children = [d for d in REF.iterdir() if (d / "index.md").exists()]
-    for part_dir in sorted(children, key=order_key):
-        if not tracked(part_dir):
+    parts = load_sequence()
+    assign_phase_numbers(parts)
+    out = []
+    for p in parts:
+        if not p["tracked"]:
             continue
-        parts.append({"slug": part_dir.name,
-                      "title": display_title(part_dir / "index.md"),
-                      "sections": scan_sections(part_dir)})
-    return parts
+        out.append({"slug": p["slug"],
+                    "numeral": p["numeral"],
+                    "title": display_title(REF / p["slug"] / "index.md"),
+                    "phases": {s["slug"]: s["phase"] for s in p["sections"]},
+                    "sections": scan_sections(REF / p["slug"], p["sections"], p["slug"])})
+    return out
 
 
 def load_runbook() -> dict[str, str]:
@@ -250,25 +222,33 @@ def runbook_box(path: str, title: str, icon: str) -> str:
 
 
 def render_sections(sections: list[dict], prefix: str, progress: dict,
-                    lines: list[str], depth: int = 0) -> None:
+                    lines: list[str], depth: int = 0,
+                    phases: dict | None = None) -> None:
     """Append a section for each node, recursively; sub-sections are indented.
 
     Only the bullet line is indented; a runbook `<details>` box must stay at
     column 0 or Markdown would treat it as a code block.
+
+    Top-level sections of a tracked part get their derived phase number prefix
+    (e.g. "Phase 13 — ..."); deeper sub-sections show the clean title.
     """
+    phases = phases or {}
     indent = "  " * depth
     for s in sections:
         path = f"{prefix}/{s['slug']}"
         st = status_of(progress, path)
         icon = STATUS_ICON[st]
         link = f"../reference-design/{path}/index.md"
-        lines.append(f"{indent}- {icon} `{st}` — [{s['title']}]({link})")
+        title = s["title"]
+        if depth == 0 and s["slug"] in phases:
+            title = f"Phase {phases[s['slug']]} — {title}"
+        lines.append(f"{indent}- {icon} `{st}` — [{title}]({link})")
         rb = runbook_box(path, s["title"], icon)
         if rb:
             lines += ["", rb, ""]
         if s["subsections"]:
             render_sections(s["subsections"], path, progress, lines,
-                            depth + 1)
+                            depth + 1, None)
 
 
 def render(parts: list[dict], progress: dict) -> str:
@@ -291,8 +271,8 @@ def render(parts: list[dict], progress: dict) -> str:
 
     for p in parts:
         pct_s, bar_html = part_bar(p, progress)
-        lines += [f"### {pct_s} — {p['title']}", "", bar_html, ""]
-        render_sections(p["sections"], p["slug"], progress, lines)
+        lines += [f"### {pct_s} — Part {p['numeral']} — {p['title']}", "", bar_html, ""]
+        render_sections(p["sections"], p["slug"], progress, lines, 0, p["phases"])
         lines.append("")
 
     return "\n".join(lines).rstrip() + "\n"

@@ -1,0 +1,283 @@
+# Reference design reading order — SINGLE SOURCE OF TRUTH (SSOT)
+#
+# This manifest is the ONLY place the reading order of the reference design is
+# defined. Both docs generators (docs-generate-nav.py and
+# docs-generate-implementation.py) read this file and DERIVE every number from
+# position in this tree:
+#
+#   - Part numeral (I, II, III ...)  <- index of the part in `parts`
+#   - Phase number                   <- global position of a tracked section
+#   - tracked (build) vs untracked   <- the `tracked:` flag below
+#
+# Because numbers are DERIVED from list order and never stored in page files,
+# two phases can never collide. To insert, remove, or reorder a phase, edit
+# THIS file only, then re-run both generators.
+#
+# Rules:
+#   - `parts` is an ordered list. Each entry is a dict: { slug: {tracked, sections} }.
+#   - `slug` = the folder name under docs/reference-design/.
+#   - `sections` = ordered list of direct child folders (slugs) under that part.
+#   - Each section may have an optional `subsections` list for deeper nesting.
+#   - A part is tracked (appears on the Implementation progress page) iff
+#     `tracked: true`. Parts 03-17 are the actionable build phases.
+#   - Slugs must match the actual folder names on disk.
+
+parts:
+  - 01-understand-the-platform-before-installing-anything:
+      tracked: false
+      sections:
+        - the-one-sentence-idea
+        - the-target-architecture
+        - the-trust-model
+        - what-each-developer-is-allowed-to-do
+        - five-control-planes-not-one:
+            subsections:
+              - build-control-plane
+              - external-edge-control-plane
+              - linux-control-plane
+              - tenant-application-control-plane
+              - kubernetes-platform-control-plane
+        - why-this-guide-is-phased
+  - 02-verified-stack-and-current-caveats:
+      tracked: false
+      sections:
+        - stack-selection
+        - current-verification-caveats-read-before-installing
+        - version-policy
+  - 03-build-the-host:
+      tracked: true
+      sections:
+        - create-the-infrastructure-repository-first
+        - inventory-the-actual-machine
+        - update-ubuntu-and-install-base-administration-tools:
+            subsections:
+              - unattended-security-updates
+        - hostname-dns-and-local-identity
+        - users-groups-and-sudo-boundaries:
+            subsections:
+              - sudo-policy
+              - platform-groups
+              - no-shared-human-account
+        - ssh-hardening
+        - tailscale-private-management-path:
+            subsections:
+              - tailscale-policy-concept
+        - host-firewall
+        - system-tuning-and-resource-safety:
+            subsections:
+              - basic-forwarding
+              - inotify-limits
+              - journald-bound
+              - disable-swap-initially
+        - developer-cpu-ram-pid-limits-on-the-host
+        - storage-architecture:
+            subsections:
+              - required-lvm-module
+              - fresh-install-target
+              - existing-install-path
+              - desired-logical-layout
+              - create-dedicated-rke2-filesystem-only-when-backing-storage-is-known
+              - kubernetes-fast-vg
+              - kubernetes-bulk-vg
+        - filesystem-quotas-for-developer-homes
+        - nvidia-host-driver-baseline
+  - 04-install-rke2-correctly:
+      tracked: true
+      sections:
+        - choose-and-pin-the-rke2-release
+        - rke2-configuration:
+            subsections:
+              - kubelet-configuration
+        - configure-rke2-s-bundled-cilium
+        - install-and-start-rke2:
+            subsections:
+              - inspect-cilium
+              - verify-rke2-secrets-encryption
+        - admin-kubeconfig-and-cli-convenience
+        - verify-reboot-recovery-now-not-later
+  - 05-gitops-bootstrap:
+      tracked: true
+      sections:
+        - install-argo-cd-exactly-once-by-hand
+        - root-gitops-application:
+            subsections:
+              - appprojects
+        - namespace-baseline
+        - priorityclasses
+        - resourcequota
+        - limitrange
+        - default-deny-networkpolicy
+        - rbac:
+            subsections:
+              - dev-role
+              - production-is-intentionally-different
+        - authentication-for-kubernetes-developers
+  - 06-policy-enforcement:
+      tracked: true
+      sections:
+        - install-kyverno-through-argo-cd
+        - stage-policy-before-enforcing-it:
+            subsections:
+              - example-deny-hostpath
+        - policy-tests
+  - 07-persistent-storage:
+      tracked: true
+      sections:
+        - install-openebs-through-argo-cd
+        - storageclasses
+        - prove-pvc-lifecycle-before-deploying-databases
+  - 08-monitoring-and-logs:
+      tracked: true
+      sections:
+        - metrics-stack
+        - logs
+        - alert-before-things-are-full
+  - 09-registry:
+      tracked: true
+      sections:
+        - install-harbor
+        - configure-rke2-registry-trust
+  - 10-developer-build-experience:
+      tracked: true
+      sections:
+        - alpha-does-not-run-a-developer-docker-daemon
+        - local-developer-work-on-alpha
+        - build01-architecture
+        - buildkit-cache-policy
+        - remote-buildkit
+        - continuous-dev-loop
+        - ci-pipeline
+  - 11-public-web-path:
+      tracked: true
+      sections:
+        - cloudflare-tunnel
+        - public-vs-private-names
+        - traefik-routing
+  - 12-gpu-validation-phase:
+      tracked: true
+      sections:
+        - gpu-integration-is-optional-until-proven
+        - first-gpu-goal-whole-gpu-scheduling
+        - gpu-policy
+        - hami-validation
+  - 13-game-networking-foundation:
+      tracked: true
+      sections:
+        - keep-game-workloads-in-kubernetes-for-now
+        - why-game-edge-is-separate-from-cloudflare-web
+        - relay-bring-up
+        - minecraft-server-performance
+        - game-server-orchestration-operator
+  - 14-backups-and-disaster-recovery:
+      tracked: true
+      sections:
+        - rke2-etcd-snapshots
+        - what-must-be-backed-up
+        - local-vs-offsite
+        - restore-tests
+  - 15-consolidate-and-enforce-the-ansible-source-of-truth:
+      tracked: true
+      sections:
+        - ansible-control-environment
+        - inventory
+        - role-ownership
+        - ansible-must-be-idempotent
+  - 16-ubuntu-autoinstall:
+      tracked: true
+      sections:
+        - use-autoinstall-for-future-clean-rebuilds
+        - minimal-safe-autoinstall-skeleton
+        - validate-autoinstall-in-a-vm-first
+  - 17-opentofu-for-external-infrastructure:
+      tracked: true
+      sections:
+        - what-opentofu-should-own
+        - state-is-sensitive
+  - 18-day-2-operations:
+      tracked: false
+      sections:
+        - upgrade-order
+        - rke2-upgrade-checklist
+        - host-kernel-nvidia-update-checklist
+        - disk-pressure-runbook
+        - memory-pressure-runbook
+        - cpu-pressure-runbook
+        - network-debugging-layers
+  - 19-failure-modes-you-should-explicitly-design-for:
+      tracked: false
+      sections:
+        - root-filesystem-fills
+        - developer-gets-compromised
+        - developer-has-kubectl-and-tries-privilege-escalation
+        - ci-runner-is-compromised
+        - cilium-breaks-after-upgrade
+        - argo-cd-deletes-something-unexpectedly
+        - admission-policy-locks-out-platform-workloads
+        - gpu-integration-breaks-containerd-rke2
+        - single-server-dies
+  - 20-observability-how-you-know-the-platform-works:
+      tracked: false
+      sections:
+        - host-slo-style-checks
+        - kubernetes-checks
+        - tenant-checks
+        - build-checks
+        - external-edge-checks
+  - 21-recommended-implementation-sequence:
+      tracked: false
+      sections:
+        - phase-a-host-foundation
+        - phase-b-kubernetes-foundation
+        - phase-c-gitops-tenancy
+        - phase-d-policy-storage
+        - phase-e-platform-services
+        - phase-f-developer-workflow
+        - phase-g-external-exposure
+        - phase-h-gpu
+        - phase-i-reproducibility
+  - 22-plain-english-glossary:
+      tracked: false
+      sections:
+        - rke2
+        - cni
+        - cilium
+        - traefik
+        - gateway-api
+        - gitops
+        - argo-cd
+        - resourcequota
+        - limitrange
+        - pod-security-admission
+        - kyverno
+        - localpv
+        - openebs-localpv-lvm
+        - harbor
+        - buildkit
+        - buildx
+        - skaffold
+        - lxd-system-container
+        - kvm-vm
+        - tailscale
+        - cloudflare-tunnel
+        - wireguard-relay
+        - opentofu
+        - idempotent
+        - reconciliation
+  - 23-compact-technical-reference:
+      tracked: false
+      sections:
+        - host-ownership-matrix
+        - namespace-reference
+        - initial-quota-reference
+        - host-developer-limit-reference
+        - network-exposure-reference
+        - storage-reference
+        - secret-rules
+        - bad-idea-reference
+        - first-real-application-acceptance-test
+  - 24-current-verification-references:
+      tracked: false
+      sections: []
+  - 25-final-build-order:
+      tracked: false
+      sections: []

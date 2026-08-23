@@ -1,8 +1,4 @@
----
-order: 5
----
-
-# Phase 5 — SSH hardening
+# SSH hardening
 
 Create a drop-in:
 

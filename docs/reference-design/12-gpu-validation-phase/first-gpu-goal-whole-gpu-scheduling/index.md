@@ -1,8 +1,4 @@
----
-order: 50
----
-
-# Phase 50 — first GPU goal: whole-GPU scheduling
+# first GPU goal: whole-GPU scheduling
 
 Goal:
 

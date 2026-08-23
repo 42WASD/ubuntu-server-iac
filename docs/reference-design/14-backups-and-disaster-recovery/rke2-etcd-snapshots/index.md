@@ -1,8 +1,4 @@
----
-order: 56
----
-
-# Phase 56 — RKE2 etcd snapshots
+# RKE2 etcd snapshots
 
 RKE2 embedded etcd is the cluster-state database.
 

@@ -1,8 +1,4 @@
----
-order: 14
----
-
-# Phase 14 — RKE2 configuration
+# RKE2 configuration
 
 Create:
 

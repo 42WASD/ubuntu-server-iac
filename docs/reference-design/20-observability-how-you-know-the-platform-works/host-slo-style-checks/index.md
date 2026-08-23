@@ -1,7 +1,3 @@
----
-order: 0
----
-
 # Host SLO-style checks
 
 Track:

@@ -1,8 +1,4 @@
----
-order: 28
----
-
-# Phase 28 — install Kyverno through Argo CD
+# install Kyverno through Argo CD
 
 Use a pinned Helm chart version.
 

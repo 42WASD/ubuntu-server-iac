@@ -1,7 +1,3 @@
----
-order: 3
----
-
 # CI runner is compromised
 
 Expected:

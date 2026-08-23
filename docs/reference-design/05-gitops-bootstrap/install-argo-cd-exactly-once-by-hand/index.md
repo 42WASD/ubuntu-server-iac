@@ -1,8 +1,4 @@
----
-order: 19
----
-
-# Phase 19 — install Argo CD exactly once by hand
+# install Argo CD exactly once by hand
 
 Argo CD becomes the owner of Kubernetes configuration **after bootstrap**.
 

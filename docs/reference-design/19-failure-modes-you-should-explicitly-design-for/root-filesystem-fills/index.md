@@ -1,7 +1,3 @@
----
-order: 0
----
-
 # Root filesystem fills
 
 **Cause:**

@@ -1,8 +1,4 @@
----
-order: 41
----
-
-# Phase 41 — build01 architecture
+# build01 architecture
 
 Build node:
 

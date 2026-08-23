@@ -1,7 +1,3 @@
----
-order: 7
----
-
 # GPU integration breaks containerd/RKE2
 
 This is why GPU is a later phase.

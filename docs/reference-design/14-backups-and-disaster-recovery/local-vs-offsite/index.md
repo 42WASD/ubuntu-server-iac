@@ -1,8 +1,4 @@
----
-order: 58
----
-
-# Phase 58 — local vs offsite
+# local vs offsite
 
 Three copies concept:
 

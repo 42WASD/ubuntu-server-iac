@@ -1,8 +1,4 @@
----
-order: 18
----
-
-# Phase 18 — verify reboot recovery now, not later
+# verify reboot recovery now, not later
 
 Before installing ten add-ons:
 

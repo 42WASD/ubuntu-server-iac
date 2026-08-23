@@ -1,7 +1,3 @@
----
-order: 5
----
-
 # Argo CD deletes something unexpectedly
 
 GitOps `prune: true` is powerful.

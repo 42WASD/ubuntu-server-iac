@@ -1,8 +1,4 @@
----
-order: 33
----
-
-# Phase 33 — prove PVC lifecycle before deploying databases
+# prove PVC lifecycle before deploying databases
 
 Test:
 

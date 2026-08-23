@@ -1,8 +1,4 @@
----
-order: 66
----
-
-# Phase 66 — validate Autoinstall in a VM first
+# validate Autoinstall in a VM first
 
 Before using on `alpha`:
 

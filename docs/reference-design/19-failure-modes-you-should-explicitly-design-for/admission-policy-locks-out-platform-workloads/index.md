@@ -1,7 +1,3 @@
----
-order: 6
----
-
 # Admission policy locks out platform workloads
 
 Mitigation:

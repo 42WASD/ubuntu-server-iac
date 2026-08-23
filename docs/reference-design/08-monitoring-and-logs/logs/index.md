@@ -1,8 +1,4 @@
----
-order: 35
----
-
-# Phase 35 — logs
+# logs
 
 Deploy:
 

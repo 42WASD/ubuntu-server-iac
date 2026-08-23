@@ -1,8 +1,4 @@
----
-order: 69
----
-
-# Phase 69 — Minecraft server performance (MSPT headroom & player scale)
+# Minecraft server performance (MSPT headroom & player scale)
 
 **Intent:** capture the researched, verified path to keep a Paper/modded Minecraft
 server at 20 TPS (smooth) with **maximum MSPT headroom** — including handling a

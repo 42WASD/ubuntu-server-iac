@@ -1,8 +1,4 @@
----
-order: 0
----
-
-# Phase 0 — create the infrastructure repository first
+# create the infrastructure repository first
 
 Do this from your admin workstation or from `jyao`.
 

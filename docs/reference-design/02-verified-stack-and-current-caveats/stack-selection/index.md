@@ -1,7 +1,3 @@
----
-order: 0
----
-
 # Stack selection
 
 | Layer | Selected tool | Why |
