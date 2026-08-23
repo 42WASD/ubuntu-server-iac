@@ -35,6 +35,25 @@
 - When a task involves Python, prefer `uv` for dependency management and venv creation.
 - **MkDocs docs site:** config is at repo root (`mkdocs.yml`), sources in `docs/`. Build/serve from `projects/` using `uv run mkdocs build --strict -f ../mkdocs.yml` (or `uv run mkdocs serve -f ../mkdocs.yml`). The generated `site/` lands at the repo root.
 
+## Verification — MANDATORY before commit
+
+- **Before committing ANY change** to docs, the SSOT manifest
+  (`docs/reference-design/_sequence.yaml`), a generator, or `mkdocs.yml`, you
+  MUST run the full verification pipeline and it MUST pass:
+
+  ```bash
+  bash scripts/docs/verify.sh          # full: validate -> tests -> strict build
+  bash scripts/docs/verify.sh --stage  # skip the slow mkdocs build (fast)
+  ```
+
+  This is exactly what CI runs, so **local = CI**. A change is not "done" until
+  `verify.sh` reports **`VERIFY OK`**. Never commit, open a PR, or push if the
+  pipeline fails or was skipped.
+- The **golden test** asserts generators are idempotent: it fails if committed
+  generated output (`mkdocs.yml` nav, `docs/implementation/index.md`) doesn't
+  match what the generators produce. When you edit the manifest or a generator,
+  regenerate and **commit the regenerated output together** with the change.
+
 ## Runbook — record every command you run
 
 - **Whenever you run commands to implement, configure, verify, or change the
