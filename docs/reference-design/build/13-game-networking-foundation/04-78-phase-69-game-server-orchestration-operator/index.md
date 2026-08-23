@@ -115,7 +115,19 @@ encodes that. Reserve raw manifests for cases with no operator.
 
 ---
 
-## 6. References (researched 2026-08)
+## 6. Canonical implementation
+
+The concrete Minecraft network that realizes this phase's decision (a native
+operator for persistent worlds + Velocity proxy, delivered via Argo CD) is
+implemented in the sibling repo
+[**`42WASD/42wasd-mc`**](https://github.com/42WASD/42wasd-mc) — the game-layer
+source of truth. This page only sets platform-level policy.
+
+Future games (e.g. CS2) get their own sibling repo following the same seam.
+
+---
+
+## 7. References (researched 2026-08)
 
 - Shulker — "A Kubernetes operator for managing complex and dynamic Minecraft
   infrastructures, including game servers and proxies"

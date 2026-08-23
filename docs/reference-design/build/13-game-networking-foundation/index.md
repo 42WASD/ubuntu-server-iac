@@ -9,3 +9,18 @@
 - [Phase 55 — relay bring-up](02-64-phase-55-relay-bring-up/index.md)
 - [Phase 56 — Minecraft server performance (MSPT headroom & player scale)](03-67-phase-56-minecraft-server-performance/index.md)
 - [Phase 69 — game server orchestration: operator, not raw manifests](04-78-phase-69-game-server-orchestration-operator/index.md)
+
+---
+
+## Related repositories
+
+This part holds the platform-level game *networking foundation* (edge, relay,
+performance, orchestration policy). The concrete, canonical game-server
+implementation lives in its own repo and consumes this platform:
+
+- **Minecraft network** — [`42WASD/42wasd-mc`](https://github.com/42WASD/42wasd-mc)
+  (Velocity proxy, Paper backends, Nakama, CockroachDB, dynamic worlds). Built
+  on the RKE2/GitOps platform owned by this repo; its `infra/` carries only the
+  game-layer workloads.
+
+Future games (e.g. CS2) follow the same pattern as their own sibling repos.
