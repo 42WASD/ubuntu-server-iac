@@ -166,7 +166,6 @@ parts:
         - keep-game-workloads-in-kubernetes-for-now
         - why-game-edge-is-separate-from-cloudflare-web
         - relay-bring-up
-        - minecraft-server-performance
         - game-server-orchestration-operator
   - 14-backups-and-disaster-recovery:
       tracked: true

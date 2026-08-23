@@ -48,9 +48,10 @@ dropped (external probe times out; reachability returns the moment MASQUERADE
 is re-added).
 
 See **Phase 54** for the full decision tree and the verified solution: a
-**Minecraft proxy (Velocity)** in front of the game carries each player's real
-IP to the backend at layer 7 (player-info forwarding), so NAT on the relay does
-not matter. Running the game bound to the relay's IP as a plain process is the
-only NAT-level alternative.
+**game-aware proxy** in front of the game carries each player's real IP to the
+backend at layer 7 (player-info forwarding), so NAT on the relay does not
+matter. Running the game bound to the relay's IP as a plain process is the
+only NAT-level alternative. The concrete game proxy for the Minecraft network
+is documented in the sibling repo (`42WASD/42wasd-mc`).
 
 ---

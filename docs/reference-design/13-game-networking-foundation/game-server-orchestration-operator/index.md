@@ -3,9 +3,10 @@
 **Intent:** settle the *how* of managing many game-server instances in
 Kubernetes. Phase 53 deferred the per-game choice ("plain StatefulSet / Agones /
 operator / proxy layer / specialized controller"). This phase resolves that
-choice with researched, current answers: **use a game-native operator per game
-(e.g. Shulker for Minecraft), deliver it through Argo CD, and reserve Agones
-for ephemeral/match-based game modes.**
+choice with researched, current answers: **use a per-game controller, deliver it
+through Argo CD, and reserve Agones for ephemeral/match-based game modes.** The
+platform stays game-agnostic: each game's specific operator choice lives in that
+game's own repo.
 
 ---
 
@@ -36,68 +37,61 @@ Argo CD (outer GitOps)  ->  game operator (inner controller)  ->  Pods/State
 | GitOps delivery | **Argo CD** | Syncs manifests from Git. **No game knowledge.** | Needed, but not the manager |
 | Game-agnostic orchestration | **Agones** (Google+Ubisoft) | `GameServer`/`Fleet` CRDs, allocation API, autoscaling. Built for **session/match-based, ephemeral** servers. | Yes, **for match games** |
 | Game-agnostic K8s workload | **OpenKruiseGame** | Hot/in-place update, stateful sets with game awareness | Alternative to Agones |
-| **Minecraft-native operator** | **Shulker** | CRDs for **Minecraft servers + proxies**; world-aware lifecycle, save/shutdown | **Yes, for Minecraft** |
+| Per-game controller | **game-specific controller** | Owns the world/lifecycle semantics the game mode needs | Chosen per game, in that game's repo |
 | Generic game-server operator | **gameserver-operator** (LinuxGSM) | Declarative game servers via LinuxGSM | Alternative |
-| Container image + chart | **itzg/minecraft-server** | One server via env vars; great for a single server | Not multi-world/proxy aware |
 
 ### Agones is game-agnostic but assumes *ephemeral* servers
 Research is consistent: Agones (and OpenKruiseGame) are built for **matches** —
 a server lives minutes–hours, state lives in memory, and it scales in/out and
-is torn down. That is the *wrong* model for a **persistent Minecraft world** on a
-PVC that you want to keep. So Agones is the right engine for *ephemeral game
-modes* (a temporary PvP arena), but not for your permanent worlds.
+is torn down. That is the *wrong* model for a **persistent world** on a PVC that
+you want to keep. So Agones is the right engine for *ephemeral game modes* (a
+temporary PvP arena), but not for permanent worlds.
 
 ---
 
-## 3. Decision: game-native operator through Argo
+## 3. Decision: per-game controller through Argo
 
-For this platform, adopt the **operator** option from Phase 53's list, layered
-under Argo:
+For this platform, adopt a per-game **controller** option from Phase 53's list,
+layered under Argo:
 
-- **Argo CD** deploys and upgrades the operator itself (single GitOps app), and
-  applies the operator's **Custom Resources** from `infra/kubernetes/games/`.
-- **The game operator** (e.g. Shulker for Minecraft) owns the world/proxy
-  lifecycle: state-save-before-shutdown, world config, proxy registration,
-  rollouts — the domain knowledge Argo neither has nor should have.
+- **Argo CD** deploys and upgrades the controller itself (single GitOps app), and
+  applies its **Custom Resources / declarative config** from
+  `infra/kubernetes/games/`.
+- **The per-game controller** owns the world/proxy lifecycle: state-save-before-
+  shutdown, world config, proxy registration, rollouts — the domain knowledge
+  Argo neither has nor should have.
 
 This keeps the platform game-agnostic: Argo and the host discipline don't care
-which game; the operator carries the game's semantics. Future games just get
-their own operator delivered the same way.
+which game; the controller carries the game's semantics. Future games just get
+their own controller delivered the same way. **The concrete controller for each
+game is owned and chosen in that game's own repo** (see §6).
 
 ---
 
-## 4. Minecraft + Velocity, concretely
+## 4. Concrete per-game setups live in the game's repo
 
-The user's Minecraft setup is **persistent worlds + a Velocity proxy network**
-— exactly Shulker's target scenario ("servers and proxies").
+The platform deliberately does **not** hardcode any one game's orchestration
+detail here. A persistent-world + proxy network (whatever the game) is
+architected the same generic way, and its concrete realization is documented
+in the game's sibling repo:
 
 ```text
-                    ┌──────────────────────────────────────────────┐
-  players ── TCP ──►  Velocity proxy  (Shulker proxy CR)          │
-                    │   the one external game port                │
-                    └──────────────────┬──────────────────────────┘
-                ┌───────────────┬──────┴────────┬──────────────┐
-                ▼               ▼               ▼
-        ┌──────────────┐ ┌────────────┐  ┌────────────┐
-        │  Lobby       │ │  Survival  │  │  Minigames │   <- Shulker
-        │ MinecraftServer CRs (each backed by a PVC)   │     server CRs
-        └──────────────┘ └────────────┘  └────────────┘
+players -- TCP --> game proxy (the one external game port)
+                         |
+            +------------+------------+
+            v            v            v
+        world A       world B      world C   <- per-world controllers/State
+   (persistent PVC) (persistent)  (persistent)
 ```
 
-- **Velocity** is a first-class **proxy** resource managed by the operator
-  (Shulker supports proxies as first-class CRs), NOT a hand-rolled Deployment.
-  It sits in front of the world servers, players connect only to it.
-- **Each persistent world** is a `MinecraftServer` CR with its own persistent
-  storage (OpenEBS PVC), so worlds keep living across restarts.
-- **Agones `Fleet`/autoscaling is NOT used for persistent worlds** — it's
+- **The proxy** is the single external game port; players connect only to it.
+- **Each persistent world** keeps its own persistent storage, so worlds survive
+  restarts.
+- **Agones `Fleet`/autoscaling is NOT used for persistent worlds** — it is
   reserved for optional ephemeral match modes later.
 
-### Does the proxy sit "behind the master orchestrator"?
-Not behind — **alongside/in front at the game layer, but under Argo's umbrella.**
-Argo is the top orchestrator (manages the operator + all CRs). Inside the game
-layer, Velocity fronts the worlds. "Behind" a proxy would mean chaining
-proxies, which Velocity explicitly does **not** support — one proxy, then the
-servers.
+The exact controller, proxy, and per-world representation are decided in the
+game's repo (for the concrete Minecraft network, see §6).
 
 ---
 
@@ -105,23 +99,25 @@ servers.
 
 | Use case | Technology | Why |
 |---|---|---|
-| Persistent Minecraft worlds + Velocity | **Shulker operator** via Argo | Worlds are stateful/long-lived; operator owns save/lifecycle; proxy is first-class |
+| Persistent worlds | **Per-game controller** via Argo (chosen in the game's repo) | Worlds are stateful/long-lived; controller owns save/lifecycle |
 | Ephemeral / match-based modes (any game) | **Agones** via Argo | Correct session-lifecycle model; scale up/down |
 | Everything delivered | **Argo CD** | GitOps, reproducible, matches platform's existing GitOps pattern |
-| Single throwaway server (optional) | itzg Helm chart | Simple; not for multi-world/proxy nets |
 
-Do **not** hand-write a `StatefulSet` per world when a per-game operator already
-encodes that. Reserve raw manifests for cases with no operator.
+Do **not** hand-write a raw `StatefulSet` per world when a per-game controller
+already encodes that. Reserve raw manifests for cases with no controller.
 
 ---
 
 ## 6. Canonical implementation
 
-The concrete Minecraft network that realizes this phase's decision (a native
-operator for persistent worlds + Velocity proxy, delivered via Argo CD) is
-implemented in the sibling repo
-[**`42WASD/42wasd-mc`**](https://github.com/42WASD/42wasd-mc) — the game-layer
-source of truth. This page only sets platform-level policy.
+The concrete realization of this phase's policy for the Minecraft network — the
+per-game controller and proxy chosen for persistent worlds — lives in the
+sibling repo
+[**`42WASD/42wasd-mc`**](https://github.com/42WASD/42wasd-mc), the game-layer
+source of truth. That repo owns its controller/lifecycle decision (its "World
+Controller" and StatefulSet+PVC model), which may legitimately differ from an
+off-the-shelf operator if the project chose to build its own. This page only
+sets platform-level policy.
 
 Future games (e.g. CS2) get their own sibling repo following the same seam.
 
@@ -129,16 +125,14 @@ Future games (e.g. CS2) get their own sibling repo following the same seam.
 
 ## 7. References (researched 2026-08)
 
-- Shulker — "A Kubernetes operator for managing complex and dynamic Minecraft
-  infrastructures, including game servers and proxies"
-  `github.com/jeremylvln/Shulker` (uses `itzg/docker-minecraft-server`
-  and `docker-bungeecord` under the hood)
 - Agones — "Host, Run and Scale dedicated game servers on Kubernetes"
   (Google + Ubisoft; `GameServer`/`Fleet` CRDs, allocation API)
 - OpenKruiseGame — CNCF game workload (hot/in-place update, stateful)
 - gameserver-operator (LinuxGSM) — declarative game servers
-- Google "Enterprise Grade Minecraft on Kubernetes" (Casey West): state lives
-  on disk → treat as stateful; use a chart (itzg) and backup tooling.
+- Google "Enterprise Game Servers on Kubernetes" (Casey West): state lives on
+  disk → treat as stateful; use a chart and backup tooling.
 
 > Note: names/versions verified via web search on the date above; verify the
-> operator's maintenance status and CRD shape before adopting.
+> controller's maintenance status and CRD shape before adopting. Per-game
+> controller choice (e.g. an off-the-shelf operator vs a custom controller) is
+> decided in each game's sibling repo, not here.

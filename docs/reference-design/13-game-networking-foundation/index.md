@@ -7,7 +7,6 @@
 - [keep game workloads in Kubernetes for now](keep-game-workloads-in-kubernetes-for-now/index.md)
 - [why game edge is separate from Cloudflare web](why-game-edge-is-separate-from-cloudflare-web/index.md)
 - [relay bring-up](relay-bring-up/index.md)
-- [Minecraft server performance (MSPT headroom & player scale)](minecraft-server-performance/index.md)
 - [game server orchestration: operator, not raw manifests](game-server-orchestration-operator/index.md)
 
 ---

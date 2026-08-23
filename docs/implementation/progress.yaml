@@ -64,7 +64,6 @@
 13-game-networking-foundation/keep-game-workloads-in-kubernetes-for-now: done
 13-game-networking-foundation/why-game-edge-is-separate-from-cloudflare-web: done
 13-game-networking-foundation/relay-bring-up: done
-13-game-networking-foundation/minecraft-server-performance: done
 13-game-networking-foundation/game-server-orchestration-operator: done
 17-opentofu-for-external-infrastructure/what-opentofu-should-own: done
 17-opentofu-for-external-infrastructure/state-is-sensitive: done

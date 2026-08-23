@@ -40,13 +40,13 @@ edit/correct).
 
 ## Overall progress
 
-**62 / 94** phases/sections complete (**66%**).
+**61 / 93** phases/sections complete (**66%**).
 
-<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:66.0%"></div></div><div class="progress-pct">66%</div></div>
+<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:65.6%"></div></div><div class="progress-pct">66%</div></div>
 
 | Status | Count |
 |--------|-------|
-| ✅ done | 62 |
+| ✅ done | 61 |
 | 🔶 in-progress | 0 |
 | ⬜ not-started | 29 |
 | ❌ blocked | 1 |
@@ -4285,11 +4285,10 @@ blocked on this network and `--protocol http2` forces the TCP/443 path.
 
 ### 100% — Part XIII — Game networking foundation
 
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:100.0%"></div></div><div class="progress-pct" style="font-size:.85em;">100%</div><div class="tip-box"><strong>Done (5)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:100.0%"></div></div><div class="progress-pct" style="font-size:.85em;">100%</div><div class="tip-box"><strong>Done (4)</strong>
 • keep game workloads in Kubernetes for now
 • why game edge is separate from Cloudflare web
 • relay bring-up
-• Minecraft server performance (MSPT headroom & player scale)
 • game server orchestration: operator, not raw manifests
 <hr style="opacity:.3;margin:6px 0;"><strong>Pending (0)</strong>
 —</div></div>
@@ -4663,8 +4662,7 @@ Reference-design Phase 54/55 updated to reflect this verified solution.
 
 </details>
 
-- ✅ `done` — [Phase 56 — Minecraft server performance (MSPT headroom & player scale)](../reference-design/13-game-networking-foundation/minecraft-server-performance/index.md)
-- ✅ `done` — [Phase 57 — game server orchestration: operator, not raw manifests](../reference-design/13-game-networking-foundation/game-server-orchestration-operator/index.md)
+- ✅ `done` — [Phase 56 — game server orchestration: operator, not raw manifests](../reference-design/13-game-networking-foundation/game-server-orchestration-operator/index.md)
 
 ### 0% — Part XIV — Backups and disaster recovery
 
@@ -4676,10 +4674,10 @@ Reference-design Phase 54/55 updated to reflect this verified solution.
 • local vs offsite
 • restore tests</div></div>
 
-- ⬜ `not-started` — [Phase 58 — RKE2 etcd snapshots](../reference-design/14-backups-and-disaster-recovery/rke2-etcd-snapshots/index.md)
-- ⬜ `not-started` — [Phase 59 — what must be backed up](../reference-design/14-backups-and-disaster-recovery/what-must-be-backed-up/index.md)
-- ⬜ `not-started` — [Phase 60 — local vs offsite](../reference-design/14-backups-and-disaster-recovery/local-vs-offsite/index.md)
-- ⬜ `not-started` — [Phase 61 — restore tests](../reference-design/14-backups-and-disaster-recovery/restore-tests/index.md)
+- ⬜ `not-started` — [Phase 57 — RKE2 etcd snapshots](../reference-design/14-backups-and-disaster-recovery/rke2-etcd-snapshots/index.md)
+- ⬜ `not-started` — [Phase 58 — what must be backed up](../reference-design/14-backups-and-disaster-recovery/what-must-be-backed-up/index.md)
+- ⬜ `not-started` — [Phase 59 — local vs offsite](../reference-design/14-backups-and-disaster-recovery/local-vs-offsite/index.md)
+- ⬜ `not-started` — [Phase 60 — restore tests](../reference-design/14-backups-and-disaster-recovery/restore-tests/index.md)
 
 ### 0% — Part XV — Consolidate and enforce the Ansible source of truth
 
@@ -4691,10 +4689,10 @@ Reference-design Phase 54/55 updated to reflect this verified solution.
 • role ownership
 • Ansible must be idempotent</div></div>
 
-- ⬜ `not-started` — [Phase 62 — Ansible control environment](../reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/ansible-control-environment/index.md)
-- ⬜ `not-started` — [Phase 63 — inventory](../reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/inventory/index.md)
-- ⬜ `not-started` — [Phase 64 — role ownership](../reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/role-ownership/index.md)
-- ⬜ `not-started` — [Phase 65 — Ansible must be idempotent](../reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/ansible-must-be-idempotent/index.md)
+- ⬜ `not-started` — [Phase 61 — Ansible control environment](../reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/ansible-control-environment/index.md)
+- ⬜ `not-started` — [Phase 62 — inventory](../reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/inventory/index.md)
+- ⬜ `not-started` — [Phase 63 — role ownership](../reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/role-ownership/index.md)
+- ⬜ `not-started` — [Phase 64 — Ansible must be idempotent](../reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/ansible-must-be-idempotent/index.md)
 
 ### 0% — Part XVI — Ubuntu Autoinstall
 
@@ -4705,9 +4703,9 @@ Reference-design Phase 54/55 updated to reflect this verified solution.
 • minimal safe autoinstall skeleton
 • validate Autoinstall in a VM first</div></div>
 
-- ⬜ `not-started` — [Phase 66 — use Autoinstall for future clean rebuilds](../reference-design/16-ubuntu-autoinstall/use-autoinstall-for-future-clean-rebuilds/index.md)
-- ⬜ `not-started` — [Phase 67 — minimal safe autoinstall skeleton](../reference-design/16-ubuntu-autoinstall/minimal-safe-autoinstall-skeleton/index.md)
-- ⬜ `not-started` — [Phase 68 — validate Autoinstall in a VM first](../reference-design/16-ubuntu-autoinstall/validate-autoinstall-in-a-vm-first/index.md)
+- ⬜ `not-started` — [Phase 65 — use Autoinstall for future clean rebuilds](../reference-design/16-ubuntu-autoinstall/use-autoinstall-for-future-clean-rebuilds/index.md)
+- ⬜ `not-started` — [Phase 66 — minimal safe autoinstall skeleton](../reference-design/16-ubuntu-autoinstall/minimal-safe-autoinstall-skeleton/index.md)
+- ⬜ `not-started` — [Phase 67 — validate Autoinstall in a VM first](../reference-design/16-ubuntu-autoinstall/validate-autoinstall-in-a-vm-first/index.md)
 
 ### 100% — Part XVII — OpenTofu for external infrastructure
 
@@ -4717,7 +4715,7 @@ Reference-design Phase 54/55 updated to reflect this verified solution.
 <hr style="opacity:.3;margin:6px 0;"><strong>Pending (0)</strong>
 —</div></div>
 
-- ✅ `done` — [Phase 69 — what OpenTofu should own](../reference-design/17-opentofu-for-external-infrastructure/what-opentofu-should-own/index.md)
+- ✅ `done` — [Phase 68 — what OpenTofu should own](../reference-design/17-opentofu-for-external-infrastructure/what-opentofu-should-own/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — what OpenTofu should own</summary>
@@ -4870,7 +4868,7 @@ vps/terraform.tfstate          2201 bytes
 
 </details>
 
-- ✅ `done` — [Phase 70 — state is sensitive](../reference-design/17-opentofu-for-external-infrastructure/state-is-sensitive/index.md)
+- ✅ `done` — [Phase 69 — state is sensitive](../reference-design/17-opentofu-for-external-infrastructure/state-is-sensitive/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — state is sensitive</summary>

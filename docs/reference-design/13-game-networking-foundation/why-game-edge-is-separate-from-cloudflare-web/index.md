@@ -73,26 +73,26 @@ timed out; re-adding the VPS MASQUERADE immediately restored reachability.
 Preserving the real player IP **end-to-end into a Kubernetes pod behind a
 relay is not achievable with pure L3/L4 NAT** through this topology, because
 conntrack NAT is symmetric and the pod does not source replies from the tunnel
-address. The **proper solution is a Minecraft proxy** that carries the real
+address. The **proper solution is a game-layer proxy** that carries the real
 player IP at layer 7, where NAT does not matter.
 
-#### Recommended architecture: a Minecraft proxy (Velocity) in front of the game
+#### Recommended architecture: a game-aware proxy in front of the backend
 
-Put a **Velocity** (or BungeeCord) proxy in the relay path. The proxy connects
-to the public-facing relay port; the real game server is a backend only the
-proxy can reach. Velocity's **player-info forwarding** re-injects each player's
+Put a **game-aware proxy** in the relay path. The proxy connects to the
+public-facing relay port; the real game server is a backend only the proxy can
+reach. The proxy's **player-info forwarding** re-injects each player's
 **real source IP** to the backend in the (signed) handshake — independent of
 the NAT the relay does on the wire.
 
 ```text
 Internet player
    |
-   | TCP 25565/30079
+   | TCP <external game port>
    v
 UAE VPS 89.36.162.171  --DNAT+MASQUERADE-->  alpha wg0
    |                                             |
    |    NodePort (proxy)                         v
-   |   Velocity proxy pod  (it read the player's real IP from the wire)
+   |   game proxy pod  (it read the player's real IP from the wire)
    |     |  player-info-forwarding (signed handshake)
    |     v
    |   game backend pod  <-- sees the REAL player IP (from forwarding)
@@ -100,28 +100,13 @@ UAE VPS 89.36.162.171  --DNAT+MASQUERADE-->  alpha wg0
   done
 ```
 
-Key verified mechanics (from Velocity/PaperMC docs and itzg images):
-
-- The **proxy** (`itzg/bungeecord:java17` with `TYPE=VELOCITY`) is what
-  accepts the player-facing connection. It sees the client's real source IP on
-  the wire when it talks to the relay, because the relay MASQUERADE hides it —
-  **but the proxy can still relay that socket's peer address** into the
-  forwarding handshake it sends to the backend. NAT between the player and the
-  proxy does not matter for player-IP preservation.
-- **Backend** (the actual game, `itzg/minecraft-server` with `TYPE=PAPER`)
-  runs with `ONLINE_MODE=false` in `server.properties` — the proxy does all
-  authentication/verification.
-- **Forwarding config** must match exactly on both sides:
-  - proxy `velocity.toml`: `player-info-forwarding-mode = "modern"` and a
-    shared `forwarding-secret`.
-  - backend `paper-global.yml`: `proxies.velocity.enabled=true`,
-    `proxies.velocity.online-mode=true`, matching `secret`, and
-    `proxies.velocity.forwarding-mode=modern`.
-- The backend then logs and sees **each player's real public IP** (not the
-  proxy's IP and not `10.200.0.1`), because modern forwarding carries it
-  cryptographically.
-- The proxy itself runs inside the cluster as a pod (e.g. `itzg/bungeecord`),
-  exposed via the NodePort / relay instead of the game directly.
+**The concrete proxy and its exact forwarding config are game-specific.** For
+the Minecraft network this is a Velocity proxy with modern player-info
+forwarding — documented in the sibling repo
+[**`42WASD/42wasd-mc`**](https://github.com/42WASD/42wasd-mc). The generic rule
+that belongs to this platform: when the pod needs the real player IP and L3/L4
+NAT can't deliver it, terminate the game connection at a proxy that re-injects
+the peer address into a L7 handshake the backend trusts.
 
 This is the correct architecture when game admins need player IPs (ban/geo/
 log). For a throwaway demo, the relay keeps **MASQUERADE** and the pod sees

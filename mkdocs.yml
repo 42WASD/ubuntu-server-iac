@@ -199,29 +199,28 @@ nav:
     - Phase 53 — keep game workloads in Kubernetes for now: reference-design/13-game-networking-foundation/keep-game-workloads-in-kubernetes-for-now/index.md
     - Phase 54 — why game edge is separate from Cloudflare web: reference-design/13-game-networking-foundation/why-game-edge-is-separate-from-cloudflare-web/index.md
     - Phase 55 — relay bring-up: reference-design/13-game-networking-foundation/relay-bring-up/index.md
-    - Phase 56 — Minecraft server performance (MSPT headroom & player scale): reference-design/13-game-networking-foundation/minecraft-server-performance/index.md
-    - "Phase 57 — game server orchestration: operator, not raw manifests": reference-design/13-game-networking-foundation/game-server-orchestration-operator/index.md
+    - "Phase 56 — game server orchestration: operator, not raw manifests": reference-design/13-game-networking-foundation/game-server-orchestration-operator/index.md
   - XIV — Backups and disaster recovery:
     - Overview: reference-design/14-backups-and-disaster-recovery/index.md
-    - Phase 58 — RKE2 etcd snapshots: reference-design/14-backups-and-disaster-recovery/rke2-etcd-snapshots/index.md
-    - Phase 59 — what must be backed up: reference-design/14-backups-and-disaster-recovery/what-must-be-backed-up/index.md
-    - Phase 60 — local vs offsite: reference-design/14-backups-and-disaster-recovery/local-vs-offsite/index.md
-    - Phase 61 — restore tests: reference-design/14-backups-and-disaster-recovery/restore-tests/index.md
+    - Phase 57 — RKE2 etcd snapshots: reference-design/14-backups-and-disaster-recovery/rke2-etcd-snapshots/index.md
+    - Phase 58 — what must be backed up: reference-design/14-backups-and-disaster-recovery/what-must-be-backed-up/index.md
+    - Phase 59 — local vs offsite: reference-design/14-backups-and-disaster-recovery/local-vs-offsite/index.md
+    - Phase 60 — restore tests: reference-design/14-backups-and-disaster-recovery/restore-tests/index.md
   - XV — Consolidate and enforce the Ansible source of truth:
     - Overview: reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/index.md
-    - Phase 62 — Ansible control environment: reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/ansible-control-environment/index.md
-    - Phase 63 — inventory: reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/inventory/index.md
-    - Phase 64 — role ownership: reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/role-ownership/index.md
-    - Phase 65 — Ansible must be idempotent: reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/ansible-must-be-idempotent/index.md
+    - Phase 61 — Ansible control environment: reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/ansible-control-environment/index.md
+    - Phase 62 — inventory: reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/inventory/index.md
+    - Phase 63 — role ownership: reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/role-ownership/index.md
+    - Phase 64 — Ansible must be idempotent: reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/ansible-must-be-idempotent/index.md
   - XVI — Ubuntu Autoinstall:
     - Overview: reference-design/16-ubuntu-autoinstall/index.md
-    - Phase 66 — use Autoinstall for future clean rebuilds: reference-design/16-ubuntu-autoinstall/use-autoinstall-for-future-clean-rebuilds/index.md
-    - Phase 67 — minimal safe autoinstall skeleton: reference-design/16-ubuntu-autoinstall/minimal-safe-autoinstall-skeleton/index.md
-    - Phase 68 — validate Autoinstall in a VM first: reference-design/16-ubuntu-autoinstall/validate-autoinstall-in-a-vm-first/index.md
+    - Phase 65 — use Autoinstall for future clean rebuilds: reference-design/16-ubuntu-autoinstall/use-autoinstall-for-future-clean-rebuilds/index.md
+    - Phase 66 — minimal safe autoinstall skeleton: reference-design/16-ubuntu-autoinstall/minimal-safe-autoinstall-skeleton/index.md
+    - Phase 67 — validate Autoinstall in a VM first: reference-design/16-ubuntu-autoinstall/validate-autoinstall-in-a-vm-first/index.md
   - XVII — OpenTofu for external infrastructure:
     - Overview: reference-design/17-opentofu-for-external-infrastructure/index.md
-    - Phase 69 — what OpenTofu should own: reference-design/17-opentofu-for-external-infrastructure/what-opentofu-should-own/index.md
-    - Phase 70 — state is sensitive: reference-design/17-opentofu-for-external-infrastructure/state-is-sensitive/index.md
+    - Phase 68 — what OpenTofu should own: reference-design/17-opentofu-for-external-infrastructure/what-opentofu-should-own/index.md
+    - Phase 69 — state is sensitive: reference-design/17-opentofu-for-external-infrastructure/state-is-sensitive/index.md
   - XVIII — Day-2 operations:
     - Overview: reference-design/18-day-2-operations/index.md
     - Upgrade order: reference-design/18-day-2-operations/upgrade-order/index.md
