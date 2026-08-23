@@ -1,5 +1,6 @@
 ---
 order: 17
+tracked: true
 ---
 
 # Part XVII — OpenTofu for external infrastructure

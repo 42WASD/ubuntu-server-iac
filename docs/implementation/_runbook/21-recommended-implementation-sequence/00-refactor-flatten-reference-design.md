@@ -36,3 +36,27 @@ uv run mkdocs build --strict -f ../mkdocs.yml
 
 **Verified:** `mkdocs build --strict` passes with no warnings; the implementation
 progress page lists all 25 parts in linear I→XXV order.
+
+---
+
+## Follow-up: restore "actionable parts only" on the Implementation page
+
+The flatten refactor made `docs-generate-implementation.py` scan all of
+`docs/reference-design/`, which wrongly dragged pure conceptual/reference parts
+(01, 02, 18–25) onto the Implementation progress page as "phases to complete"
+(62/172 = 36% — diluted by non-actionable docs).
+
+**Fix:** added a `tracked: true` frontmatter flag to the 15 actionable parts
+(03–17, the former `build/` group) and made the generator's `scan_reference()`
+return only `tracked()` parts.
+
+**Commands run:**
+```bash
+# Add tracked:true to parts 03-17 (sed, one per part index.md)
+python3 scripts/docs/docs-generate-implementation.py
+cd projects && uv run mkdocs build --strict -f ../mkdocs.yml
+```
+
+**Verified:** generator now reports `15 parts, 71 sections`; the page lists only
+Parts III–XVII and the summary reads a truthful **62 / 94 (66%)** complete;
+`mkdocs build --strict` passes with no warnings.

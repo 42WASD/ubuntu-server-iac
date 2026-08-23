@@ -1,5 +1,6 @@
 ---
 order: 16
+tracked: true
 ---
 
 # Part XVI — Ubuntu Autoinstall

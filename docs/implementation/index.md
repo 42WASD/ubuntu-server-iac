@@ -40,61 +40,19 @@ edit/correct).
 
 ## Overall progress
 
-**62 / 172** phases/sections complete (**36%**).
+**62 / 94** phases/sections complete (**66%**).
 
-<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:36.0%"></div></div><div class="progress-pct">36%</div></div>
+<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:66.0%"></div></div><div class="progress-pct">66%</div></div>
 
 | Status | Count |
 |--------|-------|
 | ✅ done | 62 |
 | 🔶 in-progress | 0 |
-| ⬜ not-started | 107 |
+| ⬜ not-started | 29 |
 | ❌ blocked | 1 |
 | ⏸️ deferred | 2 |
 
 ## Progress by part
-
-### 0% — Part I — Understand the platform before installing anything
-
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
-—
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (11)</strong>
-• The one-sentence idea
-• The target architecture
-• The trust model
-• What each developer is allowed to do
-• Five control planes, not one
-• Build control plane
-• External edge control plane
-• Linux control plane
-• Tenant application control plane
-• Kubernetes platform control plane
-• Why this guide is phased</div></div>
-
-- ⬜ `not-started` — [The one-sentence idea](../reference-design/01-understand-the-platform-before-installing-anything/the-one-sentence-idea/index.md)
-- ⬜ `not-started` — [The target architecture](../reference-design/01-understand-the-platform-before-installing-anything/the-target-architecture/index.md)
-- ⬜ `not-started` — [The trust model](../reference-design/01-understand-the-platform-before-installing-anything/the-trust-model/index.md)
-- ⬜ `not-started` — [What each developer is allowed to do](../reference-design/01-understand-the-platform-before-installing-anything/what-each-developer-is-allowed-to-do/index.md)
-- ⬜ `not-started` — [Five control planes, not one](../reference-design/01-understand-the-platform-before-installing-anything/five-control-planes-not-one/index.md)
-  - ⬜ `not-started` — [Build control plane](../reference-design/01-understand-the-platform-before-installing-anything/five-control-planes-not-one/build-control-plane/index.md)
-  - ⬜ `not-started` — [External edge control plane](../reference-design/01-understand-the-platform-before-installing-anything/five-control-planes-not-one/external-edge-control-plane/index.md)
-  - ⬜ `not-started` — [Linux control plane](../reference-design/01-understand-the-platform-before-installing-anything/five-control-planes-not-one/linux-control-plane/index.md)
-  - ⬜ `not-started` — [Tenant application control plane](../reference-design/01-understand-the-platform-before-installing-anything/five-control-planes-not-one/tenant-application-control-plane/index.md)
-  - ⬜ `not-started` — [Kubernetes platform control plane](../reference-design/01-understand-the-platform-before-installing-anything/five-control-planes-not-one/kubernetes-platform-control-plane/index.md)
-- ⬜ `not-started` — [Why this guide is phased](../reference-design/01-understand-the-platform-before-installing-anything/why-this-guide-is-phased/index.md)
-
-### 0% — Part II — Verified stack and current caveats
-
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
-—
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (3)</strong>
-• Stack selection
-• Current verification caveats — read before installing
-• Version policy</div></div>
-
-- ⬜ `not-started` — [Stack selection](../reference-design/02-verified-stack-and-current-caveats/stack-selection/index.md)
-- ⬜ `not-started` — [Current verification caveats — read before installing](../reference-design/02-verified-stack-and-current-caveats/current-verification-caveats-read-before-installing/index.md)
-- ⬜ `not-started` — [Version policy](../reference-design/02-verified-stack-and-current-caveats/version-policy/index.md)
 
 ### 90% — Part III — Build the host
 
@@ -4975,191 +4933,5 @@ Result: only `terraform.tfvars.example` files are committed; the real
   checks above.
 
 </details>
-
-
-### 0% — Part XVIII — Day-2 operations
-
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
-—
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (7)</strong>
-• Upgrade order
-• RKE2 upgrade checklist
-• Host kernel/NVIDIA update checklist
-• Disk-pressure runbook
-• Memory-pressure runbook
-• CPU-pressure runbook
-• Network-debugging layers</div></div>
-
-- ⬜ `not-started` — [Upgrade order](../reference-design/18-day-2-operations/upgrade-order/index.md)
-- ⬜ `not-started` — [RKE2 upgrade checklist](../reference-design/18-day-2-operations/rke2-upgrade-checklist/index.md)
-- ⬜ `not-started` — [Host kernel/NVIDIA update checklist](../reference-design/18-day-2-operations/host-kernel-nvidia-update-checklist/index.md)
-- ⬜ `not-started` — [Disk-pressure runbook](../reference-design/18-day-2-operations/disk-pressure-runbook/index.md)
-- ⬜ `not-started` — [Memory-pressure runbook](../reference-design/18-day-2-operations/memory-pressure-runbook/index.md)
-- ⬜ `not-started` — [CPU-pressure runbook](../reference-design/18-day-2-operations/cpu-pressure-runbook/index.md)
-- ⬜ `not-started` — [Network-debugging layers](../reference-design/18-day-2-operations/network-debugging-layers/index.md)
-
-### 0% — Part XIX — Failure modes you should explicitly design for
-
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
-—
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (9)</strong>
-• Root filesystem fills
-• Developer gets compromised
-• Developer has kubectl and tries privilege escalation
-• CI runner is compromised
-• Cilium breaks after upgrade
-• Argo CD deletes something unexpectedly
-• Admission policy locks out platform workloads
-• GPU integration breaks containerd/RKE2
-• Single server dies</div></div>
-
-- ⬜ `not-started` — [Root filesystem fills](../reference-design/19-failure-modes-you-should-explicitly-design-for/root-filesystem-fills/index.md)
-- ⬜ `not-started` — [Developer gets compromised](../reference-design/19-failure-modes-you-should-explicitly-design-for/developer-gets-compromised/index.md)
-- ⬜ `not-started` — [Developer has kubectl and tries privilege escalation](../reference-design/19-failure-modes-you-should-explicitly-design-for/developer-has-kubectl-and-tries-privilege-escalation/index.md)
-- ⬜ `not-started` — [CI runner is compromised](../reference-design/19-failure-modes-you-should-explicitly-design-for/ci-runner-is-compromised/index.md)
-- ⬜ `not-started` — [Cilium breaks after upgrade](../reference-design/19-failure-modes-you-should-explicitly-design-for/cilium-breaks-after-upgrade/index.md)
-- ⬜ `not-started` — [Argo CD deletes something unexpectedly](../reference-design/19-failure-modes-you-should-explicitly-design-for/argo-cd-deletes-something-unexpectedly/index.md)
-- ⬜ `not-started` — [Admission policy locks out platform workloads](../reference-design/19-failure-modes-you-should-explicitly-design-for/admission-policy-locks-out-platform-workloads/index.md)
-- ⬜ `not-started` — [GPU integration breaks containerd/RKE2](../reference-design/19-failure-modes-you-should-explicitly-design-for/gpu-integration-breaks-containerd-rke2/index.md)
-- ⬜ `not-started` — [Single server dies](../reference-design/19-failure-modes-you-should-explicitly-design-for/single-server-dies/index.md)
-
-### 0% — Part XX — Observability: how you know the platform works
-
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
-—
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (5)</strong>
-• Host SLO-style checks
-• Kubernetes checks
-• Tenant checks
-• Build checks
-• External-edge checks</div></div>
-
-- ⬜ `not-started` — [Host SLO-style checks](../reference-design/20-observability-how-you-know-the-platform-works/host-slo-style-checks/index.md)
-- ⬜ `not-started` — [Kubernetes checks](../reference-design/20-observability-how-you-know-the-platform-works/kubernetes-checks/index.md)
-- ⬜ `not-started` — [Tenant checks](../reference-design/20-observability-how-you-know-the-platform-works/tenant-checks/index.md)
-- ⬜ `not-started` — [Build checks](../reference-design/20-observability-how-you-know-the-platform-works/build-checks/index.md)
-- ⬜ `not-started` — [External-edge checks](../reference-design/20-observability-how-you-know-the-platform-works/external-edge-checks/index.md)
-
-### 0% — Part XXI — Recommended implementation sequence
-
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
-—
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (9)</strong>
-• Phase A — host foundation
-• Phase B — Kubernetes foundation
-• Phase C — GitOps + tenancy
-• Phase D — policy + storage
-• Phase E — platform services
-• Phase F — developer workflow
-• Phase G — external exposure
-• Phase H — GPU
-• Phase I — reproducibility</div></div>
-
-- ⬜ `not-started` — [Phase A — host foundation](../reference-design/21-recommended-implementation-sequence/phase-a-host-foundation/index.md)
-- ⬜ `not-started` — [Phase B — Kubernetes foundation](../reference-design/21-recommended-implementation-sequence/phase-b-kubernetes-foundation/index.md)
-- ⬜ `not-started` — [Phase C — GitOps + tenancy](../reference-design/21-recommended-implementation-sequence/phase-c-gitops-tenancy/index.md)
-- ⬜ `not-started` — [Phase D — policy + storage](../reference-design/21-recommended-implementation-sequence/phase-d-policy-storage/index.md)
-- ⬜ `not-started` — [Phase E — platform services](../reference-design/21-recommended-implementation-sequence/phase-e-platform-services/index.md)
-- ⬜ `not-started` — [Phase F — developer workflow](../reference-design/21-recommended-implementation-sequence/phase-f-developer-workflow/index.md)
-- ⬜ `not-started` — [Phase G — external exposure](../reference-design/21-recommended-implementation-sequence/phase-g-external-exposure/index.md)
-- ⬜ `not-started` — [Phase H — GPU](../reference-design/21-recommended-implementation-sequence/phase-h-gpu/index.md)
-- ⬜ `not-started` — [Phase I — reproducibility](../reference-design/21-recommended-implementation-sequence/phase-i-reproducibility/index.md)
-
-### 0% — Part XXII — Plain-English glossary
-
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
-—
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (25)</strong>
-• RKE2
-• CNI
-• Cilium
-• Traefik
-• Gateway API
-• GitOps
-• Argo CD
-• ResourceQuota
-• LimitRange
-• Pod Security Admission
-• Kyverno
-• LocalPV
-• OpenEBS LocalPV LVM
-• Harbor
-• BuildKit
-• Buildx
-• Skaffold
-• LXD system container
-• KVM VM
-• Tailscale
-• Cloudflare Tunnel
-• WireGuard relay
-• OpenTofu
-• Idempotent
-• Reconciliation</div></div>
-
-- ⬜ `not-started` — [RKE2](../reference-design/22-plain-english-glossary/rke2/index.md)
-- ⬜ `not-started` — [CNI](../reference-design/22-plain-english-glossary/cni/index.md)
-- ⬜ `not-started` — [Cilium](../reference-design/22-plain-english-glossary/cilium/index.md)
-- ⬜ `not-started` — [Traefik](../reference-design/22-plain-english-glossary/traefik/index.md)
-- ⬜ `not-started` — [Gateway API](../reference-design/22-plain-english-glossary/gateway-api/index.md)
-- ⬜ `not-started` — [GitOps](../reference-design/22-plain-english-glossary/gitops/index.md)
-- ⬜ `not-started` — [Argo CD](../reference-design/22-plain-english-glossary/argo-cd/index.md)
-- ⬜ `not-started` — [ResourceQuota](../reference-design/22-plain-english-glossary/resourcequota/index.md)
-- ⬜ `not-started` — [LimitRange](../reference-design/22-plain-english-glossary/limitrange/index.md)
-- ⬜ `not-started` — [Pod Security Admission](../reference-design/22-plain-english-glossary/pod-security-admission/index.md)
-- ⬜ `not-started` — [Kyverno](../reference-design/22-plain-english-glossary/kyverno/index.md)
-- ⬜ `not-started` — [LocalPV](../reference-design/22-plain-english-glossary/localpv/index.md)
-- ⬜ `not-started` — [OpenEBS LocalPV LVM](../reference-design/22-plain-english-glossary/openebs-localpv-lvm/index.md)
-- ⬜ `not-started` — [Harbor](../reference-design/22-plain-english-glossary/harbor/index.md)
-- ⬜ `not-started` — [BuildKit](../reference-design/22-plain-english-glossary/buildkit/index.md)
-- ⬜ `not-started` — [Buildx](../reference-design/22-plain-english-glossary/buildx/index.md)
-- ⬜ `not-started` — [Skaffold](../reference-design/22-plain-english-glossary/skaffold/index.md)
-- ⬜ `not-started` — [LXD system container](../reference-design/22-plain-english-glossary/lxd-system-container/index.md)
-- ⬜ `not-started` — [KVM VM](../reference-design/22-plain-english-glossary/kvm-vm/index.md)
-- ⬜ `not-started` — [Tailscale](../reference-design/22-plain-english-glossary/tailscale/index.md)
-- ⬜ `not-started` — [Cloudflare Tunnel](../reference-design/22-plain-english-glossary/cloudflare-tunnel/index.md)
-- ⬜ `not-started` — [WireGuard relay](../reference-design/22-plain-english-glossary/wireguard-relay/index.md)
-- ⬜ `not-started` — [OpenTofu](../reference-design/22-plain-english-glossary/opentofu/index.md)
-- ⬜ `not-started` — [Idempotent](../reference-design/22-plain-english-glossary/idempotent/index.md)
-- ⬜ `not-started` — [Reconciliation](../reference-design/22-plain-english-glossary/reconciliation/index.md)
-
-### 0% — Part XXIII — Compact technical reference
-
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
-—
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (9)</strong>
-• Host ownership matrix
-• Namespace reference
-• Initial quota reference
-• Host developer-limit reference
-• Network exposure reference
-• Storage reference
-• Secret rules
-• "Bad idea" reference
-• First real application acceptance test</div></div>
-
-- ⬜ `not-started` — [Host ownership matrix](../reference-design/23-compact-technical-reference/host-ownership-matrix/index.md)
-- ⬜ `not-started` — [Namespace reference](../reference-design/23-compact-technical-reference/namespace-reference/index.md)
-- ⬜ `not-started` — [Initial quota reference](../reference-design/23-compact-technical-reference/initial-quota-reference/index.md)
-- ⬜ `not-started` — [Host developer-limit reference](../reference-design/23-compact-technical-reference/host-developer-limit-reference/index.md)
-- ⬜ `not-started` — [Network exposure reference](../reference-design/23-compact-technical-reference/network-exposure-reference/index.md)
-- ⬜ `not-started` — [Storage reference](../reference-design/23-compact-technical-reference/storage-reference/index.md)
-- ⬜ `not-started` — [Secret rules](../reference-design/23-compact-technical-reference/secret-rules/index.md)
-- ⬜ `not-started` — ["Bad idea" reference](../reference-design/23-compact-technical-reference/bad-idea-reference/index.md)
-- ⬜ `not-started` — [First real application acceptance test](../reference-design/23-compact-technical-reference/first-real-application-acceptance-test/index.md)
-
-### 0% — Part XXIV — Current verification references
-
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
-—
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (0)</strong>
-—</div></div>
-
-
-### 0% — Part XXV — Final build order
-
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
-—
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (0)</strong>
-—</div></div>
 
 <!-- END_GENERATED_IMPLEMENTATION -->

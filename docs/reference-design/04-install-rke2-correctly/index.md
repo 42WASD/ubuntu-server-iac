@@ -1,5 +1,6 @@
 ---
 order: 4
+tracked: true
 ---
 
 # Part IV — Install RKE2 correctly

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Generate the implementation progress page from reference design + progress.yaml.
 
-Scans docs/reference-design/ (the actionable build phases) and
-docs/implementation/progress.yaml (the implementation status source of truth),
-then writes the progress chart + table into docs/implementation/index.md between
-the generated markers.
+Scans docs/reference-design/ for parts marked `tracked: true` (the actionable
+build phases) and docs/implementation/progress.yaml (the implementation status
+source of truth), then writes the progress chart + table into
+docs/implementation/index.md between the generated markers.
 
 Run:
     python3 scripts/docs/docs-generate-implementation.py
@@ -63,6 +63,22 @@ def order_key(dir_path: Path) -> float:
     return frontmatter_order(dir_path / "index.md")
 
 
+def tracked(dir_path: Path) -> bool:
+    """Return whether a part is tracked for implementation progress.
+
+    A part is tracked only if it carries `tracked: true` in its frontmatter.
+    Parts that are conceptual/reference (background, failure modes, glossary,
+    compact reference, etc.) are intentionally *not* tracked — they describe or
+    justify the platform rather than being an actionable build phase.
+    """
+    text = (dir_path / "index.md").read_text()
+    m = re.search(r"^---\n(.*?)\n---", text, flags=re.S)
+    if m:
+        m2 = re.search(r"(?m)^tracked:\s*(true|yes)\s*$", m.group(1))
+        return m2 is not None
+    return False
+
+
 def scan_sections(parent: Path) -> list[dict]:
     """Return [{slug, title, subsections:[...]}] for each dir holding index.md.
 
@@ -82,10 +98,17 @@ def scan_sections(parent: Path) -> list[dict]:
 
 
 def scan_reference() -> list[dict]:
-    """Return parts: [{slug, title, sections:[{slug,title,subsections:[...]}]}]."""
+    """Return parts: [{slug, title, sections:[{slug,title,subsections:[...]}]}].
+
+    Only *tracked* parts (frontmatter `tracked: true`) are returned. Untracked
+    parts — conceptual/background/reference chapters — are excluded so they do
+    not appear on the implementation progress page.
+    """
     parts = []
     children = [d for d in REF.iterdir() if (d / "index.md").exists()]
     for part_dir in sorted(children, key=order_key):
+        if not tracked(part_dir):
+            continue
         parts.append({"slug": part_dir.name,
                       "title": display_title(part_dir / "index.md"),
                       "sections": scan_sections(part_dir)})

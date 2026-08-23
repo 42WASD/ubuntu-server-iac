@@ -1,5 +1,6 @@
 ---
 order: 12
+tracked: true
 ---
 
 # Part XII — GPU validation phase
