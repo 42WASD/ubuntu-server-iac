@@ -1,6 +1,7 @@
 ---
-phase: 03-build-the-host/27-20-phase-11-filesystem-quotas-for-developer-homes
+phase: 03-build-the-host/filesystem-quotas-for-developer-homes
 ---
+
 # Phase 11 — filesystem quotas for developer homes
 
 **Intent:** stop one developer from filling the entire root filesystem

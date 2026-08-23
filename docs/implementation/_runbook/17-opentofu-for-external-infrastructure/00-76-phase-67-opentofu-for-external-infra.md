@@ -1,6 +1,7 @@
 ---
-phase: 17-opentofu-for-external-infrastructure/00-76-phase-67-what-opentofu-should-own
+phase: 17-opentofu-for-external-infrastructure/what-opentofu-should-own
 ---
+
 # Phase 67 — what OpenTofu should own
 
 Set up OpenTofu to own/store the *connection details* of the external

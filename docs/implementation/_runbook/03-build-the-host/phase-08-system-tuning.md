@@ -1,6 +1,7 @@
 ---
-phase: 03-build-the-host/13-17-phase-8-system-tuning-and-resource-safety
+phase: 03-build-the-host/system-tuning-and-resource-safety
 ---
+
 # Phase 8 — system tuning and resource safety
 
 **Intent:** baseline kernel/logging settings that make `alpha` a safe,

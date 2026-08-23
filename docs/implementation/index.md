@@ -40,19 +40,61 @@ edit/correct).
 
 ## Overall progress
 
-**61 / 93** phases/sections complete (**66%**).
+**62 / 172** phases/sections complete (**36%**).
 
-<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:65.6%"></div></div><div class="progress-pct">66%</div></div>
+<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:36.0%"></div></div><div class="progress-pct">36%</div></div>
 
 | Status | Count |
 |--------|-------|
-| ✅ done | 61 |
+| ✅ done | 62 |
 | 🔶 in-progress | 0 |
-| ⬜ not-started | 29 |
+| ⬜ not-started | 107 |
 | ❌ blocked | 1 |
 | ⏸️ deferred | 2 |
 
 ## Progress by part
+
+### 0% — Part I — Understand the platform before installing anything
+
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (11)</strong>
+• The one-sentence idea
+• The target architecture
+• The trust model
+• What each developer is allowed to do
+• Five control planes, not one
+• Build control plane
+• External edge control plane
+• Linux control plane
+• Tenant application control plane
+• Kubernetes platform control plane
+• Why this guide is phased</div></div>
+
+- ⬜ `not-started` — [The one-sentence idea](../reference-design/01-understand-the-platform-before-installing-anything/the-one-sentence-idea/index.md)
+- ⬜ `not-started` — [The target architecture](../reference-design/01-understand-the-platform-before-installing-anything/the-target-architecture/index.md)
+- ⬜ `not-started` — [The trust model](../reference-design/01-understand-the-platform-before-installing-anything/the-trust-model/index.md)
+- ⬜ `not-started` — [What each developer is allowed to do](../reference-design/01-understand-the-platform-before-installing-anything/what-each-developer-is-allowed-to-do/index.md)
+- ⬜ `not-started` — [Five control planes, not one](../reference-design/01-understand-the-platform-before-installing-anything/five-control-planes-not-one/index.md)
+  - ⬜ `not-started` — [Build control plane](../reference-design/01-understand-the-platform-before-installing-anything/five-control-planes-not-one/build-control-plane/index.md)
+  - ⬜ `not-started` — [External edge control plane](../reference-design/01-understand-the-platform-before-installing-anything/five-control-planes-not-one/external-edge-control-plane/index.md)
+  - ⬜ `not-started` — [Linux control plane](../reference-design/01-understand-the-platform-before-installing-anything/five-control-planes-not-one/linux-control-plane/index.md)
+  - ⬜ `not-started` — [Tenant application control plane](../reference-design/01-understand-the-platform-before-installing-anything/five-control-planes-not-one/tenant-application-control-plane/index.md)
+  - ⬜ `not-started` — [Kubernetes platform control plane](../reference-design/01-understand-the-platform-before-installing-anything/five-control-planes-not-one/kubernetes-platform-control-plane/index.md)
+- ⬜ `not-started` — [Why this guide is phased](../reference-design/01-understand-the-platform-before-installing-anything/why-this-guide-is-phased/index.md)
+
+### 0% — Part II — Verified stack and current caveats
+
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (3)</strong>
+• Stack selection
+• Current verification caveats — read before installing
+• Version policy</div></div>
+
+- ⬜ `not-started` — [Stack selection](../reference-design/02-verified-stack-and-current-caveats/stack-selection/index.md)
+- ⬜ `not-started` — [Current verification caveats — read before installing](../reference-design/02-verified-stack-and-current-caveats/current-verification-caveats-read-before-installing/index.md)
+- ⬜ `not-started` — [Version policy](../reference-design/02-verified-stack-and-current-caveats/version-policy/index.md)
 
 ### 90% — Part III — Build the host
 
@@ -63,24 +105,24 @@ edit/correct).
 • unattended security updates
 • Phase 3 — hostname, DNS, and local identity
 • Phase 4 — users, groups, and sudo boundaries
-• no shared human account
-• platform groups
 • sudo policy
+• platform groups
+• no shared human account
 • Phase 6 — Tailscale private management path
 • Phase 7 — host firewall
 • Phase 8 — system tuning and resource safety
 • basic forwarding
-• disable swap initially
 • inotify limits
 • journald bound
+• disable swap initially
 • Phase 9 — developer CPU/RAM/PID limits on the host
 • Phase 10 — storage architecture
-• create dedicated RKE2 filesystem only when backing storage is known
-• desired logical layout
-• existing-install path
-• Kubernetes bulk VG
-• Kubernetes fast VG
 • required LVM module
+• existing-install path
+• desired logical layout
+• create dedicated RKE2 filesystem only when backing storage is known
+• Kubernetes fast VG
+• Kubernetes bulk VG
 • Phase 11 — filesystem quotas for developer homes
 • Phase 12 — NVIDIA host driver baseline
 <hr style="opacity:.3;margin:6px 0;"><strong>Pending (3)</strong>
@@ -88,7 +130,7 @@ edit/correct).
 • Tailscale policy concept
 • fresh-install target</div></div>
 
-- ✅ `done` — [Phase 0 — create the infrastructure repository first](../reference-design/build/03-build-the-host/00-9-phase-0-create-the-infrastructure-repository-first/index.md)
+- ✅ `done` — [Phase 0 — create the infrastructure repository first](../reference-design/03-build-the-host/create-the-infrastructure-repository-first/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 0 — create the infrastructure repository first</summary>
@@ -115,7 +157,7 @@ git init
 
 </details>
 
-- ✅ `done` — [Phase 1 — inventory the actual machine](../reference-design/build/03-build-the-host/01-10-phase-1-inventory-the-actual-machine/index.md)
+- ✅ `done` — [Phase 1 — inventory the actual machine](../reference-design/03-build-the-host/inventory-the-actual-machine/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 1 — inventory the actual machine</summary>
@@ -171,7 +213,7 @@ usage, free space, and the LAN NIC.
 
 </details>
 
-- ✅ `done` — [Phase 2 — update Ubuntu and install base administration tools](../reference-design/build/03-build-the-host/02-11-phase-2-update-ubuntu-and-install-base-administration-tools/index.md)
+- ✅ `done` — [Phase 2 — update Ubuntu and install base administration tools](../reference-design/03-build-the-host/update-ubuntu-and-install-base-administration-tools/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 2 — update Ubuntu and install base administration tools</summary>
@@ -235,7 +277,7 @@ refresh (7.0.0-30-generic pending reboot).
 
 </details>
 
-  - ✅ `done` — [unattended security updates](../reference-design/build/03-build-the-host/02-11-phase-2-update-ubuntu-and-install-base-administration-tools/unattended-security-updates/index.md)
+  - ✅ `done` — [unattended security updates](../reference-design/03-build-the-host/update-ubuntu-and-install-base-administration-tools/unattended-security-updates/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — unattended security updates</summary>
@@ -252,7 +294,7 @@ clean.
 
 </details>
 
-- ✅ `done` — [Phase 3 — hostname, DNS, and local identity](../reference-design/build/03-build-the-host/04-12-phase-3-hostname-dns-and-local-identity/index.md)
+- ✅ `done` — [Phase 3 — hostname, DNS, and local identity](../reference-design/03-build-the-host/hostname-dns-and-local-identity/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 3 — hostname, DNS, and local identity</summary>
@@ -282,7 +324,7 @@ the template (only added header comments).
 
 </details>
 
-- ✅ `done` — [Phase 4 — users, groups, and sudo boundaries](../reference-design/build/03-build-the-host/05-13-phase-4-users-groups-and-sudo-boundaries/index.md)
+- ✅ `done` — [Phase 4 — users, groups, and sudo boundaries](../reference-design/03-build-the-host/users-groups-and-sudo-boundaries/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 4 — users, groups, and sudo boundaries</summary>
@@ -390,11 +432,11 @@ Verified for each of `ehammoud mayan mtangalv`:
 
 </details>
 
-  - ✅ `done` — [no shared human account](../reference-design/build/03-build-the-host/05-13-phase-4-users-groups-and-sudo-boundaries/no-shared-human-account/index.md)
-  - ✅ `done` — [platform groups](../reference-design/build/03-build-the-host/05-13-phase-4-users-groups-and-sudo-boundaries/platform-groups/index.md)
-  - ✅ `done` — [sudo policy](../reference-design/build/03-build-the-host/05-13-phase-4-users-groups-and-sudo-boundaries/sudo-policy/index.md)
-- ⏸️ `deferred` — [Phase 5 — SSH hardening](../reference-design/build/03-build-the-host/09-14-phase-5-ssh-hardening/index.md)
-- ✅ `done` — [Phase 6 — Tailscale private management path](../reference-design/build/03-build-the-host/10-15-phase-6-tailscale-private-management-path/index.md)
+  - ✅ `done` — [sudo policy](../reference-design/03-build-the-host/users-groups-and-sudo-boundaries/sudo-policy/index.md)
+  - ✅ `done` — [platform groups](../reference-design/03-build-the-host/users-groups-and-sudo-boundaries/platform-groups/index.md)
+  - ✅ `done` — [no shared human account](../reference-design/03-build-the-host/users-groups-and-sudo-boundaries/no-shared-human-account/index.md)
+- ⏸️ `deferred` — [Phase 5 — SSH hardening](../reference-design/03-build-the-host/ssh-hardening/index.md)
+- ✅ `done` — [Phase 6 — Tailscale private management path](../reference-design/03-build-the-host/tailscale-private-management-path/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 6 — Tailscale private management path</summary>
@@ -427,8 +469,8 @@ tailscale version
 
 </details>
 
-  - ⏸️ `deferred` — [Tailscale policy concept](../reference-design/build/03-build-the-host/10-15-phase-6-tailscale-private-management-path/tailscale-policy-concept/index.md)
-- ✅ `done` — [Phase 7 — host firewall](../reference-design/build/03-build-the-host/12-16-phase-7-host-firewall/index.md)
+  - ⏸️ `deferred` — [Tailscale policy concept](../reference-design/03-build-the-host/tailscale-private-management-path/tailscale-policy-concept/index.md)
+- ✅ `done` — [Phase 7 — host firewall](../reference-design/03-build-the-host/host-firewall/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 7 — host firewall</summary>
@@ -545,7 +587,7 @@ with the file-deploy + systemd-enable tasks (templates for `.nft` + units),
 
 </details>
 
-- ✅ `done` — [Phase 8 — system tuning and resource safety](../reference-design/build/03-build-the-host/13-17-phase-8-system-tuning-and-resource-safety/index.md)
+- ✅ `done` — [Phase 8 — system tuning and resource safety](../reference-design/03-build-the-host/system-tuning-and-resource-safety/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 8 — system tuning and resource safety</summary>
@@ -701,11 +743,11 @@ reload `sysctl`, and restart `systemd-journald`. Swap-disable is bootstrap-time
 
 </details>
 
-  - ✅ `done` — [basic forwarding](../reference-design/build/03-build-the-host/13-17-phase-8-system-tuning-and-resource-safety/basic-forwarding/index.md)
-  - ✅ `done` — [disable swap initially](../reference-design/build/03-build-the-host/13-17-phase-8-system-tuning-and-resource-safety/disable-swap-initially/index.md)
-  - ✅ `done` — [inotify limits](../reference-design/build/03-build-the-host/13-17-phase-8-system-tuning-and-resource-safety/inotify-limits/index.md)
-  - ✅ `done` — [journald bound](../reference-design/build/03-build-the-host/13-17-phase-8-system-tuning-and-resource-safety/journald-bound/index.md)
-- ✅ `done` — [Phase 9 — developer CPU/RAM/PID limits on the host](../reference-design/build/03-build-the-host/18-18-phase-9-developer-cpu-ram-pid-limits-on-the-host/index.md)
+  - ✅ `done` — [basic forwarding](../reference-design/03-build-the-host/system-tuning-and-resource-safety/basic-forwarding/index.md)
+  - ✅ `done` — [inotify limits](../reference-design/03-build-the-host/system-tuning-and-resource-safety/inotify-limits/index.md)
+  - ✅ `done` — [journald bound](../reference-design/03-build-the-host/system-tuning-and-resource-safety/journald-bound/index.md)
+  - ✅ `done` — [disable swap initially](../reference-design/03-build-the-host/system-tuning-and-resource-safety/disable-swap-initially/index.md)
+- ✅ `done` — [Phase 9 — developer CPU/RAM/PID limits on the host](../reference-design/03-build-the-host/developer-cpu-ram-pid-limits-on-the-host/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 9 — developer CPU/RAM/PID limits on the host</summary>
@@ -791,7 +833,7 @@ exactly what the role renders.
 
 </details>
 
-- ✅ `done` — [Phase 10 — storage architecture](../reference-design/build/03-build-the-host/19-19-phase-10-storage-architecture/index.md)
+- ✅ `done` — [Phase 10 — storage architecture](../reference-design/03-build-the-host/storage-architecture/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 10 — storage architecture</summary>
@@ -938,14 +980,14 @@ bulk VGs, and load/persist `dm_snapshot`. Both K8s VGs now exist on alpha.
 
 </details>
 
-  - ✅ `done` — [create dedicated RKE2 filesystem only when backing storage is known](../reference-design/build/03-build-the-host/19-19-phase-10-storage-architecture/create-dedicated-rke2-filesystem-only-when-backing-storage-is-known/index.md)
-  - ✅ `done` — [desired logical layout](../reference-design/build/03-build-the-host/19-19-phase-10-storage-architecture/desired-logical-layout/index.md)
-  - ✅ `done` — [existing-install path](../reference-design/build/03-build-the-host/19-19-phase-10-storage-architecture/existing-install-path/index.md)
-  - ❌ `blocked` — [fresh-install target](../reference-design/build/03-build-the-host/19-19-phase-10-storage-architecture/fresh-install-target/index.md)
-  - ✅ `done` — [Kubernetes bulk VG](../reference-design/build/03-build-the-host/19-19-phase-10-storage-architecture/kubernetes-bulk-vg/index.md)
-  - ✅ `done` — [Kubernetes fast VG](../reference-design/build/03-build-the-host/19-19-phase-10-storage-architecture/kubernetes-fast-vg/index.md)
-  - ✅ `done` — [required LVM module](../reference-design/build/03-build-the-host/19-19-phase-10-storage-architecture/required-lvm-module/index.md)
-- ✅ `done` — [Phase 11 — filesystem quotas for developer homes](../reference-design/build/03-build-the-host/27-20-phase-11-filesystem-quotas-for-developer-homes/index.md)
+  - ✅ `done` — [required LVM module](../reference-design/03-build-the-host/storage-architecture/required-lvm-module/index.md)
+  - ❌ `blocked` — [fresh-install target](../reference-design/03-build-the-host/storage-architecture/fresh-install-target/index.md)
+  - ✅ `done` — [existing-install path](../reference-design/03-build-the-host/storage-architecture/existing-install-path/index.md)
+  - ✅ `done` — [desired logical layout](../reference-design/03-build-the-host/storage-architecture/desired-logical-layout/index.md)
+  - ✅ `done` — [create dedicated RKE2 filesystem only when backing storage is known](../reference-design/03-build-the-host/storage-architecture/create-dedicated-rke2-filesystem-only-when-backing-storage-is-known/index.md)
+  - ✅ `done` — [Kubernetes fast VG](../reference-design/03-build-the-host/storage-architecture/kubernetes-fast-vg/index.md)
+  - ✅ `done` — [Kubernetes bulk VG](../reference-design/03-build-the-host/storage-architecture/kubernetes-bulk-vg/index.md)
+- ✅ `done` — [Phase 11 — filesystem quotas for developer homes](../reference-design/03-build-the-host/filesystem-quotas-for-developer-homes/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 11 — filesystem quotas for developer homes</summary>
@@ -1079,7 +1121,7 @@ developer cannot fill the root or any home filesystem.
 
 </details>
 
-- ✅ `done` — [Phase 12 — NVIDIA host driver baseline](../reference-design/build/03-build-the-host/28-21-phase-12-nvidia-host-driver-baseline/index.md)
+- ✅ `done` — [Phase 12 — NVIDIA host driver baseline](../reference-design/03-build-the-host/nvidia-host-driver-baseline/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 12 — NVIDIA host driver baseline</summary>
@@ -1212,7 +1254,7 @@ through reboot cycles since the driver install.
 <hr style="opacity:.3;margin:6px 0;"><strong>Pending (0)</strong>
 —</div></div>
 
-- ✅ `done` — [Phase 13 — choose and pin the RKE2 release](../reference-design/build/04-install-rke2-correctly/00-22-phase-13-choose-and-pin-the-rke2-release/index.md)
+- ✅ `done` — [Phase 13 — choose and pin the RKE2 release](../reference-design/04-install-rke2-correctly/choose-and-pin-the-rke2-release/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 13 — choose and pin the RKE2 release</summary>
@@ -1327,7 +1369,7 @@ Bundled component versions in this release (for later verification):
 
 </details>
 
-- ✅ `done` — [Phase 14 — RKE2 configuration](../reference-design/build/04-install-rke2-correctly/01-23-phase-14-rke2-configuration/index.md)
+- ✅ `done` — [Phase 14 — RKE2 configuration](../reference-design/04-install-rke2-correctly/rke2-configuration/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 14 — RKE2 configuration</summary>
@@ -1424,7 +1466,7 @@ variable values). Actual RKE2 install/boot validation happens in Phase 16.
 
 </details>
 
-  - ✅ `done` — [kubelet configuration](../reference-design/build/04-install-rke2-correctly/01-23-phase-14-rke2-configuration/kubelet-configuration/index.md)
+  - ✅ `done` — [kubelet configuration](../reference-design/04-install-rke2-correctly/rke2-configuration/kubelet-configuration/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — kubelet configuration</summary>
@@ -1538,7 +1580,7 @@ Both templates render to valid YAML. The kubelet drop-in resolves to a
 
 </details>
 
-- ✅ `done` — [Phase 15 — configure RKE2's bundled Cilium](../reference-design/build/04-install-rke2-correctly/03-24-phase-15-configure-rke2-s-bundled-cilium/index.md)
+- ✅ `done` — [Phase 15 — configure RKE2's bundled Cilium](../reference-design/04-install-rke2-correctly/configure-rke2-s-bundled-cilium/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 15 — configure RKE2's bundled Cilium</summary>
@@ -1647,7 +1689,7 @@ design's recommended Cilium configuration.
 
 </details>
 
-- ✅ `done` — [Phase 16 — install and start RKE2](../reference-design/build/04-install-rke2-correctly/04-25-phase-16-install-and-start-rke2/index.md)
+- ✅ `done` — [Phase 16 — install and start RKE2](../reference-design/04-install-rke2-correctly/install-and-start-rke2/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 16 — install and start RKE2</summary>
@@ -1823,7 +1865,7 @@ from Phase 13.
 
 </details>
 
-  - ✅ `done` — [inspect Cilium](../reference-design/build/04-install-rke2-correctly/04-25-phase-16-install-and-start-rke2/inspect-cilium/index.md)
+  - ✅ `done` — [inspect Cilium](../reference-design/04-install-rke2-correctly/install-and-start-rke2/inspect-cilium/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — inspect Cilium</summary>
@@ -1913,7 +1955,7 @@ captured to `~/platform-audit/k8s-first-healthy.txt`.
 
 </details>
 
-  - ✅ `done` — [verify RKE2 Secrets encryption](../reference-design/build/04-install-rke2-correctly/04-25-phase-16-install-and-start-rke2/verify-rke2-secrets-encryption/index.md)
+  - ✅ `done` — [verify RKE2 Secrets encryption](../reference-design/04-install-rke2-correctly/install-and-start-rke2/verify-rke2-secrets-encryption/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — verify RKE2 Secrets encryption</summary>
@@ -1956,7 +1998,7 @@ Secrets-at-rest encryption is confirmed **Enabled**. No rotation performed.
 
 </details>
 
-- ✅ `done` — [Phase 17 — admin kubeconfig and CLI convenience](../reference-design/build/04-install-rke2-correctly/07-26-phase-17-admin-kubeconfig-and-cli-convenience/index.md)
+- ✅ `done` — [Phase 17 — admin kubeconfig and CLI convenience](../reference-design/04-install-rke2-correctly/admin-kubeconfig-and-cli-convenience/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 17 — admin kubeconfig and CLI convenience</summary>
@@ -2121,7 +2163,7 @@ node port 80 path works before Phase 18's reboot-recovery check.
 
 </details>
 
-- ✅ `done` — [Phase 18 — verify reboot recovery now, not later](../reference-design/build/04-install-rke2-correctly/08-27-phase-18-verify-reboot-recovery-now-not-later/index.md)
+- ✅ `done` — [Phase 18 — verify reboot recovery now, not later](../reference-design/04-install-rke2-correctly/verify-reboot-recovery-now-not-later/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 18 — verify reboot recovery now, not later</summary>
@@ -2274,7 +2316,7 @@ gate before adding more components.
 <hr style="opacity:.3;margin:6px 0;"><strong>Pending (0)</strong>
 —</div></div>
 
-- ✅ `done` — [Phase 19 — install Argo CD exactly once by hand](../reference-design/build/05-gitops-bootstrap/00-28-phase-19-install-argo-cd-exactly-once-by-hand/index.md)
+- ✅ `done` — [Phase 19 — install Argo CD exactly once by hand](../reference-design/05-gitops-bootstrap/install-argo-cd-exactly-once-by-hand/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 19 — install Argo CD exactly once by hand</summary>
@@ -2350,7 +2392,7 @@ root GitOps application (App-of-Apps bootstrap).
 
 </details>
 
-- ✅ `done` — [Phase 20 — root GitOps application](../reference-design/build/05-gitops-bootstrap/01-29-phase-20-root-gitops-application/index.md)
+- ✅ `done` — [Phase 20 — root GitOps application](../reference-design/05-gitops-bootstrap/root-gitops-application/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 20 — root GitOps application</summary>
@@ -2407,7 +2449,7 @@ config (besides Argo CD itself, Phase 19).
 
 </details>
 
-  - ✅ `done` — [AppProjects](../reference-design/build/05-gitops-bootstrap/01-29-phase-20-root-gitops-application/appprojects/index.md)
+  - ✅ `done` — [AppProjects](../reference-design/05-gitops-bootstrap/root-gitops-application/appprojects/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — AppProjects</summary>
@@ -2439,7 +2481,7 @@ Note: the AppProject `destinations` field uses the singular `namespace` key
 
 </details>
 
-- ✅ `done` — [Phase 21 — namespace baseline](../reference-design/build/05-gitops-bootstrap/03-30-phase-21-namespace-baseline/index.md)
+- ✅ `done` — [Phase 21 — namespace baseline](../reference-design/05-gitops-bootstrap/namespace-baseline/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 21 — namespace baseline</summary>
@@ -2487,7 +2529,7 @@ they are no longer in the manifest.
 
 </details>
 
-- ✅ `done` — [Phase 22 — PriorityClasses](../reference-design/build/05-gitops-bootstrap/04-31-phase-22-priorityclasses/index.md)
+- ✅ `done` — [Phase 22 — PriorityClasses](../reference-design/05-gitops-bootstrap/priorityclasses/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 22 — PriorityClasses</summary>
@@ -2542,7 +2584,7 @@ enforced later (RBAC / admission), not by the class itself.
 
 </details>
 
-- ✅ `done` — [Phase 23 — ResourceQuota](../reference-design/build/05-gitops-bootstrap/05-32-phase-23-resourcequota/index.md)
+- ✅ `done` — [Phase 23 — ResourceQuota](../reference-design/05-gitops-bootstrap/resourcequota/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 23 — ResourceQuota</summary>
@@ -2598,7 +2640,7 @@ GPU is governed by quota + admission, not namespace splitting.
 
 </details>
 
-- ✅ `done` — [Phase 24 — LimitRange](../reference-design/build/05-gitops-bootstrap/06-33-phase-24-limitrange/index.md)
+- ✅ `done` — [Phase 24 — LimitRange](../reference-design/05-gitops-bootstrap/limitrange/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 24 — LimitRange</summary>
@@ -2662,7 +2704,7 @@ now given a bounded default instead of unbounded consumption.
 
 </details>
 
-- ✅ `done` — [Phase 25 — default-deny NetworkPolicy](../reference-design/build/05-gitops-bootstrap/07-34-phase-25-default-deny-networkpolicy/index.md)
+- ✅ `done` — [Phase 25 — default-deny NetworkPolicy](../reference-design/05-gitops-bootstrap/default-deny-networkpolicy/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 25 — default-deny NetworkPolicy</summary>
@@ -2730,7 +2772,7 @@ and is unaffected (still Running).
 
 </details>
 
-- ✅ `done` — [Phase 26 — RBAC](../reference-design/build/05-gitops-bootstrap/08-35-phase-26-rbac/index.md)
+- ✅ `done` — [Phase 26 — RBAC](../reference-design/05-gitops-bootstrap/rbac/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 26 — RBAC</summary>
@@ -2794,7 +2836,7 @@ authorization only.
 
 </details>
 
-  - ✅ `done` — [dev Role](../reference-design/build/05-gitops-bootstrap/08-35-phase-26-rbac/dev-role/index.md)
+  - ✅ `done` — [dev Role](../reference-design/05-gitops-bootstrap/rbac/dev-role/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — dev Role</summary>
@@ -2818,7 +2860,7 @@ Verified the `dev-42wasd-admin` namespace has the expected Role + RoleBinding.
 
 </details>
 
-  - ✅ `done` — [production is intentionally different](../reference-design/build/05-gitops-bootstrap/08-35-phase-26-rbac/production-is-intentionally-different/index.md)
+  - ✅ `done` — [production is intentionally different](../reference-design/05-gitops-bootstrap/rbac/production-is-intentionally-different/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — production is intentionally different</summary>
@@ -2844,7 +2886,7 @@ kubectl auth can-i get secrets -n prd-42wasd-admin \
 
 </details>
 
-- ✅ `done` — [Phase 27 — authentication for Kubernetes developers](../reference-design/build/05-gitops-bootstrap/11-36-phase-27-authentication-for-kubernetes-developers/index.md)
+- ✅ `done` — [Phase 27 — authentication for Kubernetes developers](../reference-design/05-gitops-bootstrap/authentication-for-kubernetes-developers/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 27 — authentication for Kubernetes developers</summary>
@@ -3536,7 +3578,7 @@ authenticates successfully.
 <hr style="opacity:.3;margin:6px 0;"><strong>Pending (0)</strong>
 —</div></div>
 
-- ✅ `done` — [Phase 28 — install Kyverno through Argo CD](../reference-design/build/06-policy-enforcement/00-37-phase-28-install-kyverno-through-argo-cd/index.md)
+- ✅ `done` — [Phase 28 — install Kyverno through Argo CD](../reference-design/06-policy-enforcement/install-kyverno-through-argo-cd/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 28 — install Kyverno through Argo CD</summary>
@@ -3547,7 +3589,7 @@ authenticates successfully.
 namespace via Argo CD, using a **pinned** Helm chart version, on a single-node
 scale.
 
-Reference: `docs/reference-design/build/06-policy-enforcement/00-37-phase-28-install-kyverno-through-argo-cd/`
+Reference: `docs/reference-design/06-policy-enforcement/install-kyverno-through-argo-cd/`
 
 ## 28.1 Pre-flight (verified live)
 
@@ -3612,7 +3654,7 @@ No policies are enabled yet — that is Phase 29 (stage in Audit first).
 
 </details>
 
-- ✅ `done` — [Phase 29 — stage policy before enforcing it](../reference-design/build/06-policy-enforcement/01-38-phase-29-stage-policy-before-enforcing-it/index.md)
+- ✅ `done` — [Phase 29 — stage policy before enforcing it](../reference-design/06-policy-enforcement/stage-policy-before-enforcing-it/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 29 — stage policy before enforcing it</summary>
@@ -3623,7 +3665,7 @@ No policies are enabled yet — that is Phase 29 (stage in Audit first).
 (only after the platform/tenant workloads are clean) flip selected rules to
 **Enforce**. Do not enable 25 deny policies in one commit.
 
-Reference: `docs/reference-design/build/06-policy-enforcement/01-38-phase-29-stage-policy-before-enforcing-it/`
+Reference: `docs/reference-design/06-policy-enforcement/stage-policy-before-enforcing-it/`
 
 ## 29.1 Kyverno API note (v1.19)
 
@@ -3692,8 +3734,8 @@ creates intentionally-bad manifests to prove the deny rules actually fire.
 
 </details>
 
-  - ✅ `done` — [example: deny hostPath](../reference-design/build/06-policy-enforcement/01-38-phase-29-stage-policy-before-enforcing-it/example-deny-hostpath/index.md)
-- ✅ `done` — [Phase 30 — policy tests](../reference-design/build/06-policy-enforcement/03-39-phase-30-policy-tests/index.md)
+  - ✅ `done` — [example: deny hostPath](../reference-design/06-policy-enforcement/stage-policy-before-enforcing-it/example-deny-hostpath/index.md)
+- ✅ `done` — [Phase 30 — policy tests](../reference-design/06-policy-enforcement/policy-tests/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 30 — policy tests</summary>
@@ -3707,7 +3749,7 @@ NodePort/LoadBalancer, unapproved registry/priority) and confirm each is either
 breaking the running platform. Nothing is flipped to Enforce yet — this is the
 test gate before any rule switches.
 
-Reference: `docs/reference-design/build/06-policy-enforcement/03-39-phase-30-policy-tests/`
+Reference: `docs/reference-design/06-policy-enforcement/policy-tests/`
 
 ## 30.1 Fixtures
 
@@ -3821,7 +3863,7 @@ No unexpected regression was observed.
 <hr style="opacity:.3;margin:6px 0;"><strong>Pending (0)</strong>
 —</div></div>
 
-- ✅ `done` — [Phase 31 — install OpenEBS through Argo CD](../reference-design/build/07-persistent-storage/00-40-phase-31-install-openebs-through-argo-cd/index.md)
+- ✅ `done` — [Phase 31 — install OpenEBS through Argo CD](../reference-design/07-persistent-storage/install-openebs-through-argo-cd/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 31 — install OpenEBS through Argo CD</summary>
@@ -3832,7 +3874,7 @@ No unexpected regression was observed.
 LocalPV LVM engine we actually use. Do **not** deploy Mayastor (replicated
 engine) on a single-node host just to imitate replication.
 
-Reference: `docs/reference-design/build/07-persistent-storage/00-40-phase-31-install-openebs-through-argo-cd/`
+Reference: `docs/reference-design/07-persistent-storage/install-openebs-through-argo-cd/`
 
 ## 31.1 Design decision
 
@@ -3929,7 +3971,7 @@ StorageClasses (`nvme-fast`, `nvme-db`, `hdd-bulk`) pointing at those VGs.
 
 </details>
 
-- ✅ `done` — [Phase 32 — StorageClasses](../reference-design/build/07-persistent-storage/01-41-phase-32-storageclasses/index.md)
+- ✅ `done` — [Phase 32 — StorageClasses](../reference-design/07-persistent-storage/storageclasses/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 32 — StorageClasses</summary>
@@ -3941,7 +3983,7 @@ three StorageClasses so tenant workloads can request NVMe-fast, NVMe-database,
 or HDD-bulk volumes. Use `vgpattern` (not a hard-coded VG name) so the
 manifests stay valid if we later add another machine with the same VG layout.
 
-Reference: `docs/reference-design/build/07-persistent-storage/01-41-phase-32-storageclasses/`
+Reference: `docs/reference-design/07-persistent-storage/storageclasses/`
 
 ## 32.1 Classes
 
@@ -3992,7 +4034,7 @@ against one of these classes before any database workload lands on them.
 
 </details>
 
-- ✅ `done` — [Phase 33 — prove PVC lifecycle before deploying databases](../reference-design/build/07-persistent-storage/02-42-phase-33-prove-pvc-lifecycle-before-deploying-databases/index.md)
+- ✅ `done` — [Phase 33 — prove PVC lifecycle before deploying databases](../reference-design/07-persistent-storage/prove-pvc-lifecycle-before-deploying-databases/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 33 — prove PVC lifecycle before deploying databases</summary>
@@ -4004,7 +4046,7 @@ before any database (PostgreSQL) or registry (Harbor) depends on it. Gate
 (Checkpoint 12): dynamic provision, mount, persistence across pod restart,
 reclaim behaviour must all be understood first.
 
-Reference: `docs/reference-design/build/07-persistent-storage/02-42-phase-33-prove-pvc-lifecycle-before-deploying-databases/`
+Reference: `docs/reference-design/07-persistent-storage/prove-pvc-lifecycle-before-deploying-databases/`
 
 ## 33.1 Test fixtures
 
@@ -4135,9 +4177,9 @@ Databases may now be deployed onto `nvme-db` (Retain) / `nvme-fast` safely.
 • Phase 35 — logs
 • Phase 36 — alert before things are full</div></div>
 
-- ⬜ `not-started` — [Phase 34 — metrics stack](../reference-design/build/08-monitoring-and-logs/00-43-phase-34-metrics-stack/index.md)
-- ⬜ `not-started` — [Phase 35 — logs](../reference-design/build/08-monitoring-and-logs/01-44-phase-35-logs/index.md)
-- ⬜ `not-started` — [Phase 36 — alert before things are full](../reference-design/build/08-monitoring-and-logs/02-45-phase-36-alert-before-things-are-full/index.md)
+- ⬜ `not-started` — [Phase 34 — metrics stack](../reference-design/08-monitoring-and-logs/metrics-stack/index.md)
+- ⬜ `not-started` — [Phase 35 — logs](../reference-design/08-monitoring-and-logs/logs/index.md)
+- ⬜ `not-started` — [Phase 36 — alert before things are full](../reference-design/08-monitoring-and-logs/alert-before-things-are-full/index.md)
 
 ### 0% — Part IX — Registry
 
@@ -4147,8 +4189,8 @@ Databases may now be deployed onto `nvme-db` (Retain) / `nvme-fast` safely.
 • Phase 37 — install Harbor
 • Phase 38 — configure RKE2 registry trust</div></div>
 
-- ⬜ `not-started` — [Phase 37 — install Harbor](../reference-design/build/09-registry/00-46-phase-37-install-harbor/index.md)
-- ⬜ `not-started` — [Phase 38 — configure RKE2 registry trust](../reference-design/build/09-registry/01-47-phase-38-configure-rke2-registry-trust/index.md)
+- ⬜ `not-started` — [Phase 37 — install Harbor](../reference-design/09-registry/install-harbor/index.md)
+- ⬜ `not-started` — [Phase 38 — configure RKE2 registry trust](../reference-design/09-registry/configure-rke2-registry-trust/index.md)
 
 ### 0% — Part X — Developer build experience
 
@@ -4163,13 +4205,13 @@ Databases may now be deployed onto `nvme-db` (Retain) / `nvme-fast` safely.
 • Phase 44 — continuous dev loop
 • Phase 45 — CI pipeline</div></div>
 
-- ⬜ `not-started` — [Phase 39 — alpha does NOT run a developer Docker daemon](../reference-design/build/10-developer-build-experience/00-48-phase-39-alpha-does-not-run-a-developer-docker-daemon/index.md)
-- ⬜ `not-started` — [Phase 40 — local developer work on alpha](../reference-design/build/10-developer-build-experience/01-49-phase-40-local-developer-work-on-alpha/index.md)
-- ⬜ `not-started` — [Phase 41 — build01 architecture](../reference-design/build/10-developer-build-experience/02-50-phase-41-build01-architecture/index.md)
-- ⬜ `not-started` — [Phase 42 — BuildKit cache policy](../reference-design/build/10-developer-build-experience/03-51-phase-42-buildkit-cache-policy/index.md)
-- ⬜ `not-started` — [Phase 43 — remote BuildKit](../reference-design/build/10-developer-build-experience/04-52-phase-43-remote-buildkit/index.md)
-- ⬜ `not-started` — [Phase 44 — continuous dev loop](../reference-design/build/10-developer-build-experience/05-53-phase-44-continuous-dev-loop/index.md)
-- ⬜ `not-started` — [Phase 45 — CI pipeline](../reference-design/build/10-developer-build-experience/06-54-phase-45-ci-pipeline/index.md)
+- ⬜ `not-started` — [Phase 39 — alpha does NOT run a developer Docker daemon](../reference-design/10-developer-build-experience/alpha-does-not-run-a-developer-docker-daemon/index.md)
+- ⬜ `not-started` — [Phase 40 — local developer work on alpha](../reference-design/10-developer-build-experience/local-developer-work-on-alpha/index.md)
+- ⬜ `not-started` — [Phase 41 — build01 architecture](../reference-design/10-developer-build-experience/build01-architecture/index.md)
+- ⬜ `not-started` — [Phase 42 — BuildKit cache policy](../reference-design/10-developer-build-experience/buildkit-cache-policy/index.md)
+- ⬜ `not-started` — [Phase 43 — remote BuildKit](../reference-design/10-developer-build-experience/remote-buildkit/index.md)
+- ⬜ `not-started` — [Phase 44 — continuous dev loop](../reference-design/10-developer-build-experience/continuous-dev-loop/index.md)
+- ⬜ `not-started` — [Phase 45 — CI pipeline](../reference-design/10-developer-build-experience/ci-pipeline/index.md)
 
 ### 33% — Part XI — Public web path
 
@@ -4179,7 +4221,7 @@ Databases may now be deployed onto `nvme-db` (Retain) / `nvme-fast` safely.
 • Phase 47 — public vs private names
 • Phase 48 — Traefik routing</div></div>
 
-- ✅ `done` — [Phase 46 — Cloudflare Tunnel](../reference-design/build/11-public-web-path/00-55-phase-46-cloudflare-tunnel/index.md)
+- ✅ `done` — [Phase 46 — Cloudflare Tunnel](../reference-design/11-public-web-path/cloudflare-tunnel/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 46 — Cloudflare Tunnel</summary>
@@ -4265,8 +4307,8 @@ blocked on this network and `--protocol http2` forces the TCP/443 path.
 
 </details>
 
-- ⬜ `not-started` — [Phase 47 — public vs private names](../reference-design/build/11-public-web-path/01-56-phase-47-public-vs-private-names/index.md)
-- ⬜ `not-started` — [Phase 48 — Traefik routing](../reference-design/build/11-public-web-path/02-57-phase-48-traefik-routing/index.md)
+- ⬜ `not-started` — [Phase 47 — public vs private names](../reference-design/11-public-web-path/public-vs-private-names/index.md)
+- ⬜ `not-started` — [Phase 48 — Traefik routing](../reference-design/11-public-web-path/traefik-routing/index.md)
 
 ### 0% — Part XII — GPU validation phase
 
@@ -4278,22 +4320,23 @@ blocked on this network and `--protocol http2` forces the TCP/443 path.
 • Phase 51 — GPU policy
 • Phase 52 — HAMi validation</div></div>
 
-- ⬜ `not-started` — [Phase 49 — GPU integration is optional until proven](../reference-design/build/12-gpu-validation-phase/00-58-phase-49-gpu-integration-is-optional-until-proven/index.md)
-- ⬜ `not-started` — [Phase 50 — first GPU goal: whole-GPU scheduling](../reference-design/build/12-gpu-validation-phase/01-59-phase-50-first-gpu-goal-whole-gpu-scheduling/index.md)
-- ⬜ `not-started` — [Phase 51 — GPU policy](../reference-design/build/12-gpu-validation-phase/02-60-phase-51-gpu-policy/index.md)
-- ⬜ `not-started` — [Phase 52 — HAMi validation](../reference-design/build/12-gpu-validation-phase/03-61-phase-52-hami-validation/index.md)
+- ⬜ `not-started` — [Phase 49 — GPU integration is optional until proven](../reference-design/12-gpu-validation-phase/gpu-integration-is-optional-until-proven/index.md)
+- ⬜ `not-started` — [Phase 50 — first GPU goal: whole-GPU scheduling](../reference-design/12-gpu-validation-phase/first-gpu-goal-whole-gpu-scheduling/index.md)
+- ⬜ `not-started` — [Phase 51 — GPU policy](../reference-design/12-gpu-validation-phase/gpu-policy/index.md)
+- ⬜ `not-started` — [Phase 52 — HAMi validation](../reference-design/12-gpu-validation-phase/hami-validation/index.md)
 
 ### 100% — Part XIII — Game networking foundation
 
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:100.0%"></div></div><div class="progress-pct" style="font-size:.85em;">100%</div><div class="tip-box"><strong>Done (4)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:100.0%"></div></div><div class="progress-pct" style="font-size:.85em;">100%</div><div class="tip-box"><strong>Done (5)</strong>
 • Phase 53 — keep game workloads in Kubernetes for now
 • Phase 54 — why game edge is separate from Cloudflare web
 • Phase 55 — relay bring-up
-• Phase 56 — Minecraft server performance (MSPT headroom & player scale)
+• Phase 69 — Minecraft server performance (MSPT headroom & player scale)
+• Phase 70 — game server orchestration: operator, not raw manifests
 <hr style="opacity:.3;margin:6px 0;"><strong>Pending (0)</strong>
 —</div></div>
 
-- ✅ `done` — [Phase 53 — keep game workloads in Kubernetes for now](../reference-design/build/13-game-networking-foundation/00-62-phase-53-keep-game-workloads-in-kubernetes-for-now/index.md)
+- ✅ `done` — [Phase 53 — keep game workloads in Kubernetes for now](../reference-design/13-game-networking-foundation/keep-game-workloads-in-kubernetes-for-now/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 53 — keep game workloads in Kubernetes for now</summary>
@@ -4375,7 +4418,7 @@ game workload exists, so none are opened now).
 
 </details>
 
-- ✅ `done` — [Phase 54 — why game edge is separate from Cloudflare web](../reference-design/build/13-game-networking-foundation/01-63-phase-54-why-game-edge-is-separate-from-cloudflare-web/index.md)
+- ✅ `done` — [Phase 54 — why game edge is separate from Cloudflare web](../reference-design/13-game-networking-foundation/why-game-edge-is-separate-from-cloudflare-web/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 54 — why game edge is separate from Cloudflare web</summary>
@@ -4427,7 +4470,7 @@ game ports on the game lane (not on the web plane).
 
 </details>
 
-- ✅ `done` — [Phase 55 — relay bring-up](../reference-design/build/13-game-networking-foundation/02-64-phase-55-relay-bring-up/index.md)
+- ✅ `done` — [Phase 55 — relay bring-up](../reference-design/13-game-networking-foundation/relay-bring-up/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 55 — relay bring-up</summary>
@@ -4662,7 +4705,8 @@ Reference-design Phase 54/55 updated to reflect this verified solution.
 
 </details>
 
-- ✅ `done` — [Phase 56 — Minecraft server performance (MSPT headroom & player scale)](../reference-design/build/13-game-networking-foundation/03-67-phase-56-minecraft-server-performance/index.md)
+- ✅ `done` — [Phase 69 — Minecraft server performance (MSPT headroom & player scale)](../reference-design/13-game-networking-foundation/minecraft-server-performance/index.md)
+- ✅ `done` — [Phase 70 — game server orchestration: operator, not raw manifests](../reference-design/13-game-networking-foundation/game-server-orchestration-operator/index.md)
 
 ### 0% — Part XIV — Backups and disaster recovery
 
@@ -4674,10 +4718,10 @@ Reference-design Phase 54/55 updated to reflect this verified solution.
 • Phase 58 — local vs offsite
 • Phase 59 — restore tests</div></div>
 
-- ⬜ `not-started` — [Phase 56 — RKE2 etcd snapshots](../reference-design/build/14-backups-and-disaster-recovery/00-65-phase-56-rke2-etcd-snapshots/index.md)
-- ⬜ `not-started` — [Phase 57 — what must be backed up](../reference-design/build/14-backups-and-disaster-recovery/01-66-phase-57-what-must-be-backed-up/index.md)
-- ⬜ `not-started` — [Phase 58 — local vs offsite](../reference-design/build/14-backups-and-disaster-recovery/02-67-phase-58-local-vs-offsite/index.md)
-- ⬜ `not-started` — [Phase 59 — restore tests](../reference-design/build/14-backups-and-disaster-recovery/03-68-phase-59-restore-tests/index.md)
+- ⬜ `not-started` — [Phase 56 — RKE2 etcd snapshots](../reference-design/14-backups-and-disaster-recovery/rke2-etcd-snapshots/index.md)
+- ⬜ `not-started` — [Phase 57 — what must be backed up](../reference-design/14-backups-and-disaster-recovery/what-must-be-backed-up/index.md)
+- ⬜ `not-started` — [Phase 58 — local vs offsite](../reference-design/14-backups-and-disaster-recovery/local-vs-offsite/index.md)
+- ⬜ `not-started` — [Phase 59 — restore tests](../reference-design/14-backups-and-disaster-recovery/restore-tests/index.md)
 
 ### 0% — Part XV — Consolidate and enforce the Ansible source of truth
 
@@ -4689,10 +4733,10 @@ Reference-design Phase 54/55 updated to reflect this verified solution.
 • Phase 62 — role ownership
 • Phase 63 — Ansible must be idempotent</div></div>
 
-- ⬜ `not-started` — [Phase 60 — Ansible control environment](../reference-design/build/15-consolidate-and-enforce-the-ansible-source-of-truth/00-69-phase-60-ansible-control-environment/index.md)
-- ⬜ `not-started` — [Phase 61 — inventory](../reference-design/build/15-consolidate-and-enforce-the-ansible-source-of-truth/01-70-phase-61-inventory/index.md)
-- ⬜ `not-started` — [Phase 62 — role ownership](../reference-design/build/15-consolidate-and-enforce-the-ansible-source-of-truth/02-71-phase-62-role-ownership/index.md)
-- ⬜ `not-started` — [Phase 63 — Ansible must be idempotent](../reference-design/build/15-consolidate-and-enforce-the-ansible-source-of-truth/03-72-phase-63-ansible-must-be-idempotent/index.md)
+- ⬜ `not-started` — [Phase 60 — Ansible control environment](../reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/ansible-control-environment/index.md)
+- ⬜ `not-started` — [Phase 61 — inventory](../reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/inventory/index.md)
+- ⬜ `not-started` — [Phase 62 — role ownership](../reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/role-ownership/index.md)
+- ⬜ `not-started` — [Phase 63 — Ansible must be idempotent](../reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/ansible-must-be-idempotent/index.md)
 
 ### 0% — Part XVI — Ubuntu Autoinstall
 
@@ -4703,9 +4747,9 @@ Reference-design Phase 54/55 updated to reflect this verified solution.
 • Phase 65 — minimal safe autoinstall skeleton
 • Phase 66 — validate Autoinstall in a VM first</div></div>
 
-- ⬜ `not-started` — [Phase 64 — use Autoinstall for future clean rebuilds](../reference-design/build/16-ubuntu-autoinstall/00-73-phase-64-use-autoinstall-for-future-clean-rebuilds/index.md)
-- ⬜ `not-started` — [Phase 65 — minimal safe autoinstall skeleton](../reference-design/build/16-ubuntu-autoinstall/01-74-phase-65-minimal-safe-autoinstall-skeleton/index.md)
-- ⬜ `not-started` — [Phase 66 — validate Autoinstall in a VM first](../reference-design/build/16-ubuntu-autoinstall/02-75-phase-66-validate-autoinstall-in-a-vm-first/index.md)
+- ⬜ `not-started` — [Phase 64 — use Autoinstall for future clean rebuilds](../reference-design/16-ubuntu-autoinstall/use-autoinstall-for-future-clean-rebuilds/index.md)
+- ⬜ `not-started` — [Phase 65 — minimal safe autoinstall skeleton](../reference-design/16-ubuntu-autoinstall/minimal-safe-autoinstall-skeleton/index.md)
+- ⬜ `not-started` — [Phase 66 — validate Autoinstall in a VM first](../reference-design/16-ubuntu-autoinstall/validate-autoinstall-in-a-vm-first/index.md)
 
 ### 100% — Part XVII — OpenTofu for external infrastructure
 
@@ -4715,7 +4759,7 @@ Reference-design Phase 54/55 updated to reflect this verified solution.
 <hr style="opacity:.3;margin:6px 0;"><strong>Pending (0)</strong>
 —</div></div>
 
-- ✅ `done` — [Phase 67 — what OpenTofu should own](../reference-design/build/17-opentofu-for-external-infrastructure/00-76-phase-67-what-opentofu-should-own/index.md)
+- ✅ `done` — [Phase 67 — what OpenTofu should own](../reference-design/17-opentofu-for-external-infrastructure/what-opentofu-should-own/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 67 — what OpenTofu should own</summary>
@@ -4868,7 +4912,7 @@ vps/terraform.tfstate          2201 bytes
 
 </details>
 
-- ✅ `done` — [Phase 68 — state is sensitive](../reference-design/build/17-opentofu-for-external-infrastructure/01-77-phase-68-state-is-sensitive/index.md)
+- ✅ `done` — [Phase 68 — state is sensitive](../reference-design/17-opentofu-for-external-infrastructure/state-is-sensitive/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Phase 68 — state is sensitive</summary>
@@ -4931,5 +4975,191 @@ Result: only `terraform.tfvars.example` files are committed; the real
   checks above.
 
 </details>
+
+
+### 0% — Part XVIII — Day-2 operations
+
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (7)</strong>
+• Upgrade order
+• RKE2 upgrade checklist
+• Host kernel/NVIDIA update checklist
+• Disk-pressure runbook
+• Memory-pressure runbook
+• CPU-pressure runbook
+• Network-debugging layers</div></div>
+
+- ⬜ `not-started` — [Upgrade order](../reference-design/18-day-2-operations/upgrade-order/index.md)
+- ⬜ `not-started` — [RKE2 upgrade checklist](../reference-design/18-day-2-operations/rke2-upgrade-checklist/index.md)
+- ⬜ `not-started` — [Host kernel/NVIDIA update checklist](../reference-design/18-day-2-operations/host-kernel-nvidia-update-checklist/index.md)
+- ⬜ `not-started` — [Disk-pressure runbook](../reference-design/18-day-2-operations/disk-pressure-runbook/index.md)
+- ⬜ `not-started` — [Memory-pressure runbook](../reference-design/18-day-2-operations/memory-pressure-runbook/index.md)
+- ⬜ `not-started` — [CPU-pressure runbook](../reference-design/18-day-2-operations/cpu-pressure-runbook/index.md)
+- ⬜ `not-started` — [Network-debugging layers](../reference-design/18-day-2-operations/network-debugging-layers/index.md)
+
+### 0% — Part XIX — Failure modes you should explicitly design for
+
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (9)</strong>
+• Root filesystem fills
+• Developer gets compromised
+• Developer has kubectl and tries privilege escalation
+• CI runner is compromised
+• Cilium breaks after upgrade
+• Argo CD deletes something unexpectedly
+• Admission policy locks out platform workloads
+• GPU integration breaks containerd/RKE2
+• Single server dies</div></div>
+
+- ⬜ `not-started` — [Root filesystem fills](../reference-design/19-failure-modes-you-should-explicitly-design-for/root-filesystem-fills/index.md)
+- ⬜ `not-started` — [Developer gets compromised](../reference-design/19-failure-modes-you-should-explicitly-design-for/developer-gets-compromised/index.md)
+- ⬜ `not-started` — [Developer has kubectl and tries privilege escalation](../reference-design/19-failure-modes-you-should-explicitly-design-for/developer-has-kubectl-and-tries-privilege-escalation/index.md)
+- ⬜ `not-started` — [CI runner is compromised](../reference-design/19-failure-modes-you-should-explicitly-design-for/ci-runner-is-compromised/index.md)
+- ⬜ `not-started` — [Cilium breaks after upgrade](../reference-design/19-failure-modes-you-should-explicitly-design-for/cilium-breaks-after-upgrade/index.md)
+- ⬜ `not-started` — [Argo CD deletes something unexpectedly](../reference-design/19-failure-modes-you-should-explicitly-design-for/argo-cd-deletes-something-unexpectedly/index.md)
+- ⬜ `not-started` — [Admission policy locks out platform workloads](../reference-design/19-failure-modes-you-should-explicitly-design-for/admission-policy-locks-out-platform-workloads/index.md)
+- ⬜ `not-started` — [GPU integration breaks containerd/RKE2](../reference-design/19-failure-modes-you-should-explicitly-design-for/gpu-integration-breaks-containerd-rke2/index.md)
+- ⬜ `not-started` — [Single server dies](../reference-design/19-failure-modes-you-should-explicitly-design-for/single-server-dies/index.md)
+
+### 0% — Part XX — Observability: how you know the platform works
+
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (5)</strong>
+• Host SLO-style checks
+• Kubernetes checks
+• Tenant checks
+• Build checks
+• External-edge checks</div></div>
+
+- ⬜ `not-started` — [Host SLO-style checks](../reference-design/20-observability-how-you-know-the-platform-works/host-slo-style-checks/index.md)
+- ⬜ `not-started` — [Kubernetes checks](../reference-design/20-observability-how-you-know-the-platform-works/kubernetes-checks/index.md)
+- ⬜ `not-started` — [Tenant checks](../reference-design/20-observability-how-you-know-the-platform-works/tenant-checks/index.md)
+- ⬜ `not-started` — [Build checks](../reference-design/20-observability-how-you-know-the-platform-works/build-checks/index.md)
+- ⬜ `not-started` — [External-edge checks](../reference-design/20-observability-how-you-know-the-platform-works/external-edge-checks/index.md)
+
+### 0% — Part XXI — Recommended implementation sequence
+
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (9)</strong>
+• Phase A — host foundation
+• Phase B — Kubernetes foundation
+• Phase C — GitOps + tenancy
+• Phase D — policy + storage
+• Phase E — platform services
+• Phase F — developer workflow
+• Phase G — external exposure
+• Phase H — GPU
+• Phase I — reproducibility</div></div>
+
+- ⬜ `not-started` — [Phase A — host foundation](../reference-design/21-recommended-implementation-sequence/phase-a-host-foundation/index.md)
+- ⬜ `not-started` — [Phase B — Kubernetes foundation](../reference-design/21-recommended-implementation-sequence/phase-b-kubernetes-foundation/index.md)
+- ⬜ `not-started` — [Phase C — GitOps + tenancy](../reference-design/21-recommended-implementation-sequence/phase-c-gitops-tenancy/index.md)
+- ⬜ `not-started` — [Phase D — policy + storage](../reference-design/21-recommended-implementation-sequence/phase-d-policy-storage/index.md)
+- ⬜ `not-started` — [Phase E — platform services](../reference-design/21-recommended-implementation-sequence/phase-e-platform-services/index.md)
+- ⬜ `not-started` — [Phase F — developer workflow](../reference-design/21-recommended-implementation-sequence/phase-f-developer-workflow/index.md)
+- ⬜ `not-started` — [Phase G — external exposure](../reference-design/21-recommended-implementation-sequence/phase-g-external-exposure/index.md)
+- ⬜ `not-started` — [Phase H — GPU](../reference-design/21-recommended-implementation-sequence/phase-h-gpu/index.md)
+- ⬜ `not-started` — [Phase I — reproducibility](../reference-design/21-recommended-implementation-sequence/phase-i-reproducibility/index.md)
+
+### 0% — Part XXII — Plain-English glossary
+
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (25)</strong>
+• RKE2
+• CNI
+• Cilium
+• Traefik
+• Gateway API
+• GitOps
+• Argo CD
+• ResourceQuota
+• LimitRange
+• Pod Security Admission
+• Kyverno
+• LocalPV
+• OpenEBS LocalPV LVM
+• Harbor
+• BuildKit
+• Buildx
+• Skaffold
+• LXD system container
+• KVM VM
+• Tailscale
+• Cloudflare Tunnel
+• WireGuard relay
+• OpenTofu
+• Idempotent
+• Reconciliation</div></div>
+
+- ⬜ `not-started` — [RKE2](../reference-design/22-plain-english-glossary/rke2/index.md)
+- ⬜ `not-started` — [CNI](../reference-design/22-plain-english-glossary/cni/index.md)
+- ⬜ `not-started` — [Cilium](../reference-design/22-plain-english-glossary/cilium/index.md)
+- ⬜ `not-started` — [Traefik](../reference-design/22-plain-english-glossary/traefik/index.md)
+- ⬜ `not-started` — [Gateway API](../reference-design/22-plain-english-glossary/gateway-api/index.md)
+- ⬜ `not-started` — [GitOps](../reference-design/22-plain-english-glossary/gitops/index.md)
+- ⬜ `not-started` — [Argo CD](../reference-design/22-plain-english-glossary/argo-cd/index.md)
+- ⬜ `not-started` — [ResourceQuota](../reference-design/22-plain-english-glossary/resourcequota/index.md)
+- ⬜ `not-started` — [LimitRange](../reference-design/22-plain-english-glossary/limitrange/index.md)
+- ⬜ `not-started` — [Pod Security Admission](../reference-design/22-plain-english-glossary/pod-security-admission/index.md)
+- ⬜ `not-started` — [Kyverno](../reference-design/22-plain-english-glossary/kyverno/index.md)
+- ⬜ `not-started` — [LocalPV](../reference-design/22-plain-english-glossary/localpv/index.md)
+- ⬜ `not-started` — [OpenEBS LocalPV LVM](../reference-design/22-plain-english-glossary/openebs-localpv-lvm/index.md)
+- ⬜ `not-started` — [Harbor](../reference-design/22-plain-english-glossary/harbor/index.md)
+- ⬜ `not-started` — [BuildKit](../reference-design/22-plain-english-glossary/buildkit/index.md)
+- ⬜ `not-started` — [Buildx](../reference-design/22-plain-english-glossary/buildx/index.md)
+- ⬜ `not-started` — [Skaffold](../reference-design/22-plain-english-glossary/skaffold/index.md)
+- ⬜ `not-started` — [LXD system container](../reference-design/22-plain-english-glossary/lxd-system-container/index.md)
+- ⬜ `not-started` — [KVM VM](../reference-design/22-plain-english-glossary/kvm-vm/index.md)
+- ⬜ `not-started` — [Tailscale](../reference-design/22-plain-english-glossary/tailscale/index.md)
+- ⬜ `not-started` — [Cloudflare Tunnel](../reference-design/22-plain-english-glossary/cloudflare-tunnel/index.md)
+- ⬜ `not-started` — [WireGuard relay](../reference-design/22-plain-english-glossary/wireguard-relay/index.md)
+- ⬜ `not-started` — [OpenTofu](../reference-design/22-plain-english-glossary/opentofu/index.md)
+- ⬜ `not-started` — [Idempotent](../reference-design/22-plain-english-glossary/idempotent/index.md)
+- ⬜ `not-started` — [Reconciliation](../reference-design/22-plain-english-glossary/reconciliation/index.md)
+
+### 0% — Part XXIII — Compact technical reference
+
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (9)</strong>
+• Host ownership matrix
+• Namespace reference
+• Initial quota reference
+• Host developer-limit reference
+• Network exposure reference
+• Storage reference
+• Secret rules
+• "Bad idea" reference
+• First real application acceptance test</div></div>
+
+- ⬜ `not-started` — [Host ownership matrix](../reference-design/23-compact-technical-reference/host-ownership-matrix/index.md)
+- ⬜ `not-started` — [Namespace reference](../reference-design/23-compact-technical-reference/namespace-reference/index.md)
+- ⬜ `not-started` — [Initial quota reference](../reference-design/23-compact-technical-reference/initial-quota-reference/index.md)
+- ⬜ `not-started` — [Host developer-limit reference](../reference-design/23-compact-technical-reference/host-developer-limit-reference/index.md)
+- ⬜ `not-started` — [Network exposure reference](../reference-design/23-compact-technical-reference/network-exposure-reference/index.md)
+- ⬜ `not-started` — [Storage reference](../reference-design/23-compact-technical-reference/storage-reference/index.md)
+- ⬜ `not-started` — [Secret rules](../reference-design/23-compact-technical-reference/secret-rules/index.md)
+- ⬜ `not-started` — ["Bad idea" reference](../reference-design/23-compact-technical-reference/bad-idea-reference/index.md)
+- ⬜ `not-started` — [First real application acceptance test](../reference-design/23-compact-technical-reference/first-real-application-acceptance-test/index.md)
+
+### 0% — Part XXIV — Current verification references
+
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (0)</strong>
+—</div></div>
+
+
+### 0% — Part XXV — Final build order
+
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
+—
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (0)</strong>
+—</div></div>
 
 <!-- END_GENERATED_IMPLEMENTATION -->

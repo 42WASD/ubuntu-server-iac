@@ -1,6 +1,7 @@
 ---
-phase: 03-build-the-host/01-10-phase-1-inventory-the-actual-machine
+phase: 03-build-the-host/inventory-the-actual-machine
 ---
+
 # Phase 1 — inventory the actual machine
 
 **Intent:** Record reality before changing anything — storage, networking,

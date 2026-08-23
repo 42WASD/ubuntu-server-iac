@@ -1,6 +1,7 @@
 ---
-phase: 13-game-networking-foundation/02-64-phase-55-relay-bring-up
+phase: 13-game-networking-foundation/relay-bring-up
 ---
+
 # Phase 55 — relay bring-up
 
 **Intent:** start with **one relay candidate**, benchmark it honestly, and pick

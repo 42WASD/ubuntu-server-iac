@@ -1,6 +1,7 @@
 ---
-phase: 11-public-web-path/00-55-phase-46-cloudflare-tunnel
+phase: 11-public-web-path/cloudflare-tunnel
 ---
+
 # Phase 46 — Cloudflare Tunnel
 
 Deployed `cloudflared` in-cluster through Argo CD to connect the platform to

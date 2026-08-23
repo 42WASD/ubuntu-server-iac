@@ -1,6 +1,7 @@
 ---
-phase: 13-game-networking-foundation/00-62-phase-53-keep-game-workloads-in-kubernetes-for-now
+phase: 13-game-networking-foundation/keep-game-workloads-in-kubernetes-for-now
 ---
+
 # Phase 53 — keep game workloads in Kubernetes for now
 
 **Intent:** keep game hosting inside the same infrastructure discipline as the

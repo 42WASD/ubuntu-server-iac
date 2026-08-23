@@ -1,6 +1,7 @@
 ---
-phase: 04-install-rke2-correctly/01-23-phase-14-rke2-configuration/kubelet-configuration
+phase: 04-install-rke2-correctly/rke2-configuration/kubelet-configuration
 ---
+
 # Phase 14, sub-phase 23.1 — kubelet configuration
 
 **Intent:** encode the kubelet configuration as infrastructure-as-code so that

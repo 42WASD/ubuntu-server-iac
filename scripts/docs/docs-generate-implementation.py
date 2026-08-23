@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate the implementation progress page from reference design + progress.yaml.
 
-Scans docs/reference-design/build/ (the actionable build phases) and
+Scans docs/reference-design/ (the actionable build phases) and
 docs/implementation/progress.yaml (the implementation status source of truth),
 then writes the progress chart + table into docs/implementation/index.md between
 the generated markers.
@@ -26,7 +26,7 @@ except ImportError:
     sys.exit(1)
 
 REPO = Path(__file__).resolve().parent.parent.parent
-REF = REPO / "docs" / "reference-design" / "build"
+REF = REPO / "docs" / "reference-design"
 PROGRESS = REPO / "docs" / "implementation" / "progress.yaml"
 OUT = REPO / "docs" / "implementation" / "index.md"
 
@@ -48,30 +48,44 @@ def display_title(index_md: Path) -> str:
     return m.group(1).strip() if m else index_md.parent.name
 
 
+def frontmatter_order(index_md: Path) -> float:
+    """Return the `order:` value from a page's frontmatter, else Infinity."""
+    text = index_md.read_text()
+    m = re.search(r"^---\n(.*?)\n---", text, flags=re.S)
+    if m:
+        m2 = re.search(r"(?m)^order:\s*([\d.]+)\s*$", m.group(1))
+        if m2:
+            return float(m2.group(1))
+    return float("inf")
+
+
+def order_key(dir_path: Path) -> float:
+    return frontmatter_order(dir_path / "index.md")
+
+
 def scan_sections(parent: Path) -> list[dict]:
     """Return [{slug, title, subsections:[...]}] for each dir holding index.md.
 
     A *section* is a direct child with an index.md. A *sub-section* is any
     further nesting underneath it. This is recursive, so a section may carry
-    its own `subsections`.
+    its own `subsections`. Ordering is by frontmatter `order:`.
     """
     sections = []
-    for d in sorted(parent.iterdir()):
-        if d.is_dir() and (d / "index.md").exists():
-            sections.append({
-                "slug": d.name,
-                "title": display_title(d / "index.md"),
-                "subsections": scan_sections(d),
-            })
+    children = [d for d in parent.iterdir() if d.is_dir() and (d / "index.md").exists()]
+    for d in sorted(children, key=order_key):
+        sections.append({
+            "slug": d.name,
+            "title": display_title(d / "index.md"),
+            "subsections": scan_sections(d),
+        })
     return sections
 
 
 def scan_reference() -> list[dict]:
     """Return parts: [{slug, title, sections:[{slug,title,subsections:[...]}]}]."""
     parts = []
-    for part_dir in sorted(REF.iterdir()):
-        if not (part_dir / "index.md").exists():
-            continue
+    children = [d for d in REF.iterdir() if (d / "index.md").exists()]
+    for part_dir in sorted(children, key=order_key):
         parts.append({"slug": part_dir.name,
                       "title": display_title(part_dir / "index.md"),
                       "sections": scan_sections(part_dir)})
@@ -224,7 +238,7 @@ def render_sections(sections: list[dict], prefix: str, progress: dict,
         path = f"{prefix}/{s['slug']}"
         st = status_of(progress, path)
         icon = STATUS_ICON[st]
-        link = f"../reference-design/build/{path}/index.md"
+        link = f"../reference-design/{path}/index.md"
         lines.append(f"{indent}- {icon} `{st}` — [{s['title']}]({link})")
         rb = runbook_box(path, s["title"], icon)
         if rb:

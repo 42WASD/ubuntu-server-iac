@@ -1,6 +1,7 @@
 ---
-phase: 05-gitops-bootstrap/08-35-phase-26-rbac
+phase: 05-gitops-bootstrap/rbac
 ---
+
 # Phase 26 — RBAC
 
 Added namespace-scoped Roles and RoleBindings so tenant groups can work in

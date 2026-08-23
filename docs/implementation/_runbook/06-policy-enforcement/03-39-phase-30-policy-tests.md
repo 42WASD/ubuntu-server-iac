@@ -1,6 +1,7 @@
 ---
-phase: 06-policy-enforcement/03-39-phase-30-policy-tests
+phase: 06-policy-enforcement/policy-tests
 ---
+
 # Phase 30 — policy tests
 
 **Intent:** prove the Phase 29 Audit policies actually fire. Create
@@ -10,7 +11,7 @@ NodePort/LoadBalancer, unapproved registry/priority) and confirm each is either
 breaking the running platform. Nothing is flipped to Enforce yet — this is the
 test gate before any rule switches.
 
-Reference: `docs/reference-design/build/06-policy-enforcement/03-39-phase-30-policy-tests/`
+Reference: `docs/reference-design/06-policy-enforcement/policy-tests/`
 
 ## 30.1 Fixtures
 

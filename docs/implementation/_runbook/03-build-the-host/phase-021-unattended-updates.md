@@ -1,6 +1,7 @@
 ---
-phase: 03-build-the-host/02-11-phase-2-update-ubuntu-and-install-base-administration-tools/unattended-security-updates
+phase: 03-build-the-host/update-ubuntu-and-install-base-administration-tools/unattended-security-updates
 ---
+
 # Phase 2.1 — unattended security updates
 
 **Intent:** confirm automatic security updates are on, reboots controlled.

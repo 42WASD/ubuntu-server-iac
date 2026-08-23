@@ -1,6 +1,7 @@
 ---
-phase: 04-install-rke2-correctly/04-25-phase-16-install-and-start-rke2/inspect-cilium
+phase: 04-install-rke2-correctly/install-and-start-rke2/inspect-cilium
 ---
+
 # Phase 25.1 — inspect Cilium
 
 **Intent:** verify the bundled Cilium CNI is running as expected, that

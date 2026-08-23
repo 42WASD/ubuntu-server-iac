@@ -1,13 +1,14 @@
 ---
-phase: 06-policy-enforcement/00-37-phase-28-install-kyverno-through-argo-cd
+phase: 06-policy-enforcement/install-kyverno-through-argo-cd
 ---
+
 # Phase 28 — install Kyverno through Argo CD
 
 **Intent:** install Kyverno (CNCF policy engine) into its own `kyverno`
 namespace via Argo CD, using a **pinned** Helm chart version, on a single-node
 scale.
 
-Reference: `docs/reference-design/build/06-policy-enforcement/00-37-phase-28-install-kyverno-through-argo-cd/`
+Reference: `docs/reference-design/06-policy-enforcement/install-kyverno-through-argo-cd/`
 
 ## 28.1 Pre-flight (verified live)
 

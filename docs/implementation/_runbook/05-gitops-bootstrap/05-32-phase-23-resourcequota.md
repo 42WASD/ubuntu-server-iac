@@ -1,6 +1,7 @@
 ---
-phase: 05-gitops-bootstrap/05-32-phase-23-resourcequota
+phase: 05-gitops-bootstrap/resourcequota
 ---
+
 # Phase 23 — ResourceQuota
 
 Applied a `namespace-budget` ResourceQuota to every tenant namespace as a

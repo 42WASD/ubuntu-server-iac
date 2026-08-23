@@ -1,6 +1,7 @@
 ---
-phase: 07-persistent-storage/02-42-phase-33-prove-pvc-lifecycle-before-deploying-databases
+phase: 07-persistent-storage/prove-pvc-lifecycle-before-deploying-databases
 ---
+
 # Phase 33 — prove PVC lifecycle before deploying databases
 
 **Intent:** prove the full PVC lifecycle against the Phase 32 StorageClasses
@@ -8,7 +9,7 @@ before any database (PostgreSQL) or registry (Harbor) depends on it. Gate
 (Checkpoint 12): dynamic provision, mount, persistence across pod restart,
 reclaim behaviour must all be understood first.
 
-Reference: `docs/reference-design/build/07-persistent-storage/02-42-phase-33-prove-pvc-lifecycle-before-deploying-databases/`
+Reference: `docs/reference-design/07-persistent-storage/prove-pvc-lifecycle-before-deploying-databases/`
 
 ## 33.1 Test fixtures
 

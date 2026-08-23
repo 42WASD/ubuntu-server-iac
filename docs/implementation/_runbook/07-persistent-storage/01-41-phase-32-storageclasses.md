@@ -1,6 +1,7 @@
 ---
-phase: 07-persistent-storage/01-41-phase-32-storageclasses
+phase: 07-persistent-storage/storageclasses
 ---
+
 # Phase 32 — StorageClasses
 
 **Intent:** expose the OpenEBS LocalPV LVM engine (installed in Phase 31) as
@@ -8,7 +9,7 @@ three StorageClasses so tenant workloads can request NVMe-fast, NVMe-database,
 or HDD-bulk volumes. Use `vgpattern` (not a hard-coded VG name) so the
 manifests stay valid if we later add another machine with the same VG layout.
 
-Reference: `docs/reference-design/build/07-persistent-storage/01-41-phase-32-storageclasses/`
+Reference: `docs/reference-design/07-persistent-storage/storageclasses/`
 
 ## 32.1 Classes
 

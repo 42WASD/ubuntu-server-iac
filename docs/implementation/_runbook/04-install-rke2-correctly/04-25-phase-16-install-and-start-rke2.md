@@ -1,6 +1,7 @@
 ---
-phase: 04-install-rke2-correctly/04-25-phase-16-install-and-start-rke2
+phase: 04-install-rke2-correctly/install-and-start-rke2
 ---
+
 # Phase 16 — install and start RKE2
 
 **Intent:** install the pinned RKE2 release on `alpha`, enable and start the

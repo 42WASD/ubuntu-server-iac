@@ -1,6 +1,7 @@
 ---
-phase: 03-build-the-host/04-12-phase-3-hostname-dns-and-local-identity
+phase: 03-build-the-host/hostname-dns-and-local-identity
 ---
+
 # Phase 3 — hostname, DNS, and local identity
 
 **Intent:** sane hostname + `/etc/hosts`, no fake public FQDN.

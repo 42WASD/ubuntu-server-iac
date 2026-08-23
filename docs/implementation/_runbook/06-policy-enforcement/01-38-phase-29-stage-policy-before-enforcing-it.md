@@ -1,13 +1,14 @@
 ---
-phase: 06-policy-enforcement/01-38-phase-29-stage-policy-before-enforcing-it
+phase: 06-policy-enforcement/stage-policy-before-enforcing-it
 ---
+
 # Phase 29 — stage policy before enforcing it
 
 **Intent:** add Kyverno policies in **Audit** mode first, inspect reports, then
 (only after the platform/tenant workloads are clean) flip selected rules to
 **Enforce**. Do not enable 25 deny policies in one commit.
 
-Reference: `docs/reference-design/build/06-policy-enforcement/01-38-phase-29-stage-policy-before-enforcing-it/`
+Reference: `docs/reference-design/06-policy-enforcement/stage-policy-before-enforcing-it/`
 
 ## 29.1 Kyverno API note (v1.19)
 

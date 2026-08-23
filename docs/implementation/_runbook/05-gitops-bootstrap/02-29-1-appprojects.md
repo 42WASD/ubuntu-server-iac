@@ -1,6 +1,7 @@
 ---
-phase: 05-gitops-bootstrap/01-29-phase-20-root-gitops-application/appprojects
+phase: 05-gitops-bootstrap/root-gitops-application/appprojects
 ---
+
 # AppProjects (29.1)
 
 Created three AppProjects in `infra/kubernetes/bootstrap/argocd/projects.yaml`:

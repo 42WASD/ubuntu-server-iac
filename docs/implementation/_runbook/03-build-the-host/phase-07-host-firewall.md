@@ -1,6 +1,7 @@
 ---
-phase: 03-build-the-host/12-16-phase-7-host-firewall
+phase: 03-build-the-host/host-firewall
 ---
+
 # Phase 7 — host firewall (LEARN mode + approval tooling)
 
 **Intent:** bring up a platform-owned host firewall that is safe by default —

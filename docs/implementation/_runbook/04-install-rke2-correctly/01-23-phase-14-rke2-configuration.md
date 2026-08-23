@@ -1,6 +1,7 @@
 ---
-phase: 04-install-rke2-correctly/01-23-phase-14-rke2-configuration
+phase: 04-install-rke2-correctly/rke2-configuration
 ---
+
 # Phase 14 — RKE2 configuration
 
 **Intent:** define the RKE2 server configuration file (`/etc/rancher/rke2/config.yaml`)

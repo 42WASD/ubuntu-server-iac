@@ -1,6 +1,7 @@
 ---
-phase: 03-build-the-host/02-11-phase-2-update-ubuntu-and-install-base-administration-tools
+phase: 03-build-the-host/update-ubuntu-and-install-base-administration-tools
 ---
+
 # Phase 2 — update Ubuntu and install base administration tools
 
 **Intent:** Baseline OS updates, core packages, core services, and a sane

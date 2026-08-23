@@ -1,6 +1,7 @@
 ---
-phase: 03-build-the-host/28-21-phase-12-nvidia-host-driver-baseline
+phase: 03-build-the-host/nvidia-host-driver-baseline
 ---
+
 # Phase 12 — NVIDIA host driver baseline (already done on alpha)
 
 **Intent:** get a stable NVIDIA host driver baseline on `alpha` BEFORE any

@@ -1,6 +1,7 @@
 ---
-phase: 04-install-rke2-correctly/00-22-phase-13-choose-and-pin-the-rke2-release
+phase: 04-install-rke2-correctly/choose-and-pin-the-rke2-release
 ---
+
 # Phase 13 — choose and pin the RKE2 release
 
 **Intent:** pick one exact, tested RKE2 release and record it in Git so nothing

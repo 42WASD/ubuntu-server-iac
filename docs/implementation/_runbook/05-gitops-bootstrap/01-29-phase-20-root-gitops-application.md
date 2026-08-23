@@ -1,6 +1,7 @@
 ---
-phase: 05-gitops-bootstrap/01-29-phase-20-root-gitops-application
+phase: 05-gitops-bootstrap/root-gitops-application
 ---
+
 # Phase 20 — root GitOps application
 
 **Intent:** stand up the **App-of-Apps** bootstrap so Argo CD owns Kubernetes

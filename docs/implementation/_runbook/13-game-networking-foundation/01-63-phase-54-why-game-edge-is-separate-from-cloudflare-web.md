@@ -1,6 +1,7 @@
 ---
-phase: 13-game-networking-foundation/01-63-phase-54-why-game-edge-is-separate-from-cloudflare-web
+phase: 13-game-networking-foundation/why-game-edge-is-separate-from-cloudflare-web
 ---
+
 # Phase 54 — why game edge is separate from Cloudflare web
 
 **Intent:** record the deliberate design decision that the public **game**

@@ -1,6 +1,7 @@
 ---
-phase: 03-build-the-host/10-15-phase-6-tailscale-private-management-path
+phase: 03-build-the-host/tailscale-private-management-path
 ---
+
 # Phase 6 — Tailscale private management path
 
 **Intent:** private management reachability to `alpha` via Tailscale (SSH, K8s

@@ -1,6 +1,7 @@
 ---
-phase: 03-build-the-host/05-13-phase-4-users-groups-and-sudo-boundaries
+phase: 03-build-the-host/users-groups-and-sudo-boundaries
 ---
+
 # Phase 4 — users, groups, and sudo boundaries
 
 **Intent:** platform tenant groups, existing-account membership, minimal sudo —

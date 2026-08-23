@@ -1,6 +1,7 @@
 ---
-phase: 03-build-the-host/18-18-phase-9-developer-cpu-ram-pid-limits-on-the-host
+phase: 03-build-the-host/developer-cpu-ram-pid-limits-on-the-host
 ---
+
 # Phase 9 — developer CPU/RAM/PID limits on the host
 
 **Intent:** protect the 128-core host from runaway developer builds (pytest

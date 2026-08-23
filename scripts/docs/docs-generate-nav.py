@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """Rewrite the MkDocs nav for docs/reference-design based on the live folder tree.
 
-The reference design is organized into three groups (background/build/reference)
-under docs/reference-design/. This script walks that tree and rewrites the nav
-block in mkdocs.yml between the nav-autogen markers, mapping:
+The reference design is a single linear, chronological sequence. Part folders
+live directly under docs/reference-design/ (NN-slug, sorted by Roman numeral),
+and each part contains section folders named by semantic slug. Ordering is
+driven by the `order:` frontmatter key on each part/section index.md.
 
     reference-design/
-        <group>/<part>/index.md        -> group nav section, part landing page
-        <group>/<part>/<section>/index.md -> section under that part
+        <NN-part-slug>/index.md          -> part landing page
+        <NN-part-slug>/<section-slug>/index.md -> section under that part
 
 Run:
     python3 scripts/docs/docs-generate-nav.py
@@ -23,13 +24,6 @@ REPO = Path(__file__).resolve().parent.parent.parent
 MKDOCS = REPO / "mkdocs.yml"
 REF = REPO / "docs" / "reference-design"
 
-GROUP_LABELS = {
-    "background": "Concepts & Design",
-    "build": "Build (Implementation Phases)",
-    "reference": "Reference Material",
-}
-GROUP_ORDER = ["background", "build", "reference"]
-
 
 def display_title(index_md: Path) -> str:
     text = index_md.read_text()
@@ -37,38 +31,48 @@ def display_title(index_md: Path) -> str:
     return m.group(1).strip() if m else index_md.parent.name
 
 
+def frontmatter_order(index_md: Path) -> float:
+    """Return the `order:` value from a page's frontmatter, else Infinity."""
+    text = index_md.read_text()
+    m = re.search(r"^---\n(.*?)\n---", text, flags=re.S)
+    if m:
+        m2 = re.search(r"(?m)^order:\s*([\d.]+)\s*$", m.group(1))
+        if m2:
+            return float(m2.group(1))
+    return float("inf")
+
+
+def order_key(dir_path: Path) -> float:
+    """Sort key for a dir based on its index.md `order:` frontmatter."""
+    return frontmatter_order(dir_path / "index.md")
+
+
 def build_subnav(dir_path: Path, rel: str) -> list:
     """Recursively build a nav list for a directory's child sections."""
     entries = []
-    for sec_dir in sorted(dir_path.iterdir()):
-        if sec_dir.is_dir() and (sec_dir / "index.md").exists():
-            child_rel = f"{rel}/{sec_dir.name}"
-            sub = build_subnav(sec_dir, child_rel)
-            title = display_title(sec_dir / "index.md")
-            if sub:
-                entries.append({title: [f"{child_rel}/index.md", *sub]})
-            else:
-                entries.append({title: f"{child_rel}/index.md"})
+    children = [d for d in dir_path.iterdir()
+                if d.is_dir() and (d / "index.md").exists()]
+    for sec_dir in sorted(children, key=order_key):
+        child_rel = f"{rel}/{sec_dir.name}"
+        sub = build_subnav(sec_dir, child_rel)
+        title = display_title(sec_dir / "index.md")
+        if sub:
+            entries.append({title: [f"{child_rel}/index.md", *sub]})
+        else:
+            entries.append({title: f"{child_rel}/index.md"})
     return entries
 
 
 def build_nav() -> list:
-    nav = []
-    for group in GROUP_ORDER:
-        gdir = REF / group
-        if not gdir.is_dir():
-            continue
-        label = GROUP_LABELS.get(group, group)
-        parts = []
-        for part_dir in sorted(gdir.iterdir()):
-            if part_dir.is_dir() and (part_dir / "index.md").exists():
-                title = display_title(part_dir / "index.md")
-                rel = f"reference-design/{group}/{part_dir.name}"
-                part_nav_entries = [{"Overview": f"{rel}/index.md"}]
-                part_nav_entries.extend(build_subnav(part_dir, rel))
-                parts.append({title: part_nav_entries})
-        nav.append({label: parts})
-    return nav
+    parts = [d for d in REF.iterdir() if d.is_dir() and (d / "index.md").exists()]
+    part_list = []
+    for part_dir in sorted(parts, key=order_key):
+        title = display_title(part_dir / "index.md")
+        rel = f"reference-design/{part_dir.name}"
+        part_entries = [{"Overview": f"{rel}/index.md"}]
+        part_entries.extend(build_subnav(part_dir, rel))
+        part_list.append({title: part_entries})
+    return part_list
 
 
 def dump(node, level: int, lines: list, indent: int = 2) -> None:

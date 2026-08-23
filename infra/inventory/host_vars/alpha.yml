@@ -1,7 +1,7 @@
 ---
 # Per-host facts for `alpha` — captured during Phase 1 (inventory the actual
 # machine). Sanitized: no serial numbers, MACs, or secrets are stored here.
-# See docs/reference-design/build/03-build-the-host/01-10-phase-1-inventory-the-actual-machine/.
+# See docs/reference-design/03-build-the-host/inventory-the-actual-machine/.
 
 host_name: alpha
 os_expected: Ubuntu 26.04 LTS

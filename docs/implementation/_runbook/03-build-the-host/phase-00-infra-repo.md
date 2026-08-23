@@ -1,6 +1,7 @@
 ---
-phase: 03-build-the-host/00-9-phase-0-create-the-infrastructure-repository-first
+phase: 03-build-the-host/create-the-infrastructure-repository-first
 ---
+
 # Phase 0 — create the infrastructure repository first
 
 **Intent:** establish the IaC source of truth (`infra/`) and the ownership model

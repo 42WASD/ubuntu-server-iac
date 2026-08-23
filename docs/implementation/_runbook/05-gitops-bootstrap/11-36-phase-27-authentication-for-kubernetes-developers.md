@@ -1,6 +1,7 @@
 ---
-phase: 05-gitops-bootstrap/11-36-phase-27-authentication-for-kubernetes-developers
+phase: 05-gitops-bootstrap/authentication-for-kubernetes-developers
 ---
+
 # Phase 27 — authentication for Kubernetes developers (Dex + GitHub OIDC)
 
 Implemented Dex as the in-cluster OIDC identity provider, wired to GitHub

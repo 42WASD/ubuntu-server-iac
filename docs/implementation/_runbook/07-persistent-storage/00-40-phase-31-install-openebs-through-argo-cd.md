@@ -1,13 +1,14 @@
 ---
-phase: 07-persistent-storage/00-40-phase-31-install-openebs-through-argo-cd
+phase: 07-persistent-storage/install-openebs-through-argo-cd
 ---
+
 # Phase 31 — install OpenEBS through Argo CD
 
 **Intent:** install the OpenEBS unified chart via Argo CD, enabling only the
 LocalPV LVM engine we actually use. Do **not** deploy Mayastor (replicated
 engine) on a single-node host just to imitate replication.
 
-Reference: `docs/reference-design/build/07-persistent-storage/00-40-phase-31-install-openebs-through-argo-cd/`
+Reference: `docs/reference-design/07-persistent-storage/install-openebs-through-argo-cd/`
 
 ## 31.1 Design decision
 

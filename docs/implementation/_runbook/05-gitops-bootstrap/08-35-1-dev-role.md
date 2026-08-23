@@ -1,6 +1,7 @@
 ---
-phase: 05-gitops-bootstrap/08-35-phase-26-rbac/dev-role
+phase: 05-gitops-bootstrap/rbac/dev-role
 ---
+
 # dev Role (26.1)
 
 The `tenant-developer` Role grants full CRUD on pods, services, endpoints,

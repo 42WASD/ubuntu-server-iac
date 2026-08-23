@@ -1,6 +1,7 @@
 ---
-phase: 05-gitops-bootstrap/07-34-phase-25-default-deny-networkpolicy
+phase: 05-gitops-bootstrap/default-deny-networkpolicy
 ---
+
 # Phase 25 — default-deny NetworkPolicy
 
 Added a `default-deny` NetworkPolicy (Ingress + Egress) to every tenant

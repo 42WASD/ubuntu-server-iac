@@ -1,6 +1,7 @@
 ---
-phase: 05-gitops-bootstrap/04-31-phase-22-priorityclasses
+phase: 05-gitops-bootstrap/priorityclasses
 ---
+
 # Phase 22 — PriorityClasses
 # Phase 22 — PriorityClasses
 

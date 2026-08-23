@@ -1,6 +1,7 @@
 ---
-phase: 05-gitops-bootstrap/00-28-phase-19-install-argo-cd-exactly-once-by-hand
+phase: 05-gitops-bootstrap/install-argo-cd-exactly-once-by-hand
 ---
+
 # Phase 19 — install Argo CD exactly once by hand
 
 **Intent:** do the one manual, minimal install of Argo CD that bootstraps

@@ -1,6 +1,7 @@
 ---
-phase: 04-install-rke2-correctly/07-26-phase-17-admin-kubeconfig-and-cli-convenience
+phase: 04-install-rke2-correctly/admin-kubeconfig-and-cli-convenience
 ---
+
 # Phase 17 — admin kubeconfig and CLI convenience
 
 **Intent:** give the **platform admin only** (`jyao`) the RKE2 admin kubeconfig

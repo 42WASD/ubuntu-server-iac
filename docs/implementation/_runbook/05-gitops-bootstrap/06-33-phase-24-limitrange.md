@@ -1,6 +1,7 @@
 ---
-phase: 05-gitops-bootstrap/06-33-phase-24-limitrange
+phase: 05-gitops-bootstrap/limitrange
 ---
+
 # Phase 24 — LimitRange
 
 Added a `container-defaults` LimitRange to every tenant namespace so that a

@@ -1,6 +1,7 @@
 ---
-phase: 05-gitops-bootstrap/08-35-phase-26-rbac/production-is-intentionally-different
+phase: 05-gitops-bootstrap/rbac/production-is-intentionally-different
 ---
+
 # production is intentionally different (26.2)
 
 In prod namespaces developers are read-only (`get`/`list`/`watch`/`logs`/

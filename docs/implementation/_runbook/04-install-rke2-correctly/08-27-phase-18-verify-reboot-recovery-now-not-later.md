@@ -1,6 +1,7 @@
 ---
-phase: 04-install-rke2-correctly/08-27-phase-18-verify-reboot-recovery-now-not-later
+phase: 04-install-rke2-correctly/verify-reboot-recovery-now-not-later
 ---
+
 # Phase 18 — verify reboot recovery now, not later
 
 **Intent:** prove that a normal reboot brings the whole platform back with

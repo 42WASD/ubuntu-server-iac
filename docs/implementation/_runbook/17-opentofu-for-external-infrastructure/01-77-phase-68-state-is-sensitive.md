@@ -1,6 +1,7 @@
 ---
-phase: 17-opentofu-for-external-infrastructure/01-77-phase-68-state-is-sensitive
+phase: 17-opentofu-for-external-infrastructure/state-is-sensitive
 ---
+
 # Phase 68 — state is sensitive
 
 Acknowledgment note for Phase 68: OpenTofu state can contain sensitive values,

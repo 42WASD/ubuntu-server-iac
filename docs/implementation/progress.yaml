@@ -1,85 +1,70 @@
 # Implementation progress status.
-#
-# Keys are the build-phase section paths (relative to docs/reference-design/build/),
+# Keys are the build-phase section paths (relative to docs/reference-design/),
 # values are one of: done | in-progress | not-started | blocked | deferred
 #
 # Update this file as work proceeds, then regenerate the page with:
 #   python3 scripts/docs/docs-generate-implementation.py
 
-# --- Part III — Build the host ---
-"03-build-the-host/00-9-phase-0-create-the-infrastructure-repository-first": "done"
-"03-build-the-host/01-10-phase-1-inventory-the-actual-machine": "done"
-"03-build-the-host/02-11-phase-2-update-ubuntu-and-install-base-administration-tools": "done"
-"03-build-the-host/02-11-phase-2-update-ubuntu-and-install-base-administration-tools/unattended-security-updates": "done"
-"03-build-the-host/04-12-phase-3-hostname-dns-and-local-identity": "done"
-"03-build-the-host/05-13-phase-4-users-groups-and-sudo-boundaries": "done"
-"03-build-the-host/05-13-phase-4-users-groups-and-sudo-boundaries/platform-groups": "done"
-"03-build-the-host/05-13-phase-4-users-groups-and-sudo-boundaries/no-shared-human-account": "done"
-"03-build-the-host/05-13-phase-4-users-groups-and-sudo-boundaries/sudo-policy": "done"
-"03-build-the-host/09-14-phase-5-ssh-hardening": "deferred"
-"03-build-the-host/10-15-phase-6-tailscale-private-management-path": "done"
-"03-build-the-host/10-15-phase-6-tailscale-private-management-path/tailscale-policy-concept": "deferred"
-"03-build-the-host/12-16-phase-7-host-firewall": "done"
-"03-build-the-host/13-17-phase-8-system-tuning-and-resource-safety": "done"
-"03-build-the-host/13-17-phase-8-system-tuning-and-resource-safety/disable-swap-initially": "done"
-"03-build-the-host/13-17-phase-8-system-tuning-and-resource-safety/inotify-limits": "done"
-"03-build-the-host/13-17-phase-8-system-tuning-and-resource-safety/basic-forwarding": "done"
-"03-build-the-host/13-17-phase-8-system-tuning-and-resource-safety/journald-bound": "done"
-"03-build-the-host/18-18-phase-9-developer-cpu-ram-pid-limits-on-the-host": "done"
-"03-build-the-host/19-19-phase-10-storage-architecture": "done"
-"03-build-the-host/19-19-phase-10-storage-architecture/desired-logical-layout": "done"
-"03-build-the-host/19-19-phase-10-storage-architecture/fresh-install-target": "blocked"
-"03-build-the-host/19-19-phase-10-storage-architecture/existing-install-path": "done"
-"03-build-the-host/19-19-phase-10-storage-architecture/create-dedicated-rke2-filesystem-only-when-backing-storage-is-known": "done"
-"03-build-the-host/19-19-phase-10-storage-architecture/kubernetes-fast-vg": "done"
-"03-build-the-host/19-19-phase-10-storage-architecture/kubernetes-bulk-vg": "done"
-"03-build-the-host/19-19-phase-10-storage-architecture/required-lvm-module": "done"
-"03-build-the-host/27-20-phase-11-filesystem-quotas-for-developer-homes": "done"
-"03-build-the-host/28-21-phase-12-nvidia-host-driver-baseline": "done"
-
-# --- Part IV — Install RKE2 correctly ---
-"04-install-rke2-correctly/00-22-phase-13-choose-and-pin-the-rke2-release": "done"
-"04-install-rke2-correctly/01-23-phase-14-rke2-configuration": "done"
-"04-install-rke2-correctly/01-23-phase-14-rke2-configuration/kubelet-configuration": "done"
-"04-install-rke2-correctly/03-24-phase-15-configure-rke2-s-bundled-cilium": "done"
-"04-install-rke2-correctly/04-25-phase-16-install-and-start-rke2": "done"
-"04-install-rke2-correctly/04-25-phase-16-install-and-start-rke2/inspect-cilium": "done"
-"04-install-rke2-correctly/04-25-phase-16-install-and-start-rke2/verify-rke2-secrets-encryption": "done"
-"04-install-rke2-correctly/07-26-phase-17-admin-kubeconfig-and-cli-convenience": "done"
-"04-install-rke2-correctly/08-27-phase-18-verify-reboot-recovery-now-not-later": "done"
-
-# --- Part V — GitOps bootstrap ---
-"05-gitops-bootstrap/00-28-phase-19-install-argo-cd-exactly-once-by-hand": "done"
-"05-gitops-bootstrap/01-29-phase-20-root-gitops-application": "done"
-"05-gitops-bootstrap/01-29-phase-20-root-gitops-application/appprojects": "done"
-"05-gitops-bootstrap/03-30-phase-21-namespace-baseline": "done"
-"05-gitops-bootstrap/04-31-phase-22-priorityclasses": "done"
-"05-gitops-bootstrap/05-32-phase-23-resourcequota": "done"
-"05-gitops-bootstrap/06-33-phase-24-limitrange": "done"
-"05-gitops-bootstrap/07-34-phase-25-default-deny-networkpolicy": "done"
-"05-gitops-bootstrap/08-35-phase-26-rbac": "done"
-"05-gitops-bootstrap/11-36-phase-27-authentication-for-kubernetes-developers": "done"
-
-# --- Part VI — Policy enforcement ---
-"06-policy-enforcement/00-37-phase-28-install-kyverno-through-argo-cd": "done"
-"06-policy-enforcement/01-38-phase-29-stage-policy-before-enforcing-it": "done"
-"06-policy-enforcement/01-38-phase-29-stage-policy-before-enforcing-it/example-deny-hostpath": "done"
-"06-policy-enforcement/03-39-phase-30-policy-tests": "done"
-
-# --- Part VII — Persistent storage ---
-"07-persistent-storage/00-40-phase-31-install-openebs-through-argo-cd": "done"
-"07-persistent-storage/01-41-phase-32-storageclasses": "done"
-"07-persistent-storage/02-42-phase-33-prove-pvc-lifecycle-before-deploying-databases": "done"
-
-# --- Part XI — Public web path ---
-"11-public-web-path/00-55-phase-46-cloudflare-tunnel": "done"
-
-# --- Part XIII — Game networking foundation ---
-"13-game-networking-foundation/00-62-phase-53-keep-game-workloads-in-kubernetes-for-now": "done"
-"13-game-networking-foundation/01-63-phase-54-why-game-edge-is-separate-from-cloudflare-web": "done"
-"13-game-networking-foundation/02-64-phase-55-relay-bring-up": "done"
-"13-game-networking-foundation/03-67-phase-56-minecraft-server-performance": "done"
-
-# --- Part XVII — OpenTofu for external infrastructure ---
-"17-opentofu-for-external-infrastructure/00-76-phase-67-what-opentofu-should-own": "done"
-"17-opentofu-for-external-infrastructure/01-77-phase-68-state-is-sensitive": "done"
+03-build-the-host/create-the-infrastructure-repository-first: done
+03-build-the-host/inventory-the-actual-machine: done
+03-build-the-host/update-ubuntu-and-install-base-administration-tools: done
+03-build-the-host/update-ubuntu-and-install-base-administration-tools/unattended-security-updates: done
+03-build-the-host/hostname-dns-and-local-identity: done
+03-build-the-host/users-groups-and-sudo-boundaries: done
+03-build-the-host/users-groups-and-sudo-boundaries/platform-groups: done
+03-build-the-host/users-groups-and-sudo-boundaries/no-shared-human-account: done
+03-build-the-host/users-groups-and-sudo-boundaries/sudo-policy: done
+03-build-the-host/ssh-hardening: deferred
+03-build-the-host/tailscale-private-management-path: done
+03-build-the-host/tailscale-private-management-path/tailscale-policy-concept: deferred
+03-build-the-host/host-firewall: done
+03-build-the-host/system-tuning-and-resource-safety: done
+03-build-the-host/system-tuning-and-resource-safety/disable-swap-initially: done
+03-build-the-host/system-tuning-and-resource-safety/inotify-limits: done
+03-build-the-host/system-tuning-and-resource-safety/basic-forwarding: done
+03-build-the-host/system-tuning-and-resource-safety/journald-bound: done
+03-build-the-host/developer-cpu-ram-pid-limits-on-the-host: done
+03-build-the-host/storage-architecture: done
+03-build-the-host/storage-architecture/desired-logical-layout: done
+03-build-the-host/storage-architecture/fresh-install-target: blocked
+03-build-the-host/storage-architecture/existing-install-path: done
+03-build-the-host/storage-architecture/create-dedicated-rke2-filesystem-only-when-backing-storage-is-known: done
+03-build-the-host/storage-architecture/kubernetes-fast-vg: done
+03-build-the-host/storage-architecture/kubernetes-bulk-vg: done
+03-build-the-host/storage-architecture/required-lvm-module: done
+03-build-the-host/filesystem-quotas-for-developer-homes: done
+03-build-the-host/nvidia-host-driver-baseline: done
+04-install-rke2-correctly/choose-and-pin-the-rke2-release: done
+04-install-rke2-correctly/rke2-configuration: done
+04-install-rke2-correctly/rke2-configuration/kubelet-configuration: done
+04-install-rke2-correctly/configure-rke2-s-bundled-cilium: done
+04-install-rke2-correctly/install-and-start-rke2: done
+04-install-rke2-correctly/install-and-start-rke2/inspect-cilium: done
+04-install-rke2-correctly/install-and-start-rke2/verify-rke2-secrets-encryption: done
+04-install-rke2-correctly/admin-kubeconfig-and-cli-convenience: done
+04-install-rke2-correctly/verify-reboot-recovery-now-not-later: done
+05-gitops-bootstrap/install-argo-cd-exactly-once-by-hand: done
+05-gitops-bootstrap/root-gitops-application: done
+05-gitops-bootstrap/root-gitops-application/appprojects: done
+05-gitops-bootstrap/namespace-baseline: done
+05-gitops-bootstrap/priorityclasses: done
+05-gitops-bootstrap/resourcequota: done
+05-gitops-bootstrap/limitrange: done
+05-gitops-bootstrap/default-deny-networkpolicy: done
+05-gitops-bootstrap/rbac: done
+05-gitops-bootstrap/authentication-for-kubernetes-developers: done
+06-policy-enforcement/install-kyverno-through-argo-cd: done
+06-policy-enforcement/stage-policy-before-enforcing-it: done
+06-policy-enforcement/stage-policy-before-enforcing-it/example-deny-hostpath: done
+06-policy-enforcement/policy-tests: done
+07-persistent-storage/install-openebs-through-argo-cd: done
+07-persistent-storage/storageclasses: done
+07-persistent-storage/prove-pvc-lifecycle-before-deploying-databases: done
+11-public-web-path/cloudflare-tunnel: done
+13-game-networking-foundation/keep-game-workloads-in-kubernetes-for-now: done
+13-game-networking-foundation/why-game-edge-is-separate-from-cloudflare-web: done
+13-game-networking-foundation/relay-bring-up: done
+13-game-networking-foundation/minecraft-server-performance: done
+13-game-networking-foundation/game-server-orchestration-operator: done
+17-opentofu-for-external-infrastructure/what-opentofu-should-own: done
+17-opentofu-for-external-infrastructure/state-is-sensitive: done

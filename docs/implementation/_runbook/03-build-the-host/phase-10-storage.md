@@ -1,6 +1,7 @@
 ---
-phase: 03-build-the-host/19-19-phase-10-storage-architecture
+phase: 03-build-the-host/storage-architecture
 ---
+
 # Phase 10 — storage architecture
 
 **Intent:** give Kubernetes a safe, extensible storage layout: a dedicated fast

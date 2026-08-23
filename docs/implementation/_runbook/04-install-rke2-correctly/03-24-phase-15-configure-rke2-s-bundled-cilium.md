@@ -1,6 +1,7 @@
 ---
-phase: 04-install-rke2-correctly/03-24-phase-15-configure-rke2-s-bundled-cilium
+phase: 04-install-rke2-correctly/configure-rke2-s-bundled-cilium
 ---
+
 # Phase 15 — configure RKE2's bundled Cilium
 
 **Intent:** configure RKE2's **packaged** Cilium chart via a `HelmChartConfig`
