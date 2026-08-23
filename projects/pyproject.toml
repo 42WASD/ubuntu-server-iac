@@ -20,3 +20,8 @@ dev = [
 
 [tool.uv]
 package = false
+
+[tool.pytest.ini_options]
+# Run the SSOT validation suite. conftest.py adds scripts/docs to sys.path.
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"

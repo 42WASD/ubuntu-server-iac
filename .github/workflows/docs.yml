@@ -39,6 +39,9 @@ jobs:
         working-directory: projects
         run: uv sync
 
+      - name: Verify SSOT toolkit (layers 1-4)
+        run: bash scripts/docs/verify.sh
+
       - name: Build site
         working-directory: projects
         run: uv run mkdocs build --strict -f ../mkdocs.yml

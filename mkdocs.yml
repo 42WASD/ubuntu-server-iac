@@ -347,3 +347,16 @@ plugins:
   - search
   - minify:
       minify_html: true
+
+# Strict link/anchor/orphan validation (Layer 4).
+# These turn INFO diagnostics into warnings so `mkdocs build --strict` fails
+# on the first broken internal link, missing anchor, or nav-omitted file.
+validation:
+  nav:
+    omitted_files: warn
+    absolute_links: warn
+  links:
+    not_found: warn
+    absolute_links: warn
+    unrecognized_links: warn
+  anchors: warn
