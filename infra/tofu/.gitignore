@@ -1,0 +1,10 @@
+# OpenTofu state is sensitive (reference-design Phase 68). Never commit.
+*.tfstate
+*.tfstate.*
+.terraform/
+# CRASH logs
+crash.log
+# Real secret files (gitignored)
+terraform.tfvars
+# But keep the example so the variable shape is documented:
+!terraform.tfvars.example

@@ -40,15 +40,15 @@ edit/correct).
 
 ## Overall progress
 
-**59 / 93** phases/sections complete (**63%**).
+**61 / 93** phases/sections complete (**66%**).
 
-<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:63.4%"></div></div><div class="progress-pct">63%</div></div>
+<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:65.6%"></div></div><div class="progress-pct">66%</div></div>
 
 | Status | Count |
 |--------|-------|
-| ✅ done | 59 |
+| ✅ done | 61 |
 | 🔶 in-progress | 0 |
-| ⬜ not-started | 31 |
+| ⬜ not-started | 29 |
 | ❌ blocked | 1 |
 | ⏸️ deferred | 2 |
 
@@ -2069,12 +2069,21 @@ Verified the pinned artifact before wiring it in: downloaded the exact `.deb`
 and confirmed `sha256sum -c` passes and `k9s version` reports `v0.51.0`
 (commit `558caafe7b`).
 
-Deployment is handled by the playbook (run as root):
+Deployment is handled by the playbook (run as root), or targeted with the
+`k9s` tag:
 
 ```bash
 cd /home/jyao/ubuntu-server-iac/infra
 sudo ansible-playbook -i inventory/production.yml ansible/site.yml \
-  --limit alpha --connection local --tags rke2_server
+  --limit alpha --connection local --tags k9s
+# PLAY RECAP alpha: ok=6 changed=3 failed=0
+```
+
+Installed on alpha:
+
+```bash
+which k9s          # /usr/bin/k9s
+k9s version        # v0.51.0 (commit 558caafe7b, 2026-06-06)
 ```
 
 After install, any user can launch against their context, e.g.
@@ -4698,15 +4707,166 @@ Reference-design Phase 54/55 updated to reflect this verified solution.
 - ⬜ `not-started` — [Phase 65 — minimal safe autoinstall skeleton](../reference-design/build/16-ubuntu-autoinstall/01-74-phase-65-minimal-safe-autoinstall-skeleton/index.md)
 - ⬜ `not-started` — [Phase 66 — validate Autoinstall in a VM first](../reference-design/build/16-ubuntu-autoinstall/02-75-phase-66-validate-autoinstall-in-a-vm-first/index.md)
 
-### 0% — Part XVII — OpenTofu for external infrastructure
+### 100% — Part XVII — OpenTofu for external infrastructure
 
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:0.0%"></div></div><div class="progress-pct" style="font-size:.85em;">0%</div><div class="tip-box"><strong>Done (0)</strong>
-—
-<hr style="opacity:.3;margin:6px 0;"><strong>Pending (2)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:100.0%"></div></div><div class="progress-pct" style="font-size:.85em;">100%</div><div class="tip-box"><strong>Done (2)</strong>
 • Phase 67 — what OpenTofu should own
-• Phase 68 — state is sensitive</div></div>
+• Phase 68 — state is sensitive
+<hr style="opacity:.3;margin:6px 0;"><strong>Pending (0)</strong>
+—</div></div>
 
-- ⬜ `not-started` — [Phase 67 — what OpenTofu should own](../reference-design/build/17-opentofu-for-external-infrastructure/00-76-phase-67-what-opentofu-should-own/index.md)
-- ⬜ `not-started` — [Phase 68 — state is sensitive](../reference-design/build/17-opentofu-for-external-infrastructure/01-77-phase-68-state-is-sensitive/index.md)
+- ✅ `done` — [Phase 67 — what OpenTofu should own](../reference-design/build/17-opentofu-for-external-infrastructure/00-76-phase-67-what-opentofu-should-own/index.md)
+
+<details markdown="1" class="runbook">
+<summary>✅ 📜 Build log — Phase 67 — what OpenTofu should own</summary>
+
+# Phase 67/68 — OpenTofu for external infrastructure
+
+Set up OpenTofu to securely store the *connection details* of the three
+external components that this platform depends on, using encrypted remote
+state in Cloudflare R2 (S3-compatible backend). Per phase 68, state is
+sensitive and must never be committed — it lives in R2; only the lockfile and
+`terraform.tfvars.example` are committed.
+
+## 67.1 What was set up
+
+`infra/tofu/` — two OpenTofu modules, each backed by the same R2 bucket `42base`:
+
+- `infra/tofu/vps/` — stores connection details for the two external VPSes
+  (hostzealot + melbicom) via built-in `terraform_data` resources. No external
+  provider exists for these VPSes, so nothing is provisioned; OpenTofu only
+  tracks the *credentials* in encrypted remote state.
+- `infra/tofu/cloudflare/` — stores the `cloudflared` tunnel token via
+  `terraform_data`, capturing the credential that is currently a Kubernetes
+  Secret.
+
+Key files:
+
+- `infra/tofu/vps/main.tf`, `variables.tf`, `terraform.tfvars.example`
+- `infra/tofu/cloudflare/main.tf`, `variables.tf`, `terraform.tfvars.example`
+- `infra/tofu/.gitignore` — ignores `*.tfstate`, `*.tfstate.*`, `.terraform/`,
+  `crash.log`, `terraform.tfvars`; re-includes `!terraform.tfvars.example`.
+
+Secret values are read from the gitignored `terraform.tfvars` (or env), never
+from committed code.
+
+## 67.2 Backend: Cloudflare R2 via the S3 backend
+
+OpenTofu's stable release has no ORAS/GHCR backend, so Cloudflare R2 was chosen
+as an S3-compatible remote state backend. Bucket `42base` holds the state keys.
+
+Backend block (both modules, different `key`):
+
+```hcl
+terraform {
+  backend "s3" {
+    bucket = "42base"
+    key    = "vps/terraform.tfstate"        # or "cloudflare/terraform.tfstate"
+    region = "auto"
+    endpoint = "https://70e06cd0a78575fb48251884ac37f859.r2.cloudflarestorage.com"
+    skip_credentials_validation = true
+    skip_metadata_api_check     = true
+    skip_region_validation      = true
+    skip_requesting_account_id  = true
+    skip_s3_checksum            = true
+    use_path_style              = true
+  }
+}
+```
+
+The `skip_*` options and `use_path_style = true` are required because R2 is
+S3-compatible but not AWS. Credentials are supplied via the standard
+`AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` env vars (region `auto`).
+
+## 67.3 Commands run
+
+Create the R2 bucket `42base` (via the Cloudflare API; `opentofu-state` was
+created first, then deleted and replaced by `42base`):
+
+```bash
+# create bucket
+curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/<ACCT>/r2/buckets/42base" \
+  -H "Authorization: Bearer <API_TOKEN>"
+
+# delete the superseded bucket
+curl -s -X DELETE "https://api.cloudflare.com/client/v4/accounts/<ACCT>/r2/buckets/opentofu-state" \
+  -H "Authorization: Bearer <API_TOKEN>"
+```
+
+Configure S3 credentials for the backend and initialize the VPS module:
+
+```bash
+export AWS_ACCESS_KEY_ID=<ACCESS_KEY_ID>
+export AWS_SECRET_ACCESS_KEY=<SECRET_ACCESS_KEY>
+export AWS_REGION=auto
+export AWS_DEFAULT_REGION=auto
+
+cd infra/tofu/vps
+tofu init -input=false
+tofu plan -input=false -no-color
+tofu apply -input=false -auto-approve -no-color
+```
+
+Verify the two VPS connection records were planned and applied:
+
+```bash
+cd infra/tofu/vps
+tofu plan -input=false -no-color
+```
+
+The plan shows `+ resource "terraform_data" "hostzealot"` and
+`terraform_data "melbicom"` being created with their connection details
+(`public_ip`, `ssh_user`, `ssh_port`, `ssh_password` — the password shows as a
+sensitive value). Result: `Plan: 2 to add, 0 to change, 0 to destroy`, then
+`Apply complete! Resources: 2 added`.
+
+Repeat for the cloudflare module:
+
+```bash
+cd ../cloudflare
+tofu init -input=false
+tofu apply -input=false -auto-approve -no-color
+```
+
+Result: `Plan: 1 to add`, `Apply complete! Resources: 1 added`.
+
+## 67.4 What was verified
+
+- `tofu init` on `infra/tofu/vps` configured the R2 S3 backend successfully.
+- `tofu plan` showed exactly the two VPS `terraform_data` resources.
+- `tofu apply` created both, `Apply complete! Resources: 2 added`.
+- `tofu apply` on `infra/tofu/cloudflare` created the tunnel-token resource,
+  `Apply complete! Resources: 1 added`.
+- State objects are present in R2 bucket `42base`:
+
+```text
+cloudflare/terraform.tfstate   1037 bytes
+vps/terraform.tfstate          2201 bytes
+```
+
+(confirmed via an S3 `list_objects_v2` against the R2 endpoint).
+
+## 67.5 Troubleshooting
+
+- **403 `SignatureDoesNotMatch` during `tofu init`**: the access key ID / secret
+  access key pair did not match. The bucket and endpoint were correct; the
+  fault was the key pair. Fix: create a fresh R2 S3 API token in the Cloudflare
+  dashboard and use its exact Access Key ID + Secret Access Key. (Also catch a
+  typo in the secret — a single mistyped hex digit reproduces this error.)
+- The custom domain endpoint (`s3.42base.com`) was NOT mapped to the bucket and
+  returned 404 on `ListObjectsV2`; the default account endpoint
+  `<ACCOUNT_ID>.r2.cloudflarestorage.com` is the correct one to use.
+
+## 67.6 Infra encoding
+
+- OpenTofu modules + R2 backend live in `infra/tofu/`.
+- `.gitignore` protects `terraform.tfvars` (secrets) and all state files;
+  `terraform.tfvars.example` is committed as documentation.
+- These connection details are now reproducible + backed up in encrypted remote
+  state and never need to be pasted ad hoc.
+
+</details>
+
+- ✅ `done` — [Phase 68 — state is sensitive](../reference-design/build/17-opentofu-for-external-infrastructure/01-77-phase-68-state-is-sensitive/index.md)
 
 <!-- END_GENERATED_IMPLEMENTATION -->

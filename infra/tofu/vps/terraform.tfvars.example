@@ -1,0 +1,5 @@
+# Example (safe) values — copy to terraform.tfvars and fill in the secrets.
+# terraform.tfvars is gitignored; NEVER commit it.
+
+hostzealot_ssh_password = "REPLACE_WITH_SECRET"
+melbicom_ssh_password   = "REPLACE_WITH_SECRET"

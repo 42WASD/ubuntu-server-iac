@@ -1,0 +1,4 @@
+# Example (safe) value — copy to terraform.tfvars and fill in the secret.
+# terraform.tfvars is gitignored; NEVER commit it.
+
+cloudflared_tunnel_token = "REPLACE_WITH_TUNNEL_TOKEN"

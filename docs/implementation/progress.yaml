@@ -79,3 +79,7 @@
 "13-game-networking-foundation/01-63-phase-54-why-game-edge-is-separate-from-cloudflare-web": "done"
 "13-game-networking-foundation/02-64-phase-55-relay-bring-up": "done"
 "13-game-networking-foundation/03-67-phase-56-minecraft-server-performance": "done"
+
+# --- Part XVII — OpenTofu for external infrastructure ---
+"17-opentofu-for-external-infrastructure/00-76-phase-67-what-opentofu-should-own": "done"
+"17-opentofu-for-external-infrastructure/01-77-phase-68-state-is-sensitive": "done"
