@@ -6,7 +6,11 @@ metadata:
   labels:
     app: minecraft-demo
 spec:
-  replicas: 1
+  # Scaled to 0: the prd paper-lobby now serves minecraft.42base.com (via
+  # velocity on the freed nodePort 30079). Kept at 0 replicas (not deleted) so
+  # the world PVC persists for future dev use. Bring it back with
+  # `kubectl -n dev-games-42wasd-admin scale deployment minecraft-demo --replicas=1`.
+  replicas: 0
   # Vanilla Minecraft is a single in-memory process holding the world on the PVC;
   # it MUST NOT run more than one replica. Use Recreate so a new pod does not
   # start before the old one (which owns the world file) is gone.
