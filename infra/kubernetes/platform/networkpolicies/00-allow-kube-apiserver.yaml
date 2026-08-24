@@ -1,0 +1,29 @@
+# Cluster-wide egress allow to the kube-apiserver.
+#
+# WHY this is required (self-hosted apiserver + default-deny):
+#   RKE2 runs the kube-apiserver as a static pod on the node, so the
+#   kubernetes Service (ClusterIP 10.43.0.1:443) has its backend on the HOST
+#   node IP (e.g. 192.168.8.132:6443), NOT a pod IP.
+#
+#   Cilium NetworkPolicy CIDR selectors (ipBlock) IGNORE node addressing by
+#   default (--policy-cidr-match-mode excludes "nodes"). Therefore an egress
+#   rule like ipBlock: 0.0.0.0/0 NEVER matches the apiserver backend, so any
+#   pod under default-deny egress cannot reach the apiserver (DNS works only
+#   because CoreDNS is a pod whose return path stays in-cluster).
+#
+# The correct, documented Cilium mechanism is the "kube-apiserver" ENTITY,
+# which represents the apiserver both in-cluster and out-of-cluster.
+# See https://docs.cilium.io/en/stable/security/policy/language/
+#
+# This CCNP is cluster-wide (endpointSelector: {}) so EVERY tenant namespace
+# retains apiserver reachability while still being default-deny otherwise.
+# It is additive: per-namespace default-deny still blocks everything else.
+apiVersion: cilium.io/v2
+kind: CiliumClusterwideNetworkPolicy
+metadata:
+  name: allow-to-kube-apiserver
+spec:
+  endpointSelector: {}
+  egress:
+    - toEntities:
+      - kube-apiserver
