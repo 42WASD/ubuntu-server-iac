@@ -288,9 +288,11 @@ def main() -> int:
     end = "<!-- END_GENERATED_IMPLEMENTATION -->"
     replacement = f"{start}\n\n{block}\n{end}"
     if start in content and end in content:
+        # Use a callable so backslashes in the replacement (e.g. `\s` in
+        # runbook code blocks) are NOT interpreted as regex escapes.
         content = re.sub(
             re.escape(start) + r".*?" + re.escape(end),
-            replacement,
+            lambda _: replacement,
             content,
             flags=re.S,
         )

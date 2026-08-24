@@ -91,3 +91,52 @@ variable values). Actual RKE2 install/boot validation happens in Phase 16.
 - `infra/ansible/roles/rke2_server/templates/config.yaml.j2` — renders the config file.
 - `infra/ansible/roles/rke2_server/tasks/main.yml` — creates the dir + writes the file.
 - The token is never committed; it is provided at install time.
+
+## 14.4 Day-2 recovery: RKE2 crash-loop from malformed config.yaml (2026-08-24)
+
+**Symptom:** `kubectl` could not reach the API server (`connection refused` on
+`alpha.taild82ced.ts.net:6443`); `rke2-server.service` was crash-looping
+(restart counter ~1850) with:
+
+```text
+rke2[NNNN]: level=fatal msg="yaml: line 18: block sequence entries are not
+allowed in this context"
+```
+
+**Root cause:** the live `/etc/rancher/rke2/config.yaml` on the host had YAML
+sequence items glued onto the same line as their key:
+
+```yaml
+tls-san:  - "alpha.taild82ced.ts.net"      # INVALID — dash on same line as key
+node-label:  - "..." - "..." - "..."       # INVALID
+```
+
+The committed Jinja template (`config.yaml.j2`) renders correctly; the live
+file was stale (written from an older/buggy render and never re-applied). A
+malformed `config.yaml` is fatal to `rke2 server` before etcd/apiserver start,
+so **every** PVC/PV/CAS operation hangs while the cluster is down — the
+"slow PVC release" symptom is really the cluster being down.
+
+**Fix (recover to match the committed template):**
+
+```bash
+# Render the committed template with the real values to a temp file, validate,
+# then install and restart.
+python3 -c "import yaml; yaml.safe_load(open('/tmp/config_fixed.yaml')); print('VALID')"
+sudo cp /tmp/config_fixed.yaml /etc/rancher/rke2/config.yaml
+sudo systemctl restart rke2-server
+systemctl is-active rke2-server   # -> active
+kubectl get nodes                  # -> alpha Ready
+```
+
+Verify the live file matches what the template would render, and diff the two:
+
+```bash
+diff <(grep -vE '^\s*#|^\s*$' /tmp/config_fixed.yaml) \
+     <(grep -vE '^\s*#|^\s*$' /etc/rancher/rke2/config.yaml)  # -> IDENTICAL
+```
+
+**Lesson:** the Ansible role is the single source of truth for
+`config.yaml`. If the file on disk ever differs from the rendered template,
+re-run the role (or re-apply the rendered file) rather than hand-editing —
+hand edits that break YAML silently take the whole cluster down.
