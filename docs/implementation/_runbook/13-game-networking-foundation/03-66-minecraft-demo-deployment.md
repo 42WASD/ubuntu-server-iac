@@ -270,3 +270,48 @@ Install `mcstatus` (already in `projects/` venv): `uv run mcstatus` or:
 # player perspective (run on the player's machine)
 python3 -c "from mcstatus import JavaServer; s=JavaServer.lookup('minecraft.42base.com:25565'); print('player leg:', round(s.ping()), 'ms')"
 ```
+
+## 6c. Domain re-routed to the prd paper-lobby — dev scaled to 0
+
+**Intent:** `minecraft.42base.com:25565` now serves the **prd** game stack
+(Velocity proxy → paper-lobby) instead of this dev tenant. The dev
+`minecraft-demo` is **scaled to 0** and no longer owns the public domain or
+nodePort `30079`.
+
+The UAE relay and its DNAT rules are **unchanged** — the cluster-side backend
+behind `:25565` moved. Specifically:
+
+- nodePort **`30079`** is now owned by the **prd velocity** Service in
+  `prd-games-42wasd-admin` (see the `42wasd-mc` repo runbook
+  `03-step-by-step-implementation/phase-06-07-deploy-velocity-and-paper-lobby.md`
+  → "Route minecraft.42base.com to the prd paper-lobby via Velocity").
+- The relay's `25565 → 30079` alias and the `30000-30199` range pass-through
+  both still land on `30079`, which velocity now serves.
+
+### Changes in this repo (ArgoCD auto-synced)
+
+`infra/kubernetes/tenants/minecraft-demo/`:
+
+| File | Change |
+|---|---|
+| `deployment.yaml` | `replicas: 1 → 0` (scaled to 0; world PVC retained) |
+| `service.yaml` | `NodePort 30079 → ClusterIP` (frees `30079` for prd velocity) |
+
+Applied via Git push to `main` + ArgoCD auto-sync of the `minecraft-demo`
+application (project `tenant-42wasd-admin`, destination
+`dev-games-42wasd-admin`). The world PVC (`minecraft-demo-data`, 5Gi
+`nvme-fast`) is retained so the dev world can be brought back by setting
+`replicas: 1`.
+
+### Verified (live)
+
+```bash
+# dev pod is down; service back to ClusterIP (no NodePort held)
+kubectl -n dev-games-42wasd-admin get deploy,svc,pvc minecraft-demo
+
+# prd velocity owns nodePort 30079
+kubectl -n prd-games-42wasd-admin get svc velocity   # NodePort 25565:30079/TCP
+```
+
+`minecraft.42base.com:25565` now answers with the prd Velocity/paper-lobby
+stack; the dev lane is dormant but intact.
