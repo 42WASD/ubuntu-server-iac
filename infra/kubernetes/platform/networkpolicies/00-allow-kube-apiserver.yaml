@@ -15,15 +15,39 @@
 # which represents the apiserver both in-cluster and out-of-cluster.
 # See https://docs.cilium.io/en/stable/security/policy/language/
 #
-# This CCNP is cluster-wide (endpointSelector: {}) so EVERY tenant namespace
-# retains apiserver reachability while still being default-deny otherwise.
-# It is additive: per-namespace default-deny still blocks everything else.
+# CRITICAL — Cilium semantics: ANY endpoint selected by a policy becomes
+# DEFAULT-DENY for traffic the policy does not explicitly allow. Therefore a
+# blanket `endpointSelector: {}` would make EVERY pod in the cluster
+# default-deny egress, silently breaking world/egress for system namespaces
+# (kube-system, ingress) that were never meant to be default-deny (this
+# outage took down the Cloudflare tunnel, CoreDNS upstream, and app jar
+# downloads).
+#
+# We therefore scope this CCNP to ONLY the tenant namespaces that already
+# carry a `default-deny` NetworkPolicy and genuinely need the apiserver:
+#   - prd-42wasd-admin, prd-games-42wasd-admin, prd-jya0
+#   - dev-42wasd-admin, dev-games-42wasd-admin, dev-jya0
+#   - mlops
+# This matches the namespace labels used by the platform per-namespace
+# default-deny NetworkPolicies (platform-networkpolicies). Keep this list in
+# sync with those namespaces.
 apiVersion: cilium.io/v2
 kind: CiliumClusterwideNetworkPolicy
 metadata:
   name: allow-to-kube-apiserver
 spec:
-  endpointSelector: {}
+  endpointSelector:
+    matchExpressions:
+      - key: k8s:io.cilium.k8s.namespace.labels.kubernetes.io/metadata.name
+        operator: In
+        values:
+          - prd-42wasd-admin
+          - prd-games-42wasd-admin
+          - prd-jya0
+          - dev-42wasd-admin
+          - dev-games-42wasd-admin
+          - dev-jya0
+          - mlops
   egress:
     - toEntities:
       - kube-apiserver

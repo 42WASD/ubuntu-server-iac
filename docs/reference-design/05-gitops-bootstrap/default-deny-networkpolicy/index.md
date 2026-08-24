@@ -64,16 +64,39 @@ kind: CiliumClusterwideNetworkPolicy
 metadata:
   name: allow-to-kube-apiserver
 spec:
-  endpointSelector: {}
+  endpointSelector:
+    matchExpressions:
+      - key: k8s:io.cilium.k8s.namespace.labels.kubernetes.io/metadata.name
+        operator: In
+        values:
+          - prd-42wasd-admin
+          - prd-games-42wasd-admin
+          - prd-jya0
+          - dev-42wasd-admin
+          - dev-games-42wasd-admin
+          - dev-jya0
+          - mlops
   egress:
     - toEntities:
       - kube-apiserver
 ```
 
 The `kube-apiserver` entity covers both in-cluster and out-of-cluster
-deployments. Because it is a cluster-wide policy with `endpointSelector: {}`,
-every tenant namespace keeps apiserver reachability while remaining
-default-deny for everything else.
+deployments.
+
+> **CRITICAL — do not use `endpointSelector: {}` here.** In Cilium, *any*
+> endpoint selected by a policy becomes default-deny for traffic the policy
+> does not explicitly allow. A blanket `endpointSelector: {}` therefore makes
+> **every** pod in the cluster (including `kube-system` and `ingress`) egress
+> default-deny, silently cutting world/internet egress for system namespaces
+> that were never meant to be default-deny. This exact mistake took down the
+> Cloudflare tunnel, CoreDNS upstream resolution, and app jar downloads
+> (2026-08-24 incident, commit `c9795ad`).
+>
+> Scope the selector to **only** the tenant namespaces that already carry a
+> `default-deny` NetworkPolicy and genuinely need the apiserver (the list
+> above). Keep this list in sync with the platform per-namespace default-deny
+> NetworkPolicies in `platform-networkpolicies`.
 
 Then add only the actual flows the application needs.
 
