@@ -697,8 +697,60 @@ they survive reboots.
 **Infra encoding:** these belong in the `base` role (host-wide sysctl +
 journald). Add to `infra/ansible/roles/base/` tasks: copy `99-platform-*.conf`
 to `/etc/sysctl.d/`, `50-platform.conf` to `/etc/systemd/journald.conf.d/`,
-reload `sysctl`, and restart `systemd-journald`. Swap-disable is bootstrap-time
+reload `sysctl`, and restart `systemd-journald`. Swap is bootstrap-time
 (keep as a documented manual step / bootstrap task).
+
+---
+
+## 8.6 Follow-up — re-enable swap (after a host hard freeze)
+
+**Phase:** 2026-08-26. A host **hard lockup** (kernel log simply stopped at
+09:08:30 — no panic, no OOM, no shutdown) occurred while a 16-way
+`dotnet publish` was writing a WASM AOT build to the **RAM-backed** `/tmp`
+(tmpfs, `size=50%` = ~54G) with **swap disabled**. Root cause: heavy interactive
+host-side builds writing to tmpfs, with **zero swap headroom**, exhausted
+reclaimable RAM and the kernel could not make progress → hard freeze.
+
+**Why re-enable now (deliberate decision):** the Phase 8.1 disable was meant to
+be temporary — "re-enable later as a deliberate feature". The cluster is now
+validated and stable. Pod memory accounting is unaffected (pods run in their
+own cgroup limits; swap is a host-level safety net for interactive `dotnet`,
+`make -j`, pytest, etc.). Re-enabling swap restores a pressure absorber so a
+heavy build can't hard-freeze the host again.
+
+**Commands (live, verified):**
+```bash
+# confirm the swap file still exists and is a valid swap
+ls -lh /swap.img                      # 8.0G, valid Linux swap file (UUID kept)
+
+# add it back to fstab so it survives reboots
+echo '/swap.img none swap sw 0 0' >> /etc/fstab
+
+# activate immediately
+sudo swapon /swap.img
+
+# verify
+swapon --show                         # /swap.img  file  8G  0B  -1
+systemctl list-units --type=swap --all # swap.img.swap loaded active active
+free -h | grep -i swap                # Swap: 8.0Gi 0B 8.0Gi
+sysctl vm.swappiness                  # 60 (default)
+```
+
+**Verified:** swap active now and persists via `/etc/fstab` + the
+`swap.img.swap` unit.
+
+**Guidance — do users write to `/tmp`?** `/tmp` on this host is a **RAM-backed
+tmpfs** (size = 50% RAM), so anything written there consumes **system RAM**, not
+disk. Small/transient temp files are fine. **Large build/publish outputs
+belong on real disk** (`/var/tmp/`, `~/publish`, or a workspace), not `/tmp` —
+that avoids the RAM-pressure path that contributed to this freeze. This is now
+covered by the swap safety net, but redirecting big outputs off tmpfs is still
+the correct practice.
+
+**Infra encoding:** this is a host-bootstrap deviation from Phase 8.1. If it
+becomes the permanent policy, update the `disable-swap-initially` reference
+design page (mark swap re-enabled, revise rationale) and the `base` role so a
+fresh rebuild keeps swap on.
 
 </details>
 
