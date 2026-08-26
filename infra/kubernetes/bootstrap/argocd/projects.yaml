@@ -47,6 +47,7 @@ spec:
       kind: Namespace
   sourceRepos:
     - 'https://github.com/42WASD/ubuntu-server-iac.git'
+    - 'https://github.com/42WASD/42wasd-mc.git'
   destinations:
     - server: https://kubernetes.default.svc
       namespace: dev-42wasd-admin

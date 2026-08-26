@@ -100,7 +100,88 @@ deployments.
 
 Then add only the actual flows the application needs.
 
+## NetworkPolicies are ONE-WAY — match egress with a dest ingress rule
+
+`default-deny` on **both Ingress and Egress** means every intra-namespace flow
+needs **two** rules that mirror each other: an **egress** allow on the client
+AND an **ingress** allow on the destination. Kubernetes NetworkPolicies do not
+imply the reverse direction.
+
+Real example (Nakama → CockroachDB, 2026-08-26): an `allow-games-egress` let
+Nakama egress to `cockroachdb:26257`, yet the connection still timed out —
+because the DB pod's ingress was default-deny and nothing allowed traffic *in*
+to the DB. Fix: add a scoped ingress rule on the DB matching the client (same
+pattern as `allow-proxy-to-paper-lobby`):
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-nakama-to-cockroachdb
+  namespace: prd-games-42wasd-admin
+spec:
+  podSelector:
+    matchLabels:
+      app: cockroachdb
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: nakama
+      ports:
+        - protocol: TCP
+          port: 26257
+```
+
+Rule of thumb: **if you add an egress allow, also check the destination's
+ingress is allowed from that client.** Live copies live in
+`clusters/alpha/networkpolicy.yaml` in the `42wasd-mc` repo.
+
+## After a node IP change: stale CiliumEndpoints break the dataplane
+
+If pods in a default-deny namespace start crashing with DNS/connection timeouts
+after the node IP changed or a reboot, the host/netplan/RKE2/netpols may all be
+correct — the culprit is stale persisted **CiliumEndpoint (CEP)** CRs still
+holding the old node IP. Cilium will not program the datapath for "not local"
+endpoints, so traffic to/from those pods silently fails.
+
+**Recovery: delete stale CEPs AND restart the Cilium agent** (deleting alone
+regenerates only a few; the restart rewrites all of them):
+
+```bash
+export KUBECONFIG=/etc/rancher/rke2/rke2.yaml
+kubectl get cep -A -o json | python3 -c '
+import sys, json
+from collections import Counter
+d = json.load(sys.stdin)
+print(Counter(i["status"]["networking"]["node"] for i in d["items"]))'
+# delete each CEP whose node == OLD_IP, then:
+kubectl -n kube-system rollout restart daemonset cilium
+kubectl -n kube-system rollout status ds/cilium --timeout=180s
+```
+
+Full playbook: `_runbook/13-game-networking-foundation/cilium-stale-node-ip-recovery`.
+
 Example mental model:
+
+```text
+public frontend
+    -> API
+        -> PostgreSQL
+
+random dev Pod
+    -X-> PostgreSQL
+
+compromised API
+    -X-> home router / NAS / Tailscale management network
+```
+
+Cilium-specific egress controls can later enforce home-LAN exclusions more
+precisely.
+
+---
 
 ```text
 public frontend
