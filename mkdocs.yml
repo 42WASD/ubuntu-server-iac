@@ -111,7 +111,7 @@ nav:
       - basic forwarding: reference-design/03-build-the-host/system-tuning-and-resource-safety/basic-forwarding/index.md
       - inotify limits: reference-design/03-build-the-host/system-tuning-and-resource-safety/inotify-limits/index.md
       - journald bound: reference-design/03-build-the-host/system-tuning-and-resource-safety/journald-bound/index.md
-      - disable swap initially: reference-design/03-build-the-host/system-tuning-and-resource-safety/disable-swap-initially/index.md
+      - "swap: disable for bring-up, then re-enable as a host safety net": reference-design/03-build-the-host/system-tuning-and-resource-safety/disable-swap-initially/index.md
     - Phase 9 — developer CPU/RAM/PID limits on the host: reference-design/03-build-the-host/developer-cpu-ram-pid-limits-on-the-host/index.md
     - Phase 10 — storage architecture:
       - reference-design/03-build-the-host/storage-architecture/index.md

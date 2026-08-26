@@ -72,7 +72,7 @@ edit/correct).
 • basic forwarding
 • inotify limits
 • journald bound
-• disable swap initially
+• swap: disable for bring-up, then re-enable as a host safety net
 • developer CPU/RAM/PID limits on the host
 • storage architecture
 • required LVM module
@@ -757,7 +757,7 @@ fresh rebuild keeps swap on.
   - ✅ `done` — [basic forwarding](../reference-design/03-build-the-host/system-tuning-and-resource-safety/basic-forwarding/index.md)
   - ✅ `done` — [inotify limits](../reference-design/03-build-the-host/system-tuning-and-resource-safety/inotify-limits/index.md)
   - ✅ `done` — [journald bound](../reference-design/03-build-the-host/system-tuning-and-resource-safety/journald-bound/index.md)
-  - ✅ `done` — [disable swap initially](../reference-design/03-build-the-host/system-tuning-and-resource-safety/disable-swap-initially/index.md)
+  - ✅ `done` — [swap: disable for bring-up, then re-enable as a host safety net](../reference-design/03-build-the-host/system-tuning-and-resource-safety/disable-swap-initially/index.md)
 - ✅ `done` — [Phase 9 — developer CPU/RAM/PID limits on the host](../reference-design/03-build-the-host/developer-cpu-ram-pid-limits-on-the-host/index.md)
 
 <details markdown="1" class="runbook">

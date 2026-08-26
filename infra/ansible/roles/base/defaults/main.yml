@@ -58,6 +58,19 @@ base_services_enable:
 # in the `firewall` role later. Keep it disabled here to avoid a half-configured
 # firewall on early hosts.
 base_services_disabled:
+
+# --- Phase 8: system tuning & resource safety ---
+
+# Host swap. Kubernetes pods have their own cgroup limits and are NOT bounded
+# by host swap, so re-enabling swap does not affect pod accounting. It provides
+# a host-level pressure absorber for interactive workloads (builds, make -j).
+# Swap was disabled for initial cluster bring-up, then re-enabled once the
+# cluster was validated (see reference design: system-tuning-and-resource-safety/
+# disable-swap-initially). Set to false to keep swap off.
+base_swap_enabled: true
+base_swap_file: /swap.img
+# vm.swappiness — how eagerly the kernel swaps anonymous pages (0..100).
+base_swappiness: 60
   - nftables
 
 # unattended-upgrades policy (Phase 2 / Phase 2.1).

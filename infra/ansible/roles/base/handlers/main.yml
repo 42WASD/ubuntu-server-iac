@@ -4,3 +4,12 @@
   ansible.builtin.systemd:
     name: unattended-upgrades
     state: restarted
+
+- name: reload sysctl
+  ansible.builtin.command: sysctl --system
+  become: true
+
+- name: restart journald
+  ansible.builtin.systemd:
+    name: systemd-journald
+    state: restarted

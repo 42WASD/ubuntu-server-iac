@@ -73,3 +73,95 @@
     state: stopped
   loop: "{{ base_services_disabled }}"
   ignore_errors: yes
+
+# --- Phase 8: system tuning & resource safety ---
+
+# --- swap (host-level pressure safety net) ---
+# Pods have their own cgroup limits and are NOT bounded by host swap, so this
+# does not change pod accounting. Swap is a safety net for interactive builds.
+
+- name: Ensure swap file exists (create if missing)
+  ansible.builtin.command:
+    cmd: "fallocate -l 8G {{ base_swap_file }}"
+    creates: "{{ base_swap_file }}"
+  become: true
+  when: base_swap_enabled
+
+- name: Format swap file
+  ansible.builtin.command:
+    cmd: "mkswap {{ base_swap_file }}"
+  become: true
+  when: base_swap_enabled
+  register: swap_mkfs
+  changed_when: swap_mkfs.stdout | regex_search('Setting up swapspace') != None
+
+- name: Ensure swap entry is in /etc/fstab
+  ansible.builtin.lineinfile:
+    path: /etc/fstab
+    line: "{{ base_swap_file }} none swap sw 0 0"
+    create: yes
+    state: present
+  become: true
+  when: base_swap_enabled
+
+- name: Remove swap entry from /etc/fstab when disabled
+  ansible.builtin.lineinfile:
+    path: /etc/fstab
+    regexp: "^{{ base_swap_file }}.*swap"
+    state: absent
+  become: true
+  when: not base_swap_enabled
+
+- name: Enable swap
+  ansible.builtin.command:
+    cmd: "swapon {{ base_swap_file }}"
+  become: true
+  when: base_swap_enabled
+  register: swapon_result
+  changed_when: "'already' not in swapon_result.stderr"
+  failed_when: swapon_result.rc != 0 and 'already' not in swapon_result.stderr
+
+- name: Disable swap
+  ansible.builtin.command:
+    cmd: "swapoff -a"
+  become: true
+  when: not base_swap_enabled
+  changed_when: false
+
+- name: Set vm.swappiness
+  ansible.builtin.sysctl:
+    name: vm.swappiness
+    value: "{{ base_swappiness }}"
+    state: present
+    reload: yes
+  when: base_swap_enabled
+
+# --- inotify limits (RKE2 container watchers) ---
+- name: Deploy inotify sysctl drop-in
+  ansible.builtin.copy:
+    src: 99-platform-inotify.conf
+    dest: /etc/sysctl.d/99-platform-inotify.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: reload sysctl
+
+# --- basic IP forwarding (k8s pod networking) ---
+- name: Deploy network sysctl drop-in
+  ansible.builtin.copy:
+    src: 99-platform-network.conf
+    dest: /etc/sysctl.d/99-platform-network.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: reload sysctl
+
+# --- journald storage bound ---
+- name: Deploy journald bound drop-in
+  ansible.builtin.copy:
+    src: 50-platform.conf
+    dest: /etc/systemd/journald.conf.d/50-platform.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: restart journald
