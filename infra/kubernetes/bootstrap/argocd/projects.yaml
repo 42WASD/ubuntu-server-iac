@@ -48,6 +48,7 @@ spec:
   sourceRepos:
     - 'https://github.com/42WASD/ubuntu-server-iac.git'
     - 'https://github.com/42WASD/42wasd-mc.git'
+    - 'https://github.com/42WASD/42wasd-community-web.git'
   destinations:
     - server: https://kubernetes.default.svc
       namespace: dev-42wasd-admin

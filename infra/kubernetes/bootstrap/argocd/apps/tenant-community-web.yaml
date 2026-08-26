@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tenant-community-web
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  project: tenant-42wasd-admin
+
+  source:
+    repoURL: https://github.com/42WASD/42wasd-community-web.git
+    targetRevision: main
+    path: deploy/k8s
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: prd-42wasd-admin
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
