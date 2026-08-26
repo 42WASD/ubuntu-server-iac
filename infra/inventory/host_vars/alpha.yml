@@ -44,7 +44,12 @@ storage_plan:
 network:
   # Primary LAN interface (has the default route).
   lan_nic: enp193s0
-  lan_ipv4: 192.168.8.132
+  # STATIC address, pinned via netplan (dhcp4: false). Picked from the high
+  # range to avoid collisions with DHCP-issued leases. This is the SSOT for
+  # alpha's LAN IP and MUST match `node-ip` in /etc/rancher/rke2/config.yaml
+  # and the netplan config on the host (RKE2 derives its etcd peer/advertise
+  # URLs from node-ip — DHCP drift here is what caused the cluster outage).
+  lan_ipv4: 192.168.8.240
   lan_gateway: 192.168.8.1
   management_tailscale_ipv4: 100.112.202.47
   # Stable MagicDNS name (from `tailscale status --json` -> Self.DNSName).

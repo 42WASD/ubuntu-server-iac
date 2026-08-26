@@ -164,7 +164,8 @@ Saved to `~/platform-audit/alpha-baseline.txt`.
 **What it produced:** `infra/inventory/host_vars/alpha.yml` — sanitized facts:
 64 cores / 128 threads, 112 GiB RAM, 8 GiB swap, 2× RTX 3090, NVMe 1.9T
 (Samsung PM9A1, OS root) + HDD 5.5T (ST6000NM0115, unallocated), LAN
-`enp193s0` `192.168.8.132`, Tailscale `100.112.202.47`.
+`enp193s0` `192.168.8.240` (now static; was `192.168.8.132` on DHCP),
+Tailscale `100.112.202.47`.
 
 **Checkpoint 1 (verified):** identified the root device, both GPUs on PCIe, LVM
 usage, free space, and the LAN NIC.
@@ -2299,6 +2300,64 @@ The reboot required **zero** manual container starts, **zero** manual
 `kubectl apply`, and **zero** manual CNI repair. Node, add-ons, and the
 `demo-meme` tenant all recovered automatically. This closes the reboot-risk
 gate before adding more components.
+
+## 18.9 Follow-up incident — DHCP IP drift took the cluster down
+
+**Symptom:** `rke2-server` stuck in `activating`, `kubectl` unresponsive.
+`journalctl -u rke2-server` showed the etcd peer mismatch:
+
+```text
+Found [alpha-49ad8379=https://192.168.8.132:2380], expect:
+  ... https://192.168.8.137:2380
+```
+
+**Root cause:** `enp193s0` was on **DHCP** and the lease moved across reboots
+(`192.168.8.132` → `192.168.8.137`). RKE2 derives its etcd peer/advertise URLs
+from the node IP, so an IP change left etcd's membership pointing at an
+address the node no longer held.
+
+**Fix (do this on any RKE2 server running on DHCP):**
+
+1. Pin the LAN interface to a **static, uncommon** address so it can't collide
+   with the DHCP pool — `192.168.8.240` (high range, avoids `.132–.150` DHCP
+   range) — in `/etc/netplan/00-installer-config.yaml` (`dhcp4: false`), then
+   `sudo netplan apply`.
+2. Pin RKE2's `node-ip` to the same address so RKE2 is decoupled from the
+   interface lease entirely. Append to `/etc/rancher/rke2/config.yaml`:
+
+```yaml
+# Pinned node-ip to the static LAN address (192.168.8.240) so the etcd
+# peer/advertise URLs no longer depend on the DHCP lease. See netplan.
+node-ip: 192.168.8.240
+```
+
+3. Reconcile the already-booted etcd. For a **single-node** control plane the
+   recovery is a cluster-reset (forgets stale peers, becomes sole member again
+   using the current node-ip, keeps existing data dir):
+
+```bash
+sudo systemctl stop rke2-server
+sudo rke2 server --cluster-reset            # resets membership, backs up certs
+sudo systemctl start rke2-server
+```
+
+4. Verify etcd now advertises the new address and the node is healthy:
+
+```bash
+sudo cat /var/lib/rancher/rke2/server/db/etcd/config | grep -E 'advertise|initial-cluster'
+# expect: https://192.168.8.240:2380  (NOT the old lease)
+export KUBECONFIG=/etc/rancher/rke2/rke2.yaml
+kubectl get nodes -o wide          # alpha Ready, INTERNAL-IP 192.168.8.240
+kubectl get pods -A | grep -vE 'Running|Completed'
+```
+
+**Verified (live):** etcd config regenerated with `initial-cluster:
+alpha-107afd20=https://192.168.8.240:2380` and
+`advertise-client-urls: https://192.168.8.240:2379`; `alpha` returned to
+`Ready` at `192.168.8.240`; Cilium, Traefik, CoreDNS, and Kyverno all recovered;
+the `42wasd` app returned to `1/1 Running` and served `HTTP 200` through the
+ingress. The DHCP IP drift is now impossible because the address is static in
+both netplan and `node-ip`.
 
 </details>
 

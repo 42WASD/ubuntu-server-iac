@@ -3,7 +3,7 @@
 # WHY this is required (self-hosted apiserver + default-deny):
 #   RKE2 runs the kube-apiserver as a static pod on the node, so the
 #   kubernetes Service (ClusterIP 10.43.0.1:443) has its backend on the HOST
-#   node IP (e.g. 192.168.8.132:6443), NOT a pod IP.
+#   node IP (e.g. 192.168.8.240:6443), NOT a pod IP.
 #
 #   Cilium NetworkPolicy CIDR selectors (ipBlock) IGNORE node addressing by
 #   default (--policy-cidr-match-mode excludes "nodes"). Therefore an egress

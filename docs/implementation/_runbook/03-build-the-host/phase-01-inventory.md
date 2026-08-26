@@ -46,7 +46,8 @@ Saved to `~/platform-audit/alpha-baseline.txt`.
 **What it produced:** `infra/inventory/host_vars/alpha.yml` — sanitized facts:
 64 cores / 128 threads, 112 GiB RAM, 8 GiB swap, 2× RTX 3090, NVMe 1.9T
 (Samsung PM9A1, OS root) + HDD 5.5T (ST6000NM0115, unallocated), LAN
-`enp193s0` `192.168.8.132`, Tailscale `100.112.202.47`.
+`enp193s0` `192.168.8.240` (now static; was `192.168.8.132` on DHCP),
+Tailscale `100.112.202.47`.
 
 **Checkpoint 1 (verified):** identified the root device, both GPUs on PCIe, LVM
 usage, free space, and the LAN NIC.
