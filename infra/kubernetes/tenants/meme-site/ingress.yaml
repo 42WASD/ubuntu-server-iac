@@ -18,13 +18,6 @@ spec:
                 name: meme-site
                 port:
                   number: 80
-    - host: wasd.42base.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: meme-site
-                port:
-                  number: 80
+    # NOTE: wasd.42base.com was removed — this host is now served by the
+    # 42wasd app in the prd-42wasd-admin namespace (see the 42wasd-community-web
+    # repo's deploy/k8s/ingress.yaml).
