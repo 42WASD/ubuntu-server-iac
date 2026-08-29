@@ -10,6 +10,12 @@ kube-state-metrics
 Alertmanager
 ```
 
+> **As-deployed note (2026-08-29):** the stack is running (chart
+> `kube-prometheus-stack-88.5.4`, release `prometheus`, ns `monitoring`) but
+> was installed via **plain Helm**, not Argo CD, and has **no PVCs / no
+> retention override / no Loki** yet. See the metrics-stack runbook for the
+> live state and follow-ups.
+
 Start small.
 
 Single-node default targets:

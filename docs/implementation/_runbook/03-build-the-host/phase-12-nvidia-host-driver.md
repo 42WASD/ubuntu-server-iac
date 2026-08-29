@@ -23,14 +23,16 @@ lspci -nn | grep -i nvidia
 ```
 
 **Driver:** Ubuntu-packaged `nvidia-driver-595-server` (595.71.05), DKMS-built
-for kernel `7.0.0-29-generic`:
+for the running kernel (originally `7.0.0-29-generic`; rebuilt for
+`7.0.0-30-generic` after a kernel update — DKMS rebuilds automatically on
+kernel upgrades):
 
 ```bash
 nvidia-smi
 # NVIDIA-SMI 595.71.05 | Driver Version: 595.71.05 | CUDA Version: 13.2
 # 2x NVIDIA GeForce RTX 3090 (24576 MiB each), Persistence-M: On
 dkms status
-# nvidia-srv/595.71.05, 7.0.0-29-generic, x86_64: installed
+# nvidia-srv/595.71.05, 7.0.0-30-generic, x86_64: installed  (re-verified 2026-08-29)
 ```
 
 ## 12.2 Reconstructed install commands (from apt history)

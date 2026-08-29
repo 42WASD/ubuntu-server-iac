@@ -64,6 +64,7 @@
 07-persistent-storage/storageclasses: done
 07-persistent-storage/prove-pvc-lifecycle-before-deploying-databases: done
 11-public-web-path/cloudflare-tunnel: done
+08-monitoring-and-logs/metrics-stack: in-progress
 13-game-networking-foundation/keep-game-workloads-in-kubernetes-for-now: done
 13-game-networking-foundation/why-game-edge-is-separate-from-cloudflare-web: done
 13-game-networking-foundation/relay-bring-up: done

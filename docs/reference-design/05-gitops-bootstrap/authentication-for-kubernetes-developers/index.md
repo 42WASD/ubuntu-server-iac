@@ -39,7 +39,9 @@ GitHub account (developer)
     |  OAuth
     v
 Dex (in-cluster, Argo CD)
-    |  OIDC issuer (HTTPS on tailnet, e.g. dex.alpha.taild82ced.ts.net)
+    |  OIDC issuer (HTTPS on the node's own tailnet FQDN:
+    |  https://alpha.taild82ced.ts.net — Tailscale certs cover ONLY the
+    |  node FQDN, no subdomains; Traefik serves the issuer on 443)
     |  device-code flow via kubelogin
     v
 kube-apiserver --oidc-issuer-url / --oidc-client-id
@@ -52,7 +54,7 @@ Kubernetes RBAC (Phase 26 RoleBindings by group)
 ### 27.1.2 Implementation steps (deferred)
 
 1. **RKE2 OIDC flags** — add to `rke2_server` role config: `--oidc-issuer-url`, `--oidc-client-id`, `--oidc-username-claim=email`, `--oidc-groups-claim=groups`; restart `rke2-server`.
-2. **Dex issuer TLS** — serve Dex over HTTPS on the tailnet (Tailscale cert for `dex.alpha.taild82ced.ts.net`, or Traefik TLS) so the device-code verification page loads in the browser.
+2. **Dex issuer TLS** — serve the issuer over HTTPS on the tailnet using the Tailscale cert for the **node's own FQDN** (`alpha.taild82ced.ts.net`; subdomains like `dex.alpha.…` are rejected by Tailscale cert issuance), routed via Traefik 443, so the device-code verification page loads in the browser.
 3. **Deploy Dex via Argo CD** — new child app; GitHub connector; GitHub OAuth `client_id`/`client_secret` stored as a Kubernetes Secret, **never in Git**.
 4. **Map GitHub identity → groups** — Dex `groups` claim must produce `tenant-jya0` / `tenant-42wasd-admin` so the Phase 26 RoleBindings apply.
 5. **Install kubelogin + kubeconfig** — `kubectl oidc-login` (device flow) as an exec credential plugin in each developer kubeconfig.

@@ -63,3 +63,20 @@ ssh <user>@<current-alpha-ip>
 Then test password authentication is rejected.
 
 ---
+
+## Status on `alpha` (2026-08-29): NOT applied — deferred
+
+The baseline above is **recommendation, not current state**. This phase is
+tracked as `deferred` in `docs/implementation/progress.yaml`. Live sshd on
+`alpha` is still the stock Ubuntu configuration:
+
+```bash
+sudo sshd -T | grep -iE '^passwordauthentication|^permitrootlogin'
+# passwordauthentication yes
+# permitrootlogin prohibit-password
+```
+
+Mitigations currently in place instead: the host firewall
+(`platform-nftables.service`) restricts inbound SSH, and developer access
+flows through named accounts + groups (Phase 4). Apply this drop-in when the
+phase is picked up — it documents the intended end state.
