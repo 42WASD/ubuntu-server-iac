@@ -400,7 +400,7 @@ Verified for each of `ehammoud mayan mtangalv`:
 # Sudo policy (minimal) — Phase 4.3
 
 Covered in detail by the parent runbook
-[phase-04-users-groups.md](phase-04-users-groups.md) §4.3 (and the sudo-policy
+the Phase 4 runbook (`_runbook/03-build-the-host/phase-04-users-groups.md`) §4.3 (and the sudo-policy
 subsection of the reference design).
 
 Policy applied on `alpha`:
@@ -420,7 +420,7 @@ Policy applied on `alpha`:
 # Platform groups — Phase 4.1
 
 Covered in detail by the parent runbook
-[phase-04-users-groups.md](phase-04-users-groups.md) §4.1 (incl. the post-hoc
+the Phase 4 runbook (`_runbook/03-build-the-host/phase-04-users-groups.md`) §4.1 (incl. the post-hoc
 group rename).
 
 ```bash
@@ -443,7 +443,7 @@ clarity; the name is consistent across infra + docs now.
 # No shared human account — Phase 4.2/4.4
 
 Covered in detail by the parent runbook
-[phase-04-users-groups.md](phase-04-users-groups.md) §4.2 and §4.4.
+the Phase 4 runbook (`_runbook/03-build-the-host/phase-04-users-groups.md`) §4.2 and §4.4.
 
 Every human gets a **named account** (no shared logins): `jyao-42admin`
 (UID 1001, groups `ssh-users tenant-42wasd-admin`) plus tenant accounts
@@ -821,7 +821,7 @@ fresh rebuild keeps swap on.
 # Basic IP forwarding — Phase 8.3
 
 Covered in detail by the parent runbook
-[phase-08-system-tuning.md](phase-08-system-tuning.md) §8.3.
+the Phase 8 runbook (`_runbook/03-build-the-host/phase-08-system-tuning.md`) §8.3.
 
 ```bash
 # Deploy the network sysctl drop-in (source: scripts/system/)
@@ -843,7 +843,7 @@ resets can't silently flip them). No masquerading/general routing added.
 # inotify limits — Phase 8.2
 
 Covered in detail by the parent runbook
-[phase-08-system-tuning.md](phase-08-system-tuning.md) §8.2.
+the Phase 8 runbook (`_runbook/03-build-the-host/phase-08-system-tuning.md`) §8.2.
 
 ```bash
 # Raise inotify watcher limits for RKE2/container workloads
@@ -864,7 +864,7 @@ Verified with `sysctl fs.inotify.max_user_instances fs.inotify.max_user_watches`
 # journald storage bound — Phase 8.4
 
 Covered in detail by the parent runbook
-[phase-08-system-tuning.md](phase-08-system-tuning.md) §8.4.
+the Phase 8 runbook (`_runbook/03-build-the-host/phase-08-system-tuning.md`) §8.4.
 
 ```bash
 sudo mkdir -p /etc/systemd/journald.conf.d
@@ -886,7 +886,7 @@ node disk. Verified with `journalctl --disk-usage`.
 # Disable swap (initially) — Phase 8.1
 
 Covered in detail by the parent runbook
-[phase-08-system-tuning.md](phase-08-system-tuning.md) §8.1.
+the Phase 8 runbook (`_runbook/03-build-the-host/phase-08-system-tuning.md`) §8.1.
 
 Summary of the change applied to `alpha`:
 
@@ -1142,7 +1142,7 @@ bulk VGs, and load/persist `dm_snapshot`. Both K8s VGs now exist on alpha.
 # Storage: required LVM module (dm_snapshot) — Phase 10.5
 
 Covered in detail by the parent runbook
-[phase-10-storage.md](phase-10-storage.md) §10.5.
+the Phase 10 runbook (`_runbook/03-build-the-host/phase-10-storage.md`) §10.5.
 
 ```bash
 sudo modprobe dm_snapshot
@@ -1163,7 +1163,7 @@ at every boot.
 # Storage: existing-install path — Phase 10
 
 Covered in detail by the parent runbook
-[phase-10-storage.md](phase-10-storage.md) (§10.1 inspect-first and the
+the Phase 10 runbook (`_runbook/03-build-the-host/phase-10-storage.md`) (§10.1 inspect-first and the
 existing-install decision).
 
 `alpha` came with Ubuntu already on LVM: the whole NVMe is one PV owned by
@@ -1182,7 +1182,7 @@ than repartition a live filesystem, LVs are carved from free extents of
 # Storage: desired logical layout — Phase 10
 
 Covered in detail by the parent runbook
-[phase-10-storage.md](phase-10-storage.md) (§10.1 inspection, the layout
+the Phase 10 runbook (`_runbook/03-build-the-host/phase-10-storage.md`) (§10.1 inspection, the layout
 decision, and Checkpoint 7).
 
 The realized layout on `alpha`:
@@ -1207,7 +1207,7 @@ was executed.
 # Storage: dedicated RKE2 filesystem only when backing storage is known — Phase 10
 
 Covered in detail by the parent runbook
-[phase-10-storage.md](phase-10-storage.md) (§10.2 fast filesystem on NVMe and
+the Phase 10 runbook (`_runbook/03-build-the-host/phase-10-storage.md`) (§10.2 fast filesystem on NVMe and
 §10.3 bulk VG on the HDD).
 
 Principle applied: only create dedicated filesystems/VGs once the backing
@@ -1226,7 +1226,7 @@ meant `lsblk/pvs/vgs/lvs` first, then `vg_k8s_hdd` (HDD, 0–60%) and
 # Storage: Kubernetes fast VG — Phase 10.4
 
 Covered in detail by the parent runbook
-[phase-10-storage.md](phase-10-storage.md) §10.4 (created after owner override).
+the Phase 10 runbook (`_runbook/03-build-the-host/phase-10-storage.md`) §10.4 (created after owner override).
 
 ```bash
 # Shrink PV metadata first (removes only free extents — never touches LV data)
@@ -1251,7 +1251,7 @@ Owner-approved on a fresh server; every size verified with `pvs/vgs/lvs` and
 # Storage: Kubernetes bulk VG — Phase 10.3
 
 Covered in detail by the parent runbook
-[phase-10-storage.md](phase-10-storage.md) §10.3.
+the Phase 10 runbook (`_runbook/03-build-the-host/phase-10-storage.md`) §10.3.
 
 ```bash
 sudo parted -s /dev/sda mklabel gpt
@@ -4352,7 +4352,7 @@ creates intentionally-bad manifests to prove the deny rules actually fire.
 # Example: deny hostPath — Phase 29.2
 
 Covered in detail by the parent runbook
-[01-38-phase-29-stage-policy-before-enforcing-it.md](01-38-phase-29-stage-policy-before-enforcing-it.md)
+`_runbook/06-policy-enforcement/01-38-phase-29-stage-policy-before-enforcing-it.md`
 (§29.2 policy table).
 
 The `hostPath` deny is part of the `disallow-privileged-host-settings`

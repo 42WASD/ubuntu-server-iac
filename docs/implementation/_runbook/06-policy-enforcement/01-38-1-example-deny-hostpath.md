@@ -5,7 +5,7 @@ phase: 06-policy-enforcement/stage-policy-before-enforcing-it/example-deny-hostp
 # Example: deny hostPath — Phase 29.2
 
 Covered in detail by the parent runbook
-[01-38-phase-29-stage-policy-before-enforcing-it.md](01-38-phase-29-stage-policy-before-enforcing-it.md)
+`_runbook/06-policy-enforcement/01-38-phase-29-stage-policy-before-enforcing-it.md`
 (§29.2 policy table).
 
 The `hostPath` deny is part of the `disallow-privileged-host-settings`
