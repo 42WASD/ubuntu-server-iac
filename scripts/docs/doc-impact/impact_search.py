@@ -6,11 +6,18 @@ files touched, state changes observed), retrieve the runbook/reference pages
 that talk about the same things — even when the wording differs — so the agent
 can load them and correct any drift.
 
+Index: reads the COMMITTED FTS5 index (scripts/docs/doc-impact/doc-index.db),
+so clones get it for free and searches are ~10ms with no rebuild step. The
+index is hash-synced by `doc-index.py sync` (run automatically via the
+post-commit hook / after doc edits). If the index is missing or stale, this
+script falls back to building a transient BM25 index in memory and hints at
+running `doc-index.py sync`.
+
 Retrieval is hybrid (the converged best practice in 2026 retrieval stacks:
 lexical + fuzzy beats either alone at small-corpus scale):
-  1. BM25 lexical scoring (rank-bm25) over sentence-level doc chunks
+  1. FTS5 bm25() ranking (porter-stemmed) over heading-aware doc chunks
   2. RapidFuzz partial-ratio boost for near-miss phrasing / renames
-  3. Headings and chunk locality so hits name a section, not just a file
+  3. Per-file dedupe so hits name a section, not just a file
 
 Usage:
   uv run python scripts/docs/doc-impact/impact_search.py "swapped vg_k8s_fast for vg_k8s_nvme, recreated StorageClasses"
@@ -25,10 +32,13 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import sqlite3
 import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[3]
+SCRIPT_DIR = Path(__file__).resolve().parent
+DB_PATH = SCRIPT_DIR / "doc-index.db"
+REPO = SCRIPT_DIR.parents[2]
 DOC_ROOTS = [
     REPO / "docs" / "reference-design",
     REPO / "docs" / "implementation" / "_runbook",
@@ -96,34 +106,82 @@ def tokenize(text: str) -> list[str]:
     return [t for t in text.split() if t and t not in stop and len(t) > 1]
 
 
-def build_index():
-    try:
-        from rank_bm25 import BM25Okapi  # type: ignore
-    except ImportError:
-        sys.exit(
-            "rank-bm25 missing — run: cd projects && uv add rank-bm25 rapidfuzz"
-        )
-    files = iter_markdown_files()
-    chunks: list[tuple[str, str, int]] = []
-    for f in files:
-        chunks.extend(chunk_markdown(f))
-    if not chunks:
-        sys.exit("no markdown corpus found under docs/")
-    corpus = [tokenize(c[1]) for c in chunks]
-    return chunks, BM25Okapi(corpus)
+def _fts_query(query: str) -> str:
+    """Build an OR-quoted FTS5 query from the raw text (safe: quoted prefix
+    terms; punctuation dropped)."""
+    words = [w for w in re.findall(r"[\w./-]+", query) if len(w) > 1]
+    if not words:
+        return ""
+    # prefix match each token so 'stor' hits 'storageclasses'
+    return " OR ".join(f'"{w}"*' for w in words[:24])
 
 
 def search(query: str, top: int) -> list[dict]:
     from rapidfuzz import fuzz  # type: ignore
 
-    chunks, bm25 = build_index()
-    q_tokens = tokenize(query)
-    scores = bm25.get_scores(q_tokens) if q_tokens else [0.0] * len(chunks)
-
     q_low = query.lower()
+    chunks: list[tuple[str, str, int, float]] = []  # (chunk_id, text, line, bm25)
+
+    # --- primary path: committed FTS5 index --------------------------------
+    if DB_PATH.exists():
+        try:
+            con = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True)
+            con.row_factory = sqlite3.Row
+            fts = _fts_query(query)
+            if fts:
+                # chunk_id encodes "path::line"; join to recover line numbers
+                rows = con.execute(
+                    """
+                    SELECT c.path, c.heading, c.body, h.chunk_id,
+                           bm25(chunks) AS rank
+                    FROM chunks c
+                    JOIN chunk_hashes h ON h.chunk_id LIKE (c.path || '::%')
+                    WHERE chunks MATCH ?
+                    ORDER BY rank
+                    LIMIT 400
+                    """,
+                    (fts,),
+                ).fetchall()
+                for row in rows:
+                    line = int(row["chunk_id"].rsplit("::", 1)[1])
+                    heading = row["heading"]
+                    body = row["body"]
+                    name = Path(row["path"]).name
+                    text = f"{name}: {heading} — {body}" if heading else f"{name}: {body}"
+                    # bm25() is negative-better; invert to a positive score
+                    chunks.append((f"{row['path']}:{line}", text, line, -row["rank"]))
+            con.close()
+        except sqlite3.Error as e:
+            print(f"note: committed index unusable ({e}); falling back",
+                  file=sys.stderr)
+
+    # --- fallback: transient BM25 index (index missing/stale/unusable) -----
+    if not chunks:
+        print("hint: run `python3 scripts/docs/doc-impact/doc-index.py sync` "
+              "to refresh the committed index", file=sys.stderr)
+        try:
+            from rank_bm25 import BM25Okapi  # type: ignore
+        except ImportError:
+            sys.exit("rank-bm25 missing — cd projects && uv sync")
+        files = []
+        for root in DOC_ROOTS:
+            if root.exists():
+                files.extend(root.rglob("*.md"))
+        files = sorted(files)
+        for f in files:
+            for cid, text, line in chunk_markdown(f):
+                chunks.append((cid, text, line, 0.0))
+        if not chunks:
+            sys.exit("no markdown corpus found under docs/")
+        bm25 = BM25Okapi([tokenize(c[1]) for c in chunks])
+        q_tokens = tokenize(query)
+        if q_tokens:
+            scores = bm25.get_scores(q_tokens)
+            chunks = [(cid, text, line, s)
+                      for (cid, text, line, _), s in zip(chunks, scores)]
+
     results: list[dict] = []
-    for (cid, text, line), s in zip(chunks, scores):
-        # fuzzy boost: near-miss phrasing, renames, singular/plural drift
+    for cid, text, line, s in chunks:
         fz = fuzz.partial_ratio(q_low, text.lower()) / 100.0
         combined = float(s) + 2.5 * fz
         results.append(
@@ -131,6 +189,7 @@ def search(query: str, top: int) -> list[dict]:
              "fuzzy": round(fz, 3), "score": round(combined, 3), "text": text}
         )
     results.sort(key=lambda r: r["score"], reverse=True)
+
 
     # dedupe per file, keep best 2 chunks per file
     per_file: dict[str, int] = {}
