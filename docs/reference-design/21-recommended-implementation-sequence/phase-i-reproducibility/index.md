@@ -17,24 +17,35 @@ That is when the architecture becomes truly reusable.
 
 Reproducibility depends on the runbooks staying true to reality. Whenever new
 implementing commands run on the host or cluster, documented claims can
-silently drift (a VG renamed, a workload scaled, a config file moved).
+silently drift (a VG renamed, a workload scaled, a config file moved). The
+check is a three-step loop:
 
-The check is **declarative**: each documented claim is one entry in
-`scripts/docs/doc-impact/live-expectations.yaml` (probe type, expected live
-value, docs to fix). A pytest engine (`projects/tests/test_doc_impact.py`,
-using testinfra — the standard server-state assertion tooling) turns every
-entry into a test; failing tests name the docs to update.
+**1. Smart diff — find the docs a change touches.** A hybrid retrieval
+(BM25 lexical + RapidFuzzy matching, heading-aware chunks) maps a free-text
+change summary onto the runbook/reference pages that talk about the same
+things — even when wording differs (renames, reworded claims):
 
 ```bash
 cd projects
+uv run python ../scripts/docs/doc-impact/impact_search.py \
+  "scaled minecraft-demo to 0, prod velocity now owns nodePort 30079"
+```
+
+**2. Reconcile.** Load each hit, compare its claims against what actually
+changed, and edit whatever is stale — in the same turn.
+
+**3. Regression battery — deterministic claims.** Every known persistent
+claim is also a declarative entry in
+`scripts/docs/doc-impact/live-expectations.yaml`, asserted live by
+`projects/tests/test_doc_impact.py` (pytest + testinfra):
+
+```bash
 uv run pytest tests/test_doc_impact.py -q -m quick   # ~2s host-only battery
 uv run pytest tests/test_doc_impact.py -q            # + cluster & VPS probes
 ```
 
-Rules of the road (see AGENTS.md): run it after any successful implementing
-commands; fix the listed docs in the same turn until green; when a new
-persistent fact gets documented, add a YAML entry — no code. Full
-doc-vs-reality sweeps are recorded as runbook entries so the reconciliation
-itself stays traceable.
+Adding a new claim = one YAML entry, no code. Failing tests name the docs to
+fix. Full doc-vs-reality sweeps (like the 2026-08-29 audit) are recorded as
+runbook entries so the reconciliation itself stays traceable.
 
 ---

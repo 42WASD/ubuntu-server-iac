@@ -78,19 +78,32 @@
   the host or cluster), run a quick doc-impact check **before finishing the
   turn**:
 
+  **Step 1 — smart diff (semantic doc lookup):** describe what changed and
+  retrieve the docs that talk about the same things (hybrid BM25 + fuzzy
+  matching, so reworded/renamed things still hit):
+
   ```bash
   cd projects
+  uv run python ../scripts/docs/doc-impact/impact_search.py \
+    "scaled minecraft-demo to 0, prod velocity now owns nodePort 30079"
+  # --json for machine-readable output; --top N for more candidates
+  ```
+
+  **Step 2 — load and reconcile:** open each hit, compare its claims against
+  what actually changed, and edit whatever is stale. Fix the docs **in the
+  same turn**.
+
+  **Step 3 — regression battery (deterministic claims):** run the declarative
+  live-state probes, which catch the known-persistent claims without any
+  retrieval:
+
+  ```bash
   uv run pytest tests/test_doc_impact.py -q -m quick   # ~2s, host-only claims
-  uv run pytest tests/test_doc_impact.py -q            # full probe (incl. cluster + VPS)
+  uv run pytest tests/test_doc_impact.py -q            # full probe (cluster+VPS)
   ```
 
   Expectations live in `scripts/docs/doc-impact/live-expectations.yaml` — one
-  declarative entry per documented claim (probe type, expected value, docs to
-  fix). Failing tests name the exact docs to update. This uses
-  pytest + testinfra (the standard server-state assertion tooling) instead of
-  hand-rolled bash.
-- **If it reports drift:** update the listed docs in the same turn (see
-  Runbook section above), then re-run until green.
+  declarative entry per documented claim. Failing tests name the docs to fix.
 - **If a claim is wrong or a new persistent fact got documented** (new VG, new
   service, new config path): edit `live-expectations.yaml` (add or adjust a
   YAML entry — no code needed), then update the docs and commit both together.

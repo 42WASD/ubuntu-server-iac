@@ -34,27 +34,58 @@ pytest's reporting/skips/-k filtering for free.
 - `conftest.py` — tags tests with the `quick` marker per YAML, so
   `-m quick` runs the host-only battery (~2s) and the full suite adds
   cluster + VPS probes.
-- `AGENTS.md` — "Doc-impact" rule: run `-m quick` after any successful
-  implementing commands; fix the named docs same-turn; extend the YAML when
-  new persistent facts are documented.
+- `scripts/docs/doc-impact/impact_search.py` — the "smart diff" (step 1 of
+  the workflow): hybrid BM25 + RapidFuzz retrieval over the doc corpus
+  (heading-aware chunks, per-file dedupe). Given a free-text change summary
+  it returns the runbook/reference pages that talk about the same things —
+  even when the wording differs (renames, reworded claims). The agent then
+  loads each hit and corrects drift (step 2); the pytest battery (step 3)
+  regression-tests the deterministic claims.
+- `AGENTS.md` — "Doc-impact" rule: impact_search (step 1) → reconcile hits
+  (step 2) → pytest battery (step 3) after any successful implementing
+  commands; extend the YAML when new persistent facts are documented.
 
 ## Commands
 
 ```bash
 cd projects
 uv sync                                                  # once (adds testinfra)
-uv run pytest tests/test_doc_impact.py -q -m quick       # fast battery
-uv run pytest tests/test_doc_impact.py -q                # full probe
+uv run pytest tests/test_doc_impact.py -q -m quick       # fast battery (step 3)
+uv run pytest tests/test_doc_impact.py -q                # full probe (step 3)
+
+# smart diff (steps 1-2): find + reconcile docs a change touches
+uv run python ../scripts/docs/doc-impact/impact_search.py \
+  "scaled minecraft-demo to 0, prod velocity now owns nodePort 30079"
+uv run python ../scripts/docs/doc-impact/impact_search.py --json "..."  # machine-readable
 ```
 
-Current coverage (15 checks): swap, ip_forward, inotify x2, journald bound,
-VGs x3, fancontrol, node-alpha Ready, Argo apps Healthy, SC→VG x2, nodePort
-30079 owner, relay-VPS NAT persistence. First pytest run caught two probe
-bugs (sudo -E rejection → `sudo KUBECONFIG=...` prefix form; kubectl jsonpath
-can't reach `.parameters` → Python-side `_dig` path resolution) before going
-green.
+Retrieval validated against three real historical drifts; each returned the
+exact docs that were actually stale:
+- "renamed vg_k8s_fast to vg_k8s_nvme, recreated StorageClasses" →
+  phase-10-storage, phase-32-storageclasses, storageclasses ref page (top 3)
+- "scaled minecraft-demo to 0, service reverted to ClusterIP" →
+  minecraft-demo runbook + phase-55 relay runbook
+- "kubectl now needs sudo KUBECONFIG" → ph27 auth + ph17 admin-kubeconfig
 
-## Probe-authoring notes
+Current pytest coverage (15 checks): swap, ip_forward, inotify x2, journald
+bound, VGs x3, fancontrol, node-alpha Ready, Argo apps Healthy, SC→VG x2,
+nodePort 30079 owner, relay-VPS NAT persistence. First pytest run caught two
+probe bugs (sudo -E rejection → `sudo KUBECONFIG=...` prefix form; kubectl
+jsonpath can't reach `.parameters` → Python-side `_dig` path resolution)
+before going green.
+
+## Retrieval notes (impact_search.py)
+
+- Hybrid scoring: `BM25 + 2.5 * rapidfuzz.partial_ratio/100` — lexical finds
+  exact terms; fuzzy catches renames/rewording that lexical-only misses.
+  (2026 best practice per Cursor/Sourcegraph: hybrid beats pure-vector at
+  small-corpus scale; embeddings pay off only on large stable corpora.)
+- Chunks are heading-aware markdown sections (~1200 chars), so hits name a
+  file + line, not just a file.
+- Code spans are stripped before tokenizing (commands pollute BM25 ranking).
+- `--top N` (default 6) and max 2 chunks/file keep the hit list readable.
+
+## Probe-authoring notes (test_doc_impact.py)
 
 - Expectation values are compared as strings; a trailing `*` means
   startswith (e.g. `vg_k8s_nvme.*` matches the literal live value).

@@ -11,6 +11,8 @@ dependencies = [
     "mkdocs-minify-plugin>=0.8.0",
     "mkdocs-git-revision-date-localized-plugin>=1.2.0",
     "mcstatus>=14.1.0",
+    "rank-bm25>=0.2.2",
+    "rapidfuzz>=3.14.5",
 ]
 
 [dependency-groups]
