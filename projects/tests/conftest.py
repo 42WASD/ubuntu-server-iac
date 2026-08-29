@@ -50,5 +50,5 @@ def pytest_collection_modifyitems(config, items):
         if callspec is None:
             continue
         check = callspec.params.get("check")
-        if check and by_id.get(check.get("id"), {}).get("quick"):
+        if isinstance(check, dict) and by_id.get(check.get("id"), {}).get("quick"):
             item.add_marker(pytest.mark.quick)
