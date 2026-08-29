@@ -1,0 +1,22 @@
+# Load the it87 driver (IT8613E) with force_id at boot.
+#
+# The IT8613E is not auto-detected by the in-tree it87 driver (which lacks the
+# chip entirely); the DKMS out-of-tree driver requires force_id=0x8613.
+#
+# Install (done by scripts/fancontrol/setup-it87.sh):
+#   sudo cp scripts/fancontrol/it87-load.service /etc/systemd/system/
+#   sudo systemctl daemon-reload && sudo systemctl enable it87-load.service
+[Unit]
+Description=Load it87 driver for ITE IT8613E Super I/O
+DefaultDependencies=no
+After=systemd-modules-load.service
+Before=sysinit.target
+ConditionPathExists=/sys/class/hwmon
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/modprobe it87 force_id=0x8613
+RemainAfterExit=yes
+
+[Install]
+WantedBy=sysinit.target

@@ -1,0 +1,23 @@
+# Regenerate /etc/fancontrol with current hwmon indices, then start fancontrol.
+#
+# fancontrol's stock unit fails on this host because hwmon indices for
+# it8613/k10temp swap between boots (it87 loads asynchronously), tripping the
+# "Device path has changed" check. This unit rewrites the config from the
+# template right before fancontrol starts.
+#
+# Install (done by scripts/fancontrol/setup-it87.sh):
+#   sudo cp scripts/fancontrol/fancontrol-gen.service /etc/systemd/system/
+#   sudo systemctl daemon-reload && sudo systemctl enable --now fancontrol-gen.service
+[Unit]
+Description=Regenerate fancontrol config with current hwmon indices
+DefaultDependencies=no
+After=systemd-modules-load.service it87-load.service
+Before=fancontrol.service
+ConditionPathExists=/etc/fancontrol.conf.template
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/generate-fancontrol.sh /etc/fancontrol.conf.template /etc/fancontrol
+
+[Install]
+WantedBy=sysinit.target

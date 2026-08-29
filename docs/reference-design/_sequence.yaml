@@ -81,6 +81,7 @@ parts:
               - kubernetes-bulk-vg
         - filesystem-quotas-for-developer-homes
         - nvidia-host-driver-baseline
+        - cpu-fan-control-it87
   - 04-install-rke2-correctly:
       tracked: true
       sections:

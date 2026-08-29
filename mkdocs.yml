@@ -124,103 +124,104 @@ nav:
       - Kubernetes bulk VG: reference-design/03-build-the-host/storage-architecture/kubernetes-bulk-vg/index.md
     - Phase 11 — filesystem quotas for developer homes: reference-design/03-build-the-host/filesystem-quotas-for-developer-homes/index.md
     - Phase 12 — NVIDIA host driver baseline: reference-design/03-build-the-host/nvidia-host-driver-baseline/index.md
+    - Phase 13 — CPU fan control via it87: reference-design/03-build-the-host/cpu-fan-control-it87/index.md
   - IV — Install RKE2 correctly:
     - Overview: reference-design/04-install-rke2-correctly/index.md
-    - Phase 13 — choose and pin the RKE2 release: reference-design/04-install-rke2-correctly/choose-and-pin-the-rke2-release/index.md
-    - Phase 14 — RKE2 configuration:
+    - Phase 14 — choose and pin the RKE2 release: reference-design/04-install-rke2-correctly/choose-and-pin-the-rke2-release/index.md
+    - Phase 15 — RKE2 configuration:
       - reference-design/04-install-rke2-correctly/rke2-configuration/index.md
       - kubelet configuration: reference-design/04-install-rke2-correctly/rke2-configuration/kubelet-configuration/index.md
-    - Phase 15 — configure RKE2's bundled Cilium: reference-design/04-install-rke2-correctly/configure-rke2-s-bundled-cilium/index.md
-    - Phase 16 — install and start RKE2:
+    - Phase 16 — configure RKE2's bundled Cilium: reference-design/04-install-rke2-correctly/configure-rke2-s-bundled-cilium/index.md
+    - Phase 17 — install and start RKE2:
       - reference-design/04-install-rke2-correctly/install-and-start-rke2/index.md
       - inspect Cilium: reference-design/04-install-rke2-correctly/install-and-start-rke2/inspect-cilium/index.md
       - verify RKE2 Secrets encryption: reference-design/04-install-rke2-correctly/install-and-start-rke2/verify-rke2-secrets-encryption/index.md
-    - Phase 17 — admin kubeconfig and CLI convenience: reference-design/04-install-rke2-correctly/admin-kubeconfig-and-cli-convenience/index.md
-    - Phase 18 — verify reboot recovery now, not later: reference-design/04-install-rke2-correctly/verify-reboot-recovery-now-not-later/index.md
+    - Phase 18 — admin kubeconfig and CLI convenience: reference-design/04-install-rke2-correctly/admin-kubeconfig-and-cli-convenience/index.md
+    - Phase 19 — verify reboot recovery now, not later: reference-design/04-install-rke2-correctly/verify-reboot-recovery-now-not-later/index.md
   - V — GitOps bootstrap:
     - Overview: reference-design/05-gitops-bootstrap/index.md
-    - Phase 19 — install Argo CD exactly once by hand: reference-design/05-gitops-bootstrap/install-argo-cd-exactly-once-by-hand/index.md
-    - Phase 20 — root GitOps application:
+    - Phase 20 — install Argo CD exactly once by hand: reference-design/05-gitops-bootstrap/install-argo-cd-exactly-once-by-hand/index.md
+    - Phase 21 — root GitOps application:
       - reference-design/05-gitops-bootstrap/root-gitops-application/index.md
       - AppProjects: reference-design/05-gitops-bootstrap/root-gitops-application/appprojects/index.md
-    - Phase 21 — namespace baseline: reference-design/05-gitops-bootstrap/namespace-baseline/index.md
-    - Phase 22 — PriorityClasses: reference-design/05-gitops-bootstrap/priorityclasses/index.md
-    - Phase 23 — ResourceQuota: reference-design/05-gitops-bootstrap/resourcequota/index.md
-    - Phase 24 — LimitRange: reference-design/05-gitops-bootstrap/limitrange/index.md
-    - Phase 25 — default-deny NetworkPolicy: reference-design/05-gitops-bootstrap/default-deny-networkpolicy/index.md
-    - Phase 26 — RBAC:
+    - Phase 22 — namespace baseline: reference-design/05-gitops-bootstrap/namespace-baseline/index.md
+    - Phase 23 — PriorityClasses: reference-design/05-gitops-bootstrap/priorityclasses/index.md
+    - Phase 24 — ResourceQuota: reference-design/05-gitops-bootstrap/resourcequota/index.md
+    - Phase 25 — LimitRange: reference-design/05-gitops-bootstrap/limitrange/index.md
+    - Phase 26 — default-deny NetworkPolicy: reference-design/05-gitops-bootstrap/default-deny-networkpolicy/index.md
+    - Phase 27 — RBAC:
       - reference-design/05-gitops-bootstrap/rbac/index.md
       - dev Role: reference-design/05-gitops-bootstrap/rbac/dev-role/index.md
       - production is intentionally different: reference-design/05-gitops-bootstrap/rbac/production-is-intentionally-different/index.md
-    - Phase 27 — authentication for Kubernetes developers: reference-design/05-gitops-bootstrap/authentication-for-kubernetes-developers/index.md
+    - Phase 28 — authentication for Kubernetes developers: reference-design/05-gitops-bootstrap/authentication-for-kubernetes-developers/index.md
   - VI — Policy enforcement:
     - Overview: reference-design/06-policy-enforcement/index.md
-    - Phase 28 — install Kyverno through Argo CD: reference-design/06-policy-enforcement/install-kyverno-through-argo-cd/index.md
-    - Phase 29 — stage policy before enforcing it:
+    - Phase 29 — install Kyverno through Argo CD: reference-design/06-policy-enforcement/install-kyverno-through-argo-cd/index.md
+    - Phase 30 — stage policy before enforcing it:
       - reference-design/06-policy-enforcement/stage-policy-before-enforcing-it/index.md
       - "example: deny hostPath": reference-design/06-policy-enforcement/stage-policy-before-enforcing-it/example-deny-hostpath/index.md
-    - Phase 30 — policy tests: reference-design/06-policy-enforcement/policy-tests/index.md
+    - Phase 31 — policy tests: reference-design/06-policy-enforcement/policy-tests/index.md
   - VII — Persistent storage:
     - Overview: reference-design/07-persistent-storage/index.md
-    - Phase 31 — install OpenEBS through Argo CD: reference-design/07-persistent-storage/install-openebs-through-argo-cd/index.md
-    - Phase 32 — StorageClasses: reference-design/07-persistent-storage/storageclasses/index.md
-    - Phase 33 — prove PVC lifecycle before deploying databases: reference-design/07-persistent-storage/prove-pvc-lifecycle-before-deploying-databases/index.md
+    - Phase 32 — install OpenEBS through Argo CD: reference-design/07-persistent-storage/install-openebs-through-argo-cd/index.md
+    - Phase 33 — StorageClasses: reference-design/07-persistent-storage/storageclasses/index.md
+    - Phase 34 — prove PVC lifecycle before deploying databases: reference-design/07-persistent-storage/prove-pvc-lifecycle-before-deploying-databases/index.md
   - VIII — Monitoring and logs:
     - Overview: reference-design/08-monitoring-and-logs/index.md
-    - Phase 34 — metrics stack: reference-design/08-monitoring-and-logs/metrics-stack/index.md
-    - Phase 35 — logs: reference-design/08-monitoring-and-logs/logs/index.md
-    - Phase 36 — alert before things are full: reference-design/08-monitoring-and-logs/alert-before-things-are-full/index.md
+    - Phase 35 — metrics stack: reference-design/08-monitoring-and-logs/metrics-stack/index.md
+    - Phase 36 — logs: reference-design/08-monitoring-and-logs/logs/index.md
+    - Phase 37 — alert before things are full: reference-design/08-monitoring-and-logs/alert-before-things-are-full/index.md
   - IX — Registry:
     - Overview: reference-design/09-registry/index.md
-    - Phase 37 — install Harbor: reference-design/09-registry/install-harbor/index.md
-    - Phase 38 — configure RKE2 registry trust: reference-design/09-registry/configure-rke2-registry-trust/index.md
+    - Phase 38 — install Harbor: reference-design/09-registry/install-harbor/index.md
+    - Phase 39 — configure RKE2 registry trust: reference-design/09-registry/configure-rke2-registry-trust/index.md
   - X — Developer build experience:
     - Overview: reference-design/10-developer-build-experience/index.md
-    - Phase 39 — alpha does NOT run a developer Docker daemon: reference-design/10-developer-build-experience/alpha-does-not-run-a-developer-docker-daemon/index.md
-    - Phase 40 — local developer work on alpha: reference-design/10-developer-build-experience/local-developer-work-on-alpha/index.md
-    - Phase 41 — build01 architecture: reference-design/10-developer-build-experience/build01-architecture/index.md
-    - Phase 42 — BuildKit cache policy: reference-design/10-developer-build-experience/buildkit-cache-policy/index.md
-    - Phase 43 — remote BuildKit: reference-design/10-developer-build-experience/remote-buildkit/index.md
-    - Phase 44 — continuous dev loop: reference-design/10-developer-build-experience/continuous-dev-loop/index.md
-    - Phase 45 — CI pipeline: reference-design/10-developer-build-experience/ci-pipeline/index.md
+    - Phase 40 — alpha does NOT run a developer Docker daemon: reference-design/10-developer-build-experience/alpha-does-not-run-a-developer-docker-daemon/index.md
+    - Phase 41 — local developer work on alpha: reference-design/10-developer-build-experience/local-developer-work-on-alpha/index.md
+    - Phase 42 — build01 architecture: reference-design/10-developer-build-experience/build01-architecture/index.md
+    - Phase 43 — BuildKit cache policy: reference-design/10-developer-build-experience/buildkit-cache-policy/index.md
+    - Phase 44 — remote BuildKit: reference-design/10-developer-build-experience/remote-buildkit/index.md
+    - Phase 45 — continuous dev loop: reference-design/10-developer-build-experience/continuous-dev-loop/index.md
+    - Phase 46 — CI pipeline: reference-design/10-developer-build-experience/ci-pipeline/index.md
   - XI — Public web path:
     - Overview: reference-design/11-public-web-path/index.md
-    - Phase 46 — Cloudflare Tunnel: reference-design/11-public-web-path/cloudflare-tunnel/index.md
-    - Phase 47 — public vs private names: reference-design/11-public-web-path/public-vs-private-names/index.md
-    - Phase 48 — Traefik routing: reference-design/11-public-web-path/traefik-routing/index.md
+    - Phase 47 — Cloudflare Tunnel: reference-design/11-public-web-path/cloudflare-tunnel/index.md
+    - Phase 48 — public vs private names: reference-design/11-public-web-path/public-vs-private-names/index.md
+    - Phase 49 — Traefik routing: reference-design/11-public-web-path/traefik-routing/index.md
   - XII — GPU validation phase:
     - Overview: reference-design/12-gpu-validation-phase/index.md
-    - Phase 49 — GPU integration is optional until proven: reference-design/12-gpu-validation-phase/gpu-integration-is-optional-until-proven/index.md
-    - "Phase 50 — first GPU goal: whole-GPU scheduling": reference-design/12-gpu-validation-phase/first-gpu-goal-whole-gpu-scheduling/index.md
-    - Phase 51 — GPU policy: reference-design/12-gpu-validation-phase/gpu-policy/index.md
-    - Phase 52 — HAMi validation: reference-design/12-gpu-validation-phase/hami-validation/index.md
+    - Phase 50 — GPU integration is optional until proven: reference-design/12-gpu-validation-phase/gpu-integration-is-optional-until-proven/index.md
+    - "Phase 51 — first GPU goal: whole-GPU scheduling": reference-design/12-gpu-validation-phase/first-gpu-goal-whole-gpu-scheduling/index.md
+    - Phase 52 — GPU policy: reference-design/12-gpu-validation-phase/gpu-policy/index.md
+    - Phase 53 — HAMi validation: reference-design/12-gpu-validation-phase/hami-validation/index.md
   - XIII — Game networking foundation:
     - Overview: reference-design/13-game-networking-foundation/index.md
-    - Phase 53 — keep game workloads in Kubernetes for now: reference-design/13-game-networking-foundation/keep-game-workloads-in-kubernetes-for-now/index.md
-    - Phase 54 — why game edge is separate from Cloudflare web: reference-design/13-game-networking-foundation/why-game-edge-is-separate-from-cloudflare-web/index.md
-    - Phase 55 — relay bring-up: reference-design/13-game-networking-foundation/relay-bring-up/index.md
-    - "Phase 56 — game server orchestration: operator, not raw manifests": reference-design/13-game-networking-foundation/game-server-orchestration-operator/index.md
+    - Phase 54 — keep game workloads in Kubernetes for now: reference-design/13-game-networking-foundation/keep-game-workloads-in-kubernetes-for-now/index.md
+    - Phase 55 — why game edge is separate from Cloudflare web: reference-design/13-game-networking-foundation/why-game-edge-is-separate-from-cloudflare-web/index.md
+    - Phase 56 — relay bring-up: reference-design/13-game-networking-foundation/relay-bring-up/index.md
+    - "Phase 57 — game server orchestration: operator, not raw manifests": reference-design/13-game-networking-foundation/game-server-orchestration-operator/index.md
   - XIV — Backups and disaster recovery:
     - Overview: reference-design/14-backups-and-disaster-recovery/index.md
-    - Phase 57 — RKE2 etcd snapshots: reference-design/14-backups-and-disaster-recovery/rke2-etcd-snapshots/index.md
-    - Phase 58 — what must be backed up: reference-design/14-backups-and-disaster-recovery/what-must-be-backed-up/index.md
-    - Phase 59 — local vs offsite: reference-design/14-backups-and-disaster-recovery/local-vs-offsite/index.md
-    - Phase 60 — restore tests: reference-design/14-backups-and-disaster-recovery/restore-tests/index.md
+    - Phase 58 — RKE2 etcd snapshots: reference-design/14-backups-and-disaster-recovery/rke2-etcd-snapshots/index.md
+    - Phase 59 — what must be backed up: reference-design/14-backups-and-disaster-recovery/what-must-be-backed-up/index.md
+    - Phase 60 — local vs offsite: reference-design/14-backups-and-disaster-recovery/local-vs-offsite/index.md
+    - Phase 61 — restore tests: reference-design/14-backups-and-disaster-recovery/restore-tests/index.md
   - XV — Consolidate and enforce the Ansible source of truth:
     - Overview: reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/index.md
-    - Phase 61 — Ansible control environment: reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/ansible-control-environment/index.md
-    - Phase 62 — inventory: reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/inventory/index.md
-    - Phase 63 — role ownership: reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/role-ownership/index.md
-    - Phase 64 — Ansible must be idempotent: reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/ansible-must-be-idempotent/index.md
+    - Phase 62 — Ansible control environment: reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/ansible-control-environment/index.md
+    - Phase 63 — inventory: reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/inventory/index.md
+    - Phase 64 — role ownership: reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/role-ownership/index.md
+    - Phase 65 — Ansible must be idempotent: reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/ansible-must-be-idempotent/index.md
   - XVI — Ubuntu Autoinstall:
     - Overview: reference-design/16-ubuntu-autoinstall/index.md
-    - Phase 65 — use Autoinstall for future clean rebuilds: reference-design/16-ubuntu-autoinstall/use-autoinstall-for-future-clean-rebuilds/index.md
-    - Phase 66 — minimal safe autoinstall skeleton: reference-design/16-ubuntu-autoinstall/minimal-safe-autoinstall-skeleton/index.md
-    - Phase 67 — validate Autoinstall in a VM first: reference-design/16-ubuntu-autoinstall/validate-autoinstall-in-a-vm-first/index.md
+    - Phase 66 — use Autoinstall for future clean rebuilds: reference-design/16-ubuntu-autoinstall/use-autoinstall-for-future-clean-rebuilds/index.md
+    - Phase 67 — minimal safe autoinstall skeleton: reference-design/16-ubuntu-autoinstall/minimal-safe-autoinstall-skeleton/index.md
+    - Phase 68 — validate Autoinstall in a VM first: reference-design/16-ubuntu-autoinstall/validate-autoinstall-in-a-vm-first/index.md
   - XVII — OpenTofu for external infrastructure:
     - Overview: reference-design/17-opentofu-for-external-infrastructure/index.md
-    - Phase 68 — what OpenTofu should own: reference-design/17-opentofu-for-external-infrastructure/what-opentofu-should-own/index.md
-    - Phase 69 — state is sensitive: reference-design/17-opentofu-for-external-infrastructure/state-is-sensitive/index.md
+    - Phase 69 — what OpenTofu should own: reference-design/17-opentofu-for-external-infrastructure/what-opentofu-should-own/index.md
+    - Phase 70 — state is sensitive: reference-design/17-opentofu-for-external-infrastructure/state-is-sensitive/index.md
   - XVIII — Day-2 operations:
     - Overview: reference-design/18-day-2-operations/index.md
     - Upgrade order: reference-design/18-day-2-operations/upgrade-order/index.md

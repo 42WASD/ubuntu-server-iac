@@ -40,13 +40,13 @@ edit/correct).
 
 ## Overall progress
 
-**61 / 93** phases/sections complete (**66%**).
+**62 / 94** phases/sections complete (**66%**).
 
-<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:65.6%"></div></div><div class="progress-pct">66%</div></div>
+<div class="progress-row" style="max-width:720px;padding:8px 0;"><div class="progress-track"><div class="progress-fill progress-fill--shimmer" style="--w:66.0%"></div></div><div class="progress-pct">66%</div></div>
 
 | Status | Count |
 |--------|-------|
-| ✅ done | 61 |
+| ✅ done | 62 |
 | 🔶 in-progress | 0 |
 | ⬜ not-started | 29 |
 | ❌ blocked | 1 |
@@ -56,7 +56,7 @@ edit/correct).
 
 ### 90% — Part III — Build the host
 
-<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:90.0%"></div></div><div class="progress-pct" style="font-size:.85em;">90%</div><div class="tip-box"><strong>Done (26)</strong>
+<div class="tip" style="display:flex;align-items:center;gap:8px;max-width:520px;padding:2px 0 10px;"><div class="progress-track"><div class="progress-fill" style="--w:90.0%"></div></div><div class="progress-pct" style="font-size:.85em;">90%</div><div class="tip-box"><strong>Done (27)</strong>
 • create the infrastructure repository first
 • inventory the actual machine
 • update Ubuntu and install base administration tools
@@ -83,6 +83,7 @@ edit/correct).
 • Kubernetes bulk VG
 • filesystem quotas for developer homes
 • NVIDIA host driver baseline
+• CPU fan control via it87
 <hr style="opacity:.3;margin:6px 0;"><strong>Pending (3)</strong>
 • SSH hardening
 • Tailscale policy concept
@@ -1249,6 +1250,122 @@ through reboot cycles since the driver install.
 
 </details>
 
+- ✅ `done` — [Phase 13 — CPU fan control via it87](../reference-design/03-build-the-host/cpu-fan-control-it87/index.md)
+
+<details markdown="1" class="runbook">
+<summary>✅ 📜 Build log — CPU fan control via it87</summary>
+
+# Phase 13 — CPU fan control via it87 (no BMC module)
+
+**Intent:** quiet CPU fan at idle, full speed under stress, entirely from the
+OS. The HUANANZHI H12D-8D (`alpha`) shipped **without the optional BMC
+module**, so IPMI fan control (and the vendored
+`42WASD/supermicro-fancontrol` daemon in `thirdparty/`) is not usable.
+Control is instead provided by the **ITE IT8613E** Super I/O chip via the
+out-of-tree `it87` driver + `fancontrol`.
+
+## 13.1 Hardware findings (recorded so they are not re-derived)
+
+- DMI: `HUANANZHI H12D-8D V2.0`, AMI BIOS 2.2 (NOT Supermicro — the model
+  number is coincidental; `sudo dmidecode -t 2`).
+- BMC is an optional AST2500 SO-DIMM card, **not installed**: no `/dev/ipmi*`,
+  `ipmi_si` finds no KCS interface even with forced ports 0xCA2/0xCA9
+  ("Interface detection failed").
+- `sensors-detect` probe found: `ITE IT8613E Super IO Sensors` at ISA 0xA30,
+  driver "to-be-written" (in-tree kernel lacks the chip).
+- Out-of-tree driver: <https://github.com/frankcrawford/it87> (supports
+  IT8613E via `force_id=0x8613`).
+
+```bash
+# Probe that identified the chip
+yes | sudo sensors-detect | grep -i "ITE\|Super IO"
+#   Found `ITE IT8613E Super IO Sensors'  (address 0xa30, driver `to-be-written')
+```
+
+## 13.2 Driver install (DKMS)
+
+```bash
+sudo apt-get install -y dkms build-essential linux-headers-$(uname -r)
+git clone --depth 1 https://github.com/frankcrawford/it87.git /tmp/it87
+cd /tmp/it87 && sudo ./dkms-install.sh
+sudo modprobe it87 force_id=0x8613
+```
+
+> The clone directory MUST be named `it87` — `dkms-install.sh` derives the
+> DKMS package name from the basename.
+
+Exposed hwmon (verified): `it8613` at `/sys/devices/platform/it87.2608` with
+`pwm2` = CPU fan header (tach `fan2`), and `pwm3`/`pwm5` = unused headers
+(no fans connected / BMC-gated SYS headers).
+
+## 13.3 PWM mapping & stall floor (measured)
+
+```bash
+d=/sys/class/hwmon/$(grep -l '^it8613$' /sys/class/hwmon/hwmon*/name)
+echo 1 | sudo tee $d/pwm2_enable           # manual mode
+for v in 70 60 50 40 30 20 15; do
+  echo $v | sudo tee $d/pwm2; sleep 3; cat $d/fan2_input
+done
+# pwm<=50 plateaus at ~2420 RPM  -> hardware floor; MINPWM/MINSTOP = 50
+```
+
+## 13.4 fancontrol (boot-order-proof config)
+
+hwmon indices for `it8613`/`k10temp` **swap between boots** (it87 loads
+asynchronously), which breaks fancontrol's static `DEVPATH` pinning. The repo
+therefore installs a template + boot-time generator:
+
+- `scripts/fancontrol/fancontrol.conf.template` — curve with `@IT87@`/`@K10@`
+  placeholders.
+- `scripts/fancontrol/generate-fancontrol.sh` — resolves current indices into
+  `/etc/fancontrol`.
+- `it87-load.service` — `modprobe it87 force_id=0x8613` at boot.
+- `fancontrol-gen.service` — runs the generator before `fancontrol.service`.
+
+Curve (EPYC 7742, TjMax ~75 °C): idle <55 °C → pwm 50 (floor ~2420 RPM);
+ramp 55–72 °C; full speed ≥72 °C. `MINSTOP >= MINPWM` is a fancontrol
+validation constraint (both = 50).
+
+```bash
+sudo bash scripts/fancontrol/setup-it87.sh            # install everything
+sudo bash scripts/fancontrol/setup-it87.sh --check    # verify
+```
+
+## 13.5 Verification (live)
+
+Idle: 53 °C → **2419 RPM @ pwm 50** (quiet floor, stable over 30 s).
+CPU stress (`stress-ng --cpu $(nproc) --cpu-method matrixprod`, per
+`docs/guides/operations/stress-test-guide.md`): 66–68 °C → **~6300 RPM @
+pwm 188**. Cool-down returned to ~3000 RPM and continues down.
+
+```bash
+# Observed during 60 s CPU-only stress + fan sampling
+stress-ng --cpu $(nproc) --cpu-method matrixprod --timeout 60s --quiet &
+# Tctl 66-68C -> fan 6250-6553 RPM, pwm 188-199
+```
+
+## 13.6 Parked: IPMI daemon (pending BMC module)
+
+`scripts/fancontrol/fan-daemon.service`, `install.sh`, `fanctl.sh` and the
+`thirdparty/supermicro-fancontrol` submodule implement IPMI-based control for
+the **forked Supermicro daemon** (CPU-only curve tuned for the 7742). They are
+**unused until the optional AST2500 BMC module is installed**; the daemon
+validated cleanly against curve-spec parsing (zones `[0,1]` detected) but
+cannot reach a BMC. If the module is ever added: install it, then
+`sudo bash scripts/fancontrol/install.sh`.
+
+## 13.7 Infra encoding
+
+- `scripts/fancontrol/` — setup script, template, generator, units, README.
+- `/etc/modules-load.d/it87.conf` → `it87 force_id=0x8613`
+  (also `it87-load.service`).
+- `/etc/fancontrol.conf.template` + `/etc/fancontrol` (generated).
+- Enabled units: `it87-load.service`, `fancontrol-gen.service`,
+  `fancontrol.service`.
+- DKMS module `it87/c567739` (frankcrawford fork).
+
+</details>
+
 
 ### 100% — Part IV — Install RKE2 correctly
 
@@ -1265,7 +1382,7 @@ through reboot cycles since the driver install.
 <hr style="opacity:.3;margin:6px 0;"><strong>Pending (0)</strong>
 —</div></div>
 
-- ✅ `done` — [Phase 13 — choose and pin the RKE2 release](../reference-design/04-install-rke2-correctly/choose-and-pin-the-rke2-release/index.md)
+- ✅ `done` — [Phase 14 — choose and pin the RKE2 release](../reference-design/04-install-rke2-correctly/choose-and-pin-the-rke2-release/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — choose and pin the RKE2 release</summary>
@@ -1380,7 +1497,7 @@ Bundled component versions in this release (for later verification):
 
 </details>
 
-- ✅ `done` — [Phase 14 — RKE2 configuration](../reference-design/04-install-rke2-correctly/rke2-configuration/index.md)
+- ✅ `done` — [Phase 15 — RKE2 configuration](../reference-design/04-install-rke2-correctly/rke2-configuration/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — RKE2 configuration</summary>
@@ -1640,7 +1757,7 @@ Both templates render to valid YAML. The kubelet drop-in resolves to a
 
 </details>
 
-- ✅ `done` — [Phase 15 — configure RKE2's bundled Cilium](../reference-design/04-install-rke2-correctly/configure-rke2-s-bundled-cilium/index.md)
+- ✅ `done` — [Phase 16 — configure RKE2's bundled Cilium](../reference-design/04-install-rke2-correctly/configure-rke2-s-bundled-cilium/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — configure RKE2's bundled Cilium</summary>
@@ -1749,7 +1866,7 @@ design's recommended Cilium configuration.
 
 </details>
 
-- ✅ `done` — [Phase 16 — install and start RKE2](../reference-design/04-install-rke2-correctly/install-and-start-rke2/index.md)
+- ✅ `done` — [Phase 17 — install and start RKE2](../reference-design/04-install-rke2-correctly/install-and-start-rke2/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — install and start RKE2</summary>
@@ -2058,7 +2175,7 @@ Secrets-at-rest encryption is confirmed **Enabled**. No rotation performed.
 
 </details>
 
-- ✅ `done` — [Phase 17 — admin kubeconfig and CLI convenience](../reference-design/04-install-rke2-correctly/admin-kubeconfig-and-cli-convenience/index.md)
+- ✅ `done` — [Phase 18 — admin kubeconfig and CLI convenience](../reference-design/04-install-rke2-correctly/admin-kubeconfig-and-cli-convenience/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — admin kubeconfig and CLI convenience</summary>
@@ -2223,7 +2340,7 @@ node port 80 path works before Phase 18's reboot-recovery check.
 
 </details>
 
-- ✅ `done` — [Phase 18 — verify reboot recovery now, not later](../reference-design/04-install-rke2-correctly/verify-reboot-recovery-now-not-later/index.md)
+- ✅ `done` — [Phase 19 — verify reboot recovery now, not later](../reference-design/04-install-rke2-correctly/verify-reboot-recovery-now-not-later/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — verify reboot recovery now, not later</summary>
@@ -2432,7 +2549,7 @@ both netplan and `node-ip`.
 <hr style="opacity:.3;margin:6px 0;"><strong>Pending (0)</strong>
 —</div></div>
 
-- ✅ `done` — [Phase 19 — install Argo CD exactly once by hand](../reference-design/05-gitops-bootstrap/install-argo-cd-exactly-once-by-hand/index.md)
+- ✅ `done` — [Phase 20 — install Argo CD exactly once by hand](../reference-design/05-gitops-bootstrap/install-argo-cd-exactly-once-by-hand/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — install Argo CD exactly once by hand</summary>
@@ -2507,7 +2624,7 @@ root GitOps application (App-of-Apps bootstrap).
 
 </details>
 
-- ✅ `done` — [Phase 20 — root GitOps application](../reference-design/05-gitops-bootstrap/root-gitops-application/index.md)
+- ✅ `done` — [Phase 21 — root GitOps application](../reference-design/05-gitops-bootstrap/root-gitops-application/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — root GitOps application</summary>
@@ -2632,7 +2749,7 @@ verification live in the `42wasd-community-web` repo runbook
 
 </details>
 
-- ✅ `done` — [Phase 21 — namespace baseline](../reference-design/05-gitops-bootstrap/namespace-baseline/index.md)
+- ✅ `done` — [Phase 22 — namespace baseline](../reference-design/05-gitops-bootstrap/namespace-baseline/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — namespace baseline</summary>
@@ -2680,7 +2797,7 @@ they are no longer in the manifest.
 
 </details>
 
-- ✅ `done` — [Phase 22 — PriorityClasses](../reference-design/05-gitops-bootstrap/priorityclasses/index.md)
+- ✅ `done` — [Phase 23 — PriorityClasses](../reference-design/05-gitops-bootstrap/priorityclasses/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — PriorityClasses</summary>
@@ -2735,7 +2852,7 @@ enforced later (RBAC / admission), not by the class itself.
 
 </details>
 
-- ✅ `done` — [Phase 23 — ResourceQuota](../reference-design/05-gitops-bootstrap/resourcequota/index.md)
+- ✅ `done` — [Phase 24 — ResourceQuota](../reference-design/05-gitops-bootstrap/resourcequota/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — ResourceQuota</summary>
@@ -2791,7 +2908,7 @@ GPU is governed by quota + admission, not namespace splitting.
 
 </details>
 
-- ✅ `done` — [Phase 24 — LimitRange](../reference-design/05-gitops-bootstrap/limitrange/index.md)
+- ✅ `done` — [Phase 25 — LimitRange](../reference-design/05-gitops-bootstrap/limitrange/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — LimitRange</summary>
@@ -2855,7 +2972,7 @@ now given a bounded default instead of unbounded consumption.
 
 </details>
 
-- ✅ `done` — [Phase 25 — default-deny NetworkPolicy](../reference-design/05-gitops-bootstrap/default-deny-networkpolicy/index.md)
+- ✅ `done` — [Phase 26 — default-deny NetworkPolicy](../reference-design/05-gitops-bootstrap/default-deny-networkpolicy/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — default-deny NetworkPolicy</summary>
@@ -2995,7 +3112,7 @@ per-namespace default-deny NetworkPolicies.
 
 </details>
 
-- ✅ `done` — [Phase 26 — RBAC](../reference-design/05-gitops-bootstrap/rbac/index.md)
+- ✅ `done` — [Phase 27 — RBAC](../reference-design/05-gitops-bootstrap/rbac/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — RBAC</summary>
@@ -3109,7 +3226,7 @@ kubectl auth can-i get secrets -n prd-42wasd-admin \
 
 </details>
 
-- ✅ `done` — [Phase 27 — authentication for Kubernetes developers](../reference-design/05-gitops-bootstrap/authentication-for-kubernetes-developers/index.md)
+- ✅ `done` — [Phase 28 — authentication for Kubernetes developers](../reference-design/05-gitops-bootstrap/authentication-for-kubernetes-developers/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — authentication for Kubernetes developers</summary>
@@ -3801,7 +3918,7 @@ authenticates successfully.
 <hr style="opacity:.3;margin:6px 0;"><strong>Pending (0)</strong>
 —</div></div>
 
-- ✅ `done` — [Phase 28 — install Kyverno through Argo CD](../reference-design/06-policy-enforcement/install-kyverno-through-argo-cd/index.md)
+- ✅ `done` — [Phase 29 — install Kyverno through Argo CD](../reference-design/06-policy-enforcement/install-kyverno-through-argo-cd/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — install Kyverno through Argo CD</summary>
@@ -3877,7 +3994,7 @@ No policies are enabled yet — that is Phase 29 (stage in Audit first).
 
 </details>
 
-- ✅ `done` — [Phase 29 — stage policy before enforcing it](../reference-design/06-policy-enforcement/stage-policy-before-enforcing-it/index.md)
+- ✅ `done` — [Phase 30 — stage policy before enforcing it](../reference-design/06-policy-enforcement/stage-policy-before-enforcing-it/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — stage policy before enforcing it</summary>
@@ -3958,7 +4075,7 @@ creates intentionally-bad manifests to prove the deny rules actually fire.
 </details>
 
   - ✅ `done` — [example: deny hostPath](../reference-design/06-policy-enforcement/stage-policy-before-enforcing-it/example-deny-hostpath/index.md)
-- ✅ `done` — [Phase 30 — policy tests](../reference-design/06-policy-enforcement/policy-tests/index.md)
+- ✅ `done` — [Phase 31 — policy tests](../reference-design/06-policy-enforcement/policy-tests/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — policy tests</summary>
@@ -4086,7 +4203,7 @@ No unexpected regression was observed.
 <hr style="opacity:.3;margin:6px 0;"><strong>Pending (0)</strong>
 —</div></div>
 
-- ✅ `done` — [Phase 31 — install OpenEBS through Argo CD](../reference-design/07-persistent-storage/install-openebs-through-argo-cd/index.md)
+- ✅ `done` — [Phase 32 — install OpenEBS through Argo CD](../reference-design/07-persistent-storage/install-openebs-through-argo-cd/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — install OpenEBS through Argo CD</summary>
@@ -4194,7 +4311,7 @@ StorageClasses (`nvme-fast`, `nvme-db`, `hdd-bulk`) pointing at those VGs.
 
 </details>
 
-- ✅ `done` — [Phase 32 — StorageClasses](../reference-design/07-persistent-storage/storageclasses/index.md)
+- ✅ `done` — [Phase 33 — StorageClasses](../reference-design/07-persistent-storage/storageclasses/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — StorageClasses</summary>
@@ -4257,7 +4374,7 @@ against one of these classes before any database workload lands on them.
 
 </details>
 
-- ✅ `done` — [Phase 33 — prove PVC lifecycle before deploying databases](../reference-design/07-persistent-storage/prove-pvc-lifecycle-before-deploying-databases/index.md)
+- ✅ `done` — [Phase 34 — prove PVC lifecycle before deploying databases](../reference-design/07-persistent-storage/prove-pvc-lifecycle-before-deploying-databases/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — prove PVC lifecycle before deploying databases</summary>
@@ -4400,9 +4517,9 @@ Databases may now be deployed onto `nvme-db` (Retain) / `nvme-fast` safely.
 • logs
 • alert before things are full</div></div>
 
-- ⬜ `not-started` — [Phase 34 — metrics stack](../reference-design/08-monitoring-and-logs/metrics-stack/index.md)
-- ⬜ `not-started` — [Phase 35 — logs](../reference-design/08-monitoring-and-logs/logs/index.md)
-- ⬜ `not-started` — [Phase 36 — alert before things are full](../reference-design/08-monitoring-and-logs/alert-before-things-are-full/index.md)
+- ⬜ `not-started` — [Phase 35 — metrics stack](../reference-design/08-monitoring-and-logs/metrics-stack/index.md)
+- ⬜ `not-started` — [Phase 36 — logs](../reference-design/08-monitoring-and-logs/logs/index.md)
+- ⬜ `not-started` — [Phase 37 — alert before things are full](../reference-design/08-monitoring-and-logs/alert-before-things-are-full/index.md)
 
 ### 0% — Part IX — Registry
 
@@ -4412,8 +4529,8 @@ Databases may now be deployed onto `nvme-db` (Retain) / `nvme-fast` safely.
 • install Harbor
 • configure RKE2 registry trust</div></div>
 
-- ⬜ `not-started` — [Phase 37 — install Harbor](../reference-design/09-registry/install-harbor/index.md)
-- ⬜ `not-started` — [Phase 38 — configure RKE2 registry trust](../reference-design/09-registry/configure-rke2-registry-trust/index.md)
+- ⬜ `not-started` — [Phase 38 — install Harbor](../reference-design/09-registry/install-harbor/index.md)
+- ⬜ `not-started` — [Phase 39 — configure RKE2 registry trust](../reference-design/09-registry/configure-rke2-registry-trust/index.md)
 
 ### 0% — Part X — Developer build experience
 
@@ -4428,13 +4545,13 @@ Databases may now be deployed onto `nvme-db` (Retain) / `nvme-fast` safely.
 • continuous dev loop
 • CI pipeline</div></div>
 
-- ⬜ `not-started` — [Phase 39 — alpha does NOT run a developer Docker daemon](../reference-design/10-developer-build-experience/alpha-does-not-run-a-developer-docker-daemon/index.md)
-- ⬜ `not-started` — [Phase 40 — local developer work on alpha](../reference-design/10-developer-build-experience/local-developer-work-on-alpha/index.md)
-- ⬜ `not-started` — [Phase 41 — build01 architecture](../reference-design/10-developer-build-experience/build01-architecture/index.md)
-- ⬜ `not-started` — [Phase 42 — BuildKit cache policy](../reference-design/10-developer-build-experience/buildkit-cache-policy/index.md)
-- ⬜ `not-started` — [Phase 43 — remote BuildKit](../reference-design/10-developer-build-experience/remote-buildkit/index.md)
-- ⬜ `not-started` — [Phase 44 — continuous dev loop](../reference-design/10-developer-build-experience/continuous-dev-loop/index.md)
-- ⬜ `not-started` — [Phase 45 — CI pipeline](../reference-design/10-developer-build-experience/ci-pipeline/index.md)
+- ⬜ `not-started` — [Phase 40 — alpha does NOT run a developer Docker daemon](../reference-design/10-developer-build-experience/alpha-does-not-run-a-developer-docker-daemon/index.md)
+- ⬜ `not-started` — [Phase 41 — local developer work on alpha](../reference-design/10-developer-build-experience/local-developer-work-on-alpha/index.md)
+- ⬜ `not-started` — [Phase 42 — build01 architecture](../reference-design/10-developer-build-experience/build01-architecture/index.md)
+- ⬜ `not-started` — [Phase 43 — BuildKit cache policy](../reference-design/10-developer-build-experience/buildkit-cache-policy/index.md)
+- ⬜ `not-started` — [Phase 44 — remote BuildKit](../reference-design/10-developer-build-experience/remote-buildkit/index.md)
+- ⬜ `not-started` — [Phase 45 — continuous dev loop](../reference-design/10-developer-build-experience/continuous-dev-loop/index.md)
+- ⬜ `not-started` — [Phase 46 — CI pipeline](../reference-design/10-developer-build-experience/ci-pipeline/index.md)
 
 ### 33% — Part XI — Public web path
 
@@ -4444,7 +4561,7 @@ Databases may now be deployed onto `nvme-db` (Retain) / `nvme-fast` safely.
 • public vs private names
 • Traefik routing</div></div>
 
-- ✅ `done` — [Phase 46 — Cloudflare Tunnel](../reference-design/11-public-web-path/cloudflare-tunnel/index.md)
+- ✅ `done` — [Phase 47 — Cloudflare Tunnel](../reference-design/11-public-web-path/cloudflare-tunnel/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — Cloudflare Tunnel</summary>
@@ -4530,8 +4647,8 @@ blocked on this network and `--protocol http2` forces the TCP/443 path.
 
 </details>
 
-- ⬜ `not-started` — [Phase 47 — public vs private names](../reference-design/11-public-web-path/public-vs-private-names/index.md)
-- ⬜ `not-started` — [Phase 48 — Traefik routing](../reference-design/11-public-web-path/traefik-routing/index.md)
+- ⬜ `not-started` — [Phase 48 — public vs private names](../reference-design/11-public-web-path/public-vs-private-names/index.md)
+- ⬜ `not-started` — [Phase 49 — Traefik routing](../reference-design/11-public-web-path/traefik-routing/index.md)
 
 ### 0% — Part XII — GPU validation phase
 
@@ -4543,10 +4660,10 @@ blocked on this network and `--protocol http2` forces the TCP/443 path.
 • GPU policy
 • HAMi validation</div></div>
 
-- ⬜ `not-started` — [Phase 49 — GPU integration is optional until proven](../reference-design/12-gpu-validation-phase/gpu-integration-is-optional-until-proven/index.md)
-- ⬜ `not-started` — [Phase 50 — first GPU goal: whole-GPU scheduling](../reference-design/12-gpu-validation-phase/first-gpu-goal-whole-gpu-scheduling/index.md)
-- ⬜ `not-started` — [Phase 51 — GPU policy](../reference-design/12-gpu-validation-phase/gpu-policy/index.md)
-- ⬜ `not-started` — [Phase 52 — HAMi validation](../reference-design/12-gpu-validation-phase/hami-validation/index.md)
+- ⬜ `not-started` — [Phase 50 — GPU integration is optional until proven](../reference-design/12-gpu-validation-phase/gpu-integration-is-optional-until-proven/index.md)
+- ⬜ `not-started` — [Phase 51 — first GPU goal: whole-GPU scheduling](../reference-design/12-gpu-validation-phase/first-gpu-goal-whole-gpu-scheduling/index.md)
+- ⬜ `not-started` — [Phase 52 — GPU policy](../reference-design/12-gpu-validation-phase/gpu-policy/index.md)
+- ⬜ `not-started` — [Phase 53 — HAMi validation](../reference-design/12-gpu-validation-phase/hami-validation/index.md)
 
 ### 100% — Part XIII — Game networking foundation
 
@@ -4558,7 +4675,7 @@ blocked on this network and `--protocol http2` forces the TCP/443 path.
 <hr style="opacity:.3;margin:6px 0;"><strong>Pending (0)</strong>
 —</div></div>
 
-- ✅ `done` — [Phase 53 — keep game workloads in Kubernetes for now](../reference-design/13-game-networking-foundation/keep-game-workloads-in-kubernetes-for-now/index.md)
+- ✅ `done` — [Phase 54 — keep game workloads in Kubernetes for now](../reference-design/13-game-networking-foundation/keep-game-workloads-in-kubernetes-for-now/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — keep game workloads in Kubernetes for now</summary>
@@ -4640,7 +4757,7 @@ game workload exists, so none are opened now).
 
 </details>
 
-- ✅ `done` — [Phase 54 — why game edge is separate from Cloudflare web](../reference-design/13-game-networking-foundation/why-game-edge-is-separate-from-cloudflare-web/index.md)
+- ✅ `done` — [Phase 55 — why game edge is separate from Cloudflare web](../reference-design/13-game-networking-foundation/why-game-edge-is-separate-from-cloudflare-web/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — why game edge is separate from Cloudflare web</summary>
@@ -4692,7 +4809,7 @@ game ports on the game lane (not on the web plane).
 
 </details>
 
-- ✅ `done` — [Phase 55 — relay bring-up](../reference-design/13-game-networking-foundation/relay-bring-up/index.md)
+- ✅ `done` — [Phase 56 — relay bring-up](../reference-design/13-game-networking-foundation/relay-bring-up/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — relay bring-up</summary>
@@ -4927,7 +5044,7 @@ Reference-design Phase 54/55 updated to reflect this verified solution.
 
 </details>
 
-- ✅ `done` — [Phase 56 — game server orchestration: operator, not raw manifests](../reference-design/13-game-networking-foundation/game-server-orchestration-operator/index.md)
+- ✅ `done` — [Phase 57 — game server orchestration: operator, not raw manifests](../reference-design/13-game-networking-foundation/game-server-orchestration-operator/index.md)
 
 ### 0% — Part XIV — Backups and disaster recovery
 
@@ -4939,10 +5056,10 @@ Reference-design Phase 54/55 updated to reflect this verified solution.
 • local vs offsite
 • restore tests</div></div>
 
-- ⬜ `not-started` — [Phase 57 — RKE2 etcd snapshots](../reference-design/14-backups-and-disaster-recovery/rke2-etcd-snapshots/index.md)
-- ⬜ `not-started` — [Phase 58 — what must be backed up](../reference-design/14-backups-and-disaster-recovery/what-must-be-backed-up/index.md)
-- ⬜ `not-started` — [Phase 59 — local vs offsite](../reference-design/14-backups-and-disaster-recovery/local-vs-offsite/index.md)
-- ⬜ `not-started` — [Phase 60 — restore tests](../reference-design/14-backups-and-disaster-recovery/restore-tests/index.md)
+- ⬜ `not-started` — [Phase 58 — RKE2 etcd snapshots](../reference-design/14-backups-and-disaster-recovery/rke2-etcd-snapshots/index.md)
+- ⬜ `not-started` — [Phase 59 — what must be backed up](../reference-design/14-backups-and-disaster-recovery/what-must-be-backed-up/index.md)
+- ⬜ `not-started` — [Phase 60 — local vs offsite](../reference-design/14-backups-and-disaster-recovery/local-vs-offsite/index.md)
+- ⬜ `not-started` — [Phase 61 — restore tests](../reference-design/14-backups-and-disaster-recovery/restore-tests/index.md)
 
 ### 0% — Part XV — Consolidate and enforce the Ansible source of truth
 
@@ -4954,10 +5071,10 @@ Reference-design Phase 54/55 updated to reflect this verified solution.
 • role ownership
 • Ansible must be idempotent</div></div>
 
-- ⬜ `not-started` — [Phase 61 — Ansible control environment](../reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/ansible-control-environment/index.md)
-- ⬜ `not-started` — [Phase 62 — inventory](../reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/inventory/index.md)
-- ⬜ `not-started` — [Phase 63 — role ownership](../reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/role-ownership/index.md)
-- ⬜ `not-started` — [Phase 64 — Ansible must be idempotent](../reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/ansible-must-be-idempotent/index.md)
+- ⬜ `not-started` — [Phase 62 — Ansible control environment](../reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/ansible-control-environment/index.md)
+- ⬜ `not-started` — [Phase 63 — inventory](../reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/inventory/index.md)
+- ⬜ `not-started` — [Phase 64 — role ownership](../reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/role-ownership/index.md)
+- ⬜ `not-started` — [Phase 65 — Ansible must be idempotent](../reference-design/15-consolidate-and-enforce-the-ansible-source-of-truth/ansible-must-be-idempotent/index.md)
 
 ### 0% — Part XVI — Ubuntu Autoinstall
 
@@ -4968,9 +5085,9 @@ Reference-design Phase 54/55 updated to reflect this verified solution.
 • minimal safe autoinstall skeleton
 • validate Autoinstall in a VM first</div></div>
 
-- ⬜ `not-started` — [Phase 65 — use Autoinstall for future clean rebuilds](../reference-design/16-ubuntu-autoinstall/use-autoinstall-for-future-clean-rebuilds/index.md)
-- ⬜ `not-started` — [Phase 66 — minimal safe autoinstall skeleton](../reference-design/16-ubuntu-autoinstall/minimal-safe-autoinstall-skeleton/index.md)
-- ⬜ `not-started` — [Phase 67 — validate Autoinstall in a VM first](../reference-design/16-ubuntu-autoinstall/validate-autoinstall-in-a-vm-first/index.md)
+- ⬜ `not-started` — [Phase 66 — use Autoinstall for future clean rebuilds](../reference-design/16-ubuntu-autoinstall/use-autoinstall-for-future-clean-rebuilds/index.md)
+- ⬜ `not-started` — [Phase 67 — minimal safe autoinstall skeleton](../reference-design/16-ubuntu-autoinstall/minimal-safe-autoinstall-skeleton/index.md)
+- ⬜ `not-started` — [Phase 68 — validate Autoinstall in a VM first](../reference-design/16-ubuntu-autoinstall/validate-autoinstall-in-a-vm-first/index.md)
 
 ### 100% — Part XVII — OpenTofu for external infrastructure
 
@@ -4980,7 +5097,7 @@ Reference-design Phase 54/55 updated to reflect this verified solution.
 <hr style="opacity:.3;margin:6px 0;"><strong>Pending (0)</strong>
 —</div></div>
 
-- ✅ `done` — [Phase 68 — what OpenTofu should own](../reference-design/17-opentofu-for-external-infrastructure/what-opentofu-should-own/index.md)
+- ✅ `done` — [Phase 69 — what OpenTofu should own](../reference-design/17-opentofu-for-external-infrastructure/what-opentofu-should-own/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — what OpenTofu should own</summary>
@@ -5133,7 +5250,7 @@ vps/terraform.tfstate          2201 bytes
 
 </details>
 
-- ✅ `done` — [Phase 69 — state is sensitive](../reference-design/17-opentofu-for-external-infrastructure/state-is-sensitive/index.md)
+- ✅ `done` — [Phase 70 — state is sensitive](../reference-design/17-opentofu-for-external-infrastructure/state-is-sensitive/index.md)
 
 <details markdown="1" class="runbook">
 <summary>✅ 📜 Build log — state is sensitive</summary>

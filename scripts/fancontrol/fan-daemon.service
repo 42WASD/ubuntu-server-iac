@@ -1,0 +1,60 @@
+# Supermicro IPMI fan control daemon — CPU-only profile for EPYC 7742
+#
+# Source: fork 42WASD/supermicro-fancontrol (vendored in thirdparty/).
+# This unit overrides the stock curve defaults, which were tuned for an
+# EPYC 9555 (Zen 5, ~100°C throttle) and would let a Zen 2 EPYC 7742
+# (TjMax ~75°C) overheat before ramping to full speed.
+#
+# CPU-ONLY profile: fan speed is driven purely by CPU temperature (Tctl).
+# GPU/NVMe/HDD mappings are disabled so they never fight the CPU curve.
+#
+# Design goals:
+#   * QUIET at idle: CPU idle Tctl ~48°C -> fans sit at ~20-30%.
+#   * FULL SPEED under stress: 100% by 70°C (still 5°C under the 7742 TjMax).
+#   * Fail-safe: daemon sets fans to 100% on any error / on shutdown.
+#
+# Zones: The BMC is put in full/manual mode by the daemon, so it must govern
+# BOTH zones (otherwise one zone would sit at 100%). Both zones follow the
+# same CPU curve:
+#   zone 0 = FAN1-4  (CPU cooler + case intake/exhaust)
+#   zone 1 = FANA-B  (peripheral)
+#
+# Curve (piecewise-constant, TEMP:SPEED[:HYST_C[:HYST_S]]):
+#   cpu=0:20,40:20,50:30,60:60,65:80,70:100
+#     - 20% up to 40°C (quiet idle), ramp 50-70°C, max at 70°C.
+#     - HYST_C=3, HYST_S=90: temp + time hysteresis so load bursts don't
+#       slam fans up then immediately down.
+#
+# NOTE: These are a STARTING POINT. Re-tune after observing real idle/load
+#       temps with:  journalctl -u fan-daemon -f
+[Unit]
+Description=Supermicro IPMI fan control daemon (EPYC 7742, CPU-only)
+After=network.target ipmi-sensors.service ipmi.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /usr/local/bin/fan-daemon.py \
+    --interval_seconds 5 \
+    --hysteresis_celsius 3 \
+    --hysteresis_seconds 90 \
+    --speeds cpu=0:20,40:20,50:30,60:60,65:80,70:100 \
+    --speeds gpu= \
+    --speeds nvme= \
+    --speeds hdd=
+Restart=on-failure
+RestartSec=5
+
+# Fail-safe: if the daemon stops unexpectedly, force both zones to 100%
+# and leave the BMC in full/manual mode so our curve (not the BMC) governs.
+ExecStopPost=/usr/bin/ipmitool raw 0x30 0x45 0x01 0x01
+ExecStopPost=/usr/bin/ipmitool raw 0x30 0x70 0x66 0x01 0x00 0x64
+ExecStopPost=/usr/bin/ipmitool raw 0x30 0x70 0x66 0x01 0x01 0x64
+
+User=root
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=fan-daemon
+
+[Install]
+WantedBy=multi-user.target

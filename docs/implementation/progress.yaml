@@ -34,6 +34,7 @@
 03-build-the-host/storage-architecture/required-lvm-module: done
 03-build-the-host/filesystem-quotas-for-developer-homes: done
 03-build-the-host/nvidia-host-driver-baseline: done
+03-build-the-host/cpu-fan-control-it87: done
 04-install-rke2-correctly/choose-and-pin-the-rke2-release: done
 04-install-rke2-correctly/rke2-configuration: done
 04-install-rke2-correctly/rke2-configuration/kubelet-configuration: done
