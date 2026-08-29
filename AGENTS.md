@@ -80,7 +80,8 @@
 
   **Step 1 — smart diff (semantic doc lookup):** describe what changed and
   retrieve the docs that talk about the same things (hybrid BM25 + fuzzy
-  matching, so reworded/renamed things still hit):
+  matching over a **committed FTS5 index** — so reworded/renamed things still
+  hit):
 
   ```bash
   cd projects
@@ -88,6 +89,12 @@
     "scaled minecraft-demo to 0, prod velocity now owns nodePort 30079"
   # --json for machine-readable output; --top N for more candidates
   ```
+
+  The index (`scripts/docs/doc-impact/doc-index.db`) is **committed to the
+  repo** — clones get it for free. It self-updates: the post-commit hook
+  (`.githooks/`) resyncs it whenever a commit touches `docs/` or `infra/`.
+  After cloning fresh, run once:
+  `bash scripts/docs/doc-impact/setup-git-hooks.sh`
 
   **Step 2 — load and reconcile:** open each hit, compare its claims against
   what actually changed, and edit whatever is stale. Fix the docs **in the
@@ -104,6 +111,10 @@
 
   Expectations live in `scripts/docs/doc-impact/live-expectations.yaml` — one
   declarative entry per documented claim. Failing tests name the docs to fix.
+- **After committing doc changes**, verify the index synced (the hook does it
+  automatically): `python3 scripts/docs/doc-impact/doc-index.py status`.
+  If it reports pending changes outside a commit, run
+  `python3 scripts/docs/doc-impact/doc-index.py sync` and commit the `.db`.
 - **If a claim is wrong or a new persistent fact got documented** (new VG, new
   service, new config path): edit `live-expectations.yaml` (add or adjust a
   YAML entry — no code needed), then update the docs and commit both together.

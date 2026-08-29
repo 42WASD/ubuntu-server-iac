@@ -53,12 +53,28 @@ hook exists in no candidate and is exactly the AGENTS.md Doc-impact rule.
   `-m quick` runs the host-only battery (~2s) and the full suite adds
   cluster + VPS probes.
 - `scripts/docs/doc-impact/impact_search.py` — the "smart diff" (step 1 of
-  the workflow): hybrid BM25 + RapidFuzz retrieval over the doc corpus
-  (heading-aware chunks, per-file dedupe). Given a free-text change summary
-  it returns the runbook/reference pages that talk about the same things —
-  even when the wording differs (renames, reworded claims). The agent then
-  loads each hit and corrects drift (step 2); the pytest battery (step 3)
-  regression-tests the deterministic claims.
+  the workflow): hybrid retrieval over the doc corpus (heading-aware chunks,
+  per-file dedupe). Given a free-text change summary it returns the
+  runbook/reference pages that talk about the same things — even when the
+  wording differs (renames, reworded claims). The agent then loads each hit
+  and corrects drift (step 2); the pytest battery (step 3) regression-tests
+  the deterministic claims.
+- `scripts/docs/doc-impact/doc-index.py` — builds/updates the **committed
+  FTS5 index** (`doc-index.db`, 1078 chunks, 1.4 MB) so clones get the search
+  index for free:
+  - `sync` — incremental, per-chunk SHA-256 hash compare: a changed/moved/
+    renamed doc removes its stale rows and inserts new ones (~0.2s,
+    idempotent; a one-line edit produced exactly `+1` delta).
+  - `status` — index freshness; `rebuild` — full recreate (schema/chunker
+    version bump forces this automatically).
+  - FTS5 (porter+unicode61 tokenizer) is built into SQLite — no service, no
+    embedding model, no external dependency.
+- `.githooks/post-commit` (+ `scripts/docs/doc-impact/setup-git-hooks.sh`,
+  run once per clone) — after any commit touching `docs/` or `infra/`, the
+  hook re-syncs the index and **amends the `.db` into the same commit**, so
+  the committed index always matches the committed docs. Verified end-to-end:
+  doc edit → commit → `doc-index: resynced and amended into commit`; the new
+  line is immediately findable via `impact_search.py`.
 - `AGENTS.md` — "Doc-impact" rule: impact_search (step 1) → reconcile hits
   (step 2) → pytest battery (step 3) after any successful implementing
   commands; extend the YAML when new persistent facts are documented.
@@ -92,16 +108,26 @@ probe bugs (sudo -E rejection → `sudo KUBECONFIG=...` prefix form; kubectl
 jsonpath can't reach `.parameters` → Python-side `_dig` path resolution)
 before going green.
 
-## Retrieval notes (impact_search.py)
+## Retrieval notes (impact_search.py + doc-index.py)
 
-- Hybrid scoring: `BM25 + 2.5 * rapidfuzz.partial_ratio/100` — lexical finds
-  exact terms; fuzzy catches renames/rewording that lexical-only misses.
-  (2026 best practice per Cursor/Sourcegraph: hybrid beats pure-vector at
+- Index: **FTS5** (`porter unicode61`) in a committed SQLite file — chosen
+  over embeddings/vector stores deliberately: zero service, zero model,
+  instant clone, ~10 ms queries at this corpus size (1078 chunks). Hybrid
+  scoring: `bm25(chunks) + 2.5 * rapidfuzz.partial_ratio/100` — lexical finds
+  exact terms; fuzzy catches renames/rewording lexical-only misses. (2026
+  best practice per Cursor/Sourcegraph: hybrid beats pure-vector at
   small-corpus scale; embeddings pay off only on large stable corpora.)
+- FTS5 query building: tokens OR-joined as quoted prefix terms
+  (`"stor"* OR ...`) so partial words still hit; `bm25()` returns
+  negative-better values, inverted to positive in the engine.
+- chunk_ids encode `path::line`; the search JOINs `chunk_hashes` to recover
+  line numbers for the hit display.
+- Fallback: if the committed index is missing/stale, the engine rebuilds a
+  transient BM25 index in memory and prints a `doc-index.py sync` hint —
+  search never hard-fails.
 - Chunks are heading-aware markdown sections (~1200 chars), so hits name a
-  file + line, not just a file.
-- Code spans are stripped before tokenizing (commands pollute BM25 ranking).
-- `--top N` (default 6) and max 2 chunks/file keep the hit list readable.
+  file + line, not just a file. `--top N` (default 6) and max 2 chunks/file
+  keep the hit list readable.
 
 ## Probe-authoring notes (test_doc_impact.py)
 

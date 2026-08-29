@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# post-commit: keep the committed doc index in sync with the docs.
+#
+# After any commit that touched doc files, re-sync the FTS5 index
+# (scripts/docs/doc-impact/doc-index.db) and amend it into the commit when it
+# changed, so the index in the repo always matches the docs in the repo.
+#
+# Install:  git config core.hooksPath .githooks   (done by setup-git-hooks.sh)
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+INDEX_SCRIPT="$REPO_ROOT/scripts/docs/doc-impact/doc-index.py"
+DB="$REPO_ROOT/scripts/docs/doc-impact/doc-index.db"
+
+# Only act when docs/infra files changed in this commit
+if ! git diff-tree --no-commit-id --name-only -r HEAD -- docs infra | grep -q .; then
+    exit 0
+fi
+
+# Re-sync (fast: hash-compares every chunk)
+if python3 "$INDEX_SCRIPT" sync >/dev/null 2>&1; then
+    # git diff misses untracked files; porcelain catches both cases
+    if [[ -n "$(git status --porcelain -- "$DB")" ]]; then
+        git add "$DB"
+        git commit --amend --no-edit --no-verify >/dev/null
+        echo "doc-index: resynced and amended into commit"
+    fi
+fi
+exit 0

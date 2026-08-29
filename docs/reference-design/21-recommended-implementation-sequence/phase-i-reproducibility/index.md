@@ -20,10 +20,13 @@ implementing commands run on the host or cluster, documented claims can
 silently drift (a VG renamed, a workload scaled, a config file moved). The
 check is a three-step loop:
 
-**1. Smart diff — find the docs a change touches.** A hybrid retrieval
-(BM25 lexical + RapidFuzzy matching, heading-aware chunks) maps a free-text
-change summary onto the runbook/reference pages that talk about the same
-things — even when wording differs (renames, reworded claims):
+**1. Smart diff — find the docs a change touches.** A search over a
+**committed FTS5 index** (SQLite, `scripts/docs/doc-impact/doc-index.db`)
+maps a free-text change summary onto the runbook/reference pages that talk
+about the same things — even when wording differs. The index ships in the
+repo (clones get it free) and self-updates: a post-commit hook resyncs it
+whenever a commit touches `docs/` or `infra/`, so changed/renamed docs
+automatically replace their indexed parts.
 
 ```bash
 cd projects
