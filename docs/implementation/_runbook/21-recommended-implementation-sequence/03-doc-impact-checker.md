@@ -21,6 +21,24 @@ one iteration because every probe was hardcoded shell logic; the pytest form
 also plugs into the existing `uv run pytest` verification flow and gets
 pytest's reporting/skips/-k filtering for free.
 
+### Tool evaluation — why no existing framework was adopted (2026-08-29)
+
+Evaluated the "ready-made" options before/after building the local pipeline:
+
+| Candidate | Verdict | Why |
+|---|---|---|
+| `jbrockSTL/doc-drift` (GH Action) | Discard | PR-only, sees only git diffs of code (OpenAI-only, ~0 traction). Live-state drift produces no diff — it would fire on nothing. |
+| DocDrift / docwatcher (GH Action + local CLI) | Discard | Closest architecturally (local mode, Ollama/Groq support), but its engine extracts changed **code symbols from staged diffs**; our trigger is live state, not code. Would duplicate `impact_search.py` with a second indexing stack. Single maintainer, 5 stars. |
+| DeepDocs (GitHub App) | Discard / harmful | Auto-commits doc edits to the repo — collides with the SSOT golden-test discipline (generated output committed together, verify.sh). Cloud credit-metered, can't see the host. |
+
+Decisive criterion: every tool solves **code-vs-docs** drift keyed off git
+diffs; this repo's problem is **world-vs-docs** drift driven by commands the
+agent runs locally (invisible to git/GitHub until recorded). The deterministic
+half (live-state assertions) is strictly stronger as real pytest probes than
+as LLM confidence scores; the semantic half (find docs a change touches) is
+`impact_search.py`; the missing "fire after live commands, not after commits"
+hook exists in no candidate and is exactly the AGENTS.md Doc-impact rule.
+
 ## Implementation
 
 - `scripts/docs/doc-impact/live-expectations.yaml` — one entry per documented
