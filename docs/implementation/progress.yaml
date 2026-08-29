@@ -53,6 +53,8 @@
 05-gitops-bootstrap/limitrange: done
 05-gitops-bootstrap/default-deny-networkpolicy: done
 05-gitops-bootstrap/rbac: done
+05-gitops-bootstrap/rbac/dev-role: done
+05-gitops-bootstrap/rbac/production-is-intentionally-different: done
 05-gitops-bootstrap/authentication-for-kubernetes-developers: done
 06-policy-enforcement/install-kyverno-through-argo-cd: done
 06-policy-enforcement/stage-policy-before-enforcing-it: done
@@ -66,5 +68,7 @@
 13-game-networking-foundation/why-game-edge-is-separate-from-cloudflare-web: done
 13-game-networking-foundation/relay-bring-up: done
 13-game-networking-foundation/game-server-orchestration-operator: done
+13-game-networking-foundation/game-server-orchestration-operator/minecraft-demo-deployment: done
+13-game-networking-foundation/game-server-orchestration-operator/cilium-stale-node-ip-recovery: done
 17-opentofu-for-external-infrastructure/what-opentofu-should-own: done
 17-opentofu-for-external-infrastructure/state-is-sensitive: done

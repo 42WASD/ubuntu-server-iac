@@ -200,7 +200,10 @@ nav:
     - Phase 54 — keep game workloads in Kubernetes for now: reference-design/13-game-networking-foundation/keep-game-workloads-in-kubernetes-for-now/index.md
     - Phase 55 — why game edge is separate from Cloudflare web: reference-design/13-game-networking-foundation/why-game-edge-is-separate-from-cloudflare-web/index.md
     - Phase 56 — relay bring-up: reference-design/13-game-networking-foundation/relay-bring-up/index.md
-    - "Phase 57 — game server orchestration: operator, not raw manifests": reference-design/13-game-networking-foundation/game-server-orchestration-operator/index.md
+    - "Phase 57 — game server orchestration: operator, not raw manifests":
+      - reference-design/13-game-networking-foundation/game-server-orchestration-operator/index.md
+      - Minecraft demo deployment: reference-design/13-game-networking-foundation/game-server-orchestration-operator/minecraft-demo-deployment/index.md
+      - Cilium stale node-IP recovery: reference-design/13-game-networking-foundation/game-server-orchestration-operator/cilium-stale-node-ip-recovery/index.md
   - XIV — Backups and disaster recovery:
     - Overview: reference-design/14-backups-and-disaster-recovery/index.md
     - Phase 58 — RKE2 etcd snapshots: reference-design/14-backups-and-disaster-recovery/rke2-etcd-snapshots/index.md

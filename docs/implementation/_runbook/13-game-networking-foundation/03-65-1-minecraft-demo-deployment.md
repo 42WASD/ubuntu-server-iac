@@ -1,5 +1,5 @@
 ---
-phase: 13-game-networking-foundation/minecraft-demo-deployment
+phase: 13-game-networking-foundation/game-server-orchestration-operator/minecraft-demo-deployment
 ---
 # Minecraft demo — dev deployment record
 

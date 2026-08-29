@@ -1,5 +1,5 @@
 ---
-phase: 13-game-networking-foundation/cilium-stale-node-ip-recovery
+phase: 13-game-networking-foundation/game-server-orchestration-operator/cilium-stale-node-ip-recovery
 ---
 
 # Runbook — Cilium stale-node-IP recovery (post-reboot pod crashes)

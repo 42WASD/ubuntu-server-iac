@@ -167,7 +167,10 @@ parts:
         - keep-game-workloads-in-kubernetes-for-now
         - why-game-edge-is-separate-from-cloudflare-web
         - relay-bring-up
-        - game-server-orchestration-operator
+        - game-server-orchestration-operator:
+            subsections:
+              - minecraft-demo-deployment
+              - cilium-stale-node-ip-recovery
   - 14-backups-and-disaster-recovery:
       tracked: true
       sections:
