@@ -9,3 +9,6 @@ __pycache__/
 # MkDocs Local Build Artifacts
 site/
 .cache/
+
+# Stress-test monitor logs (transient artifacts, written to CWD)
+stress-monitor-*.csv

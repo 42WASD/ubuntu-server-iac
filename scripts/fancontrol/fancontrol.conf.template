@@ -11,17 +11,18 @@
 #   pwm2        = CPU fan header (fan2 tach; hardware floor ~2420 RPM < duty 50)
 #   @K10@/temp1_input = CPU temp (k10temp Tctl — authoritative for the EPYC 7742)
 #
-# Curve (EPYC 7742 TjMax ~75°C, idle Tctl ~49-58°C band):
-#   idle/quiet : below 55°C -> pwm 50 (fan hardware floor ~2420 RPM)
-#   ramp       : 55 -> 72°C from floor to full speed
-#   full speed : >= 72°C (3°C headroom below TjMax)
-INTERVAL=10
+# Curve (EPYC 7742, Rome, TjMax ~77°C; TDP 225W):
+#   idle/quiet : below 60°C -> pwm 50 (fan hardware floor ~2420 RPM)
+#   ramp       : 60 -> 74°C from floor to full speed
+#   full speed : >= 74°C (3°C headroom below TjMax)
+# INTERVAL=5 keeps the loop responsive at the top of the ramp.
+INTERVAL=5
 DEVPATH=@IT87@=devices/platform/it87.2608 @K10@=devices/pci0000:00/0000:00:18.3
 DEVNAME=@IT87@=it8613 @K10@=k10temp
 FCTEMPS=@IT87@/pwm2=@K10@/temp1_input
 FCFANS=@IT87@/pwm2=@IT87@/fan2_input
-MINTEMP=@IT87@/pwm2=55
-MAXTEMP=@IT87@/pwm2=72
+MINTEMP=@IT87@/pwm2=60
+MAXTEMP=@IT87@/pwm2=74
 MINPWM=@IT87@/pwm2=50
 MINSTART=@IT87@/pwm2=55
 MINSTOP=@IT87@/pwm2=50

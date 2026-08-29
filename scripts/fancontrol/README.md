@@ -17,16 +17,23 @@ chip is the only fan control surface exposed to the OS.
 - PWM control verified live: pwm2 = CPU fan (fan2 tach), fan hardware floor
   ~2420 RPM below duty 50.
 
-## Curve (EPYC 7742, TjMax ~75°C)
+## Curve (EPYC 7742, TjMax ~77°C)
 
 | Band | Behavior |
 |------|----------|
-| < 55°C | PWM 50 → fan floor **~2420 RPM** (quiet idle) |
-| 55–72°C | Linear ramp floor → full |
-| ≥ 72°C | PWM 255 → **~6800 RPM** (full cooling) |
+| < 60°C | PWM 50 → fan floor **~2420 RPM** (quiet idle) |
+| 60–74°C | Linear ramp floor → full |
+| ≥ 74°C | PWM 255 → **~6800 RPM** (full cooling) |
 
-Verified live: idle 53°C/2419 RPM; CPU stress 66–68°C/~6300 RPM; cool-down
-returns to ~3000 RPM.
+Tuned "quiet for longer": the floor holds to 60°C and full speed engages at
+74°C (3°C under TjMax). Polling is 5 s. Verified live: idle 57°C/2419 RPM;
+CPU stress Tctl 66–68°C at ~5500–6000 RPM; cool-down returns to the floor.
+
+### What PWM means here
+
+`pwm2` (0–255) is the **duty cycle of the 4-wire fan's control signal** the
+ITE IT8613E sends to the CPU fan: roughly `pwm2/2.55` = percent of full 12 V
+pulses. 50 ≈ 20% duty (this fan's spin floor, ~2420 RPM), 255 = 100% duty.
 
 ## Files
 
