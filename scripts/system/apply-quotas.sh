@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Phase 11 quota policy — source of truth.
-# Owner (management): small box; developers: larger box. Units GiB.
+# Owner (management): 6 GiB soft / 10 GiB hard; developers: 10/15 GiB. Units GiB.
 set -euo pipefail
 ROOT_FS="/"
 OWNER_SOFT_GIB=6

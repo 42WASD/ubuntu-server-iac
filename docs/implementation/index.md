@@ -1402,6 +1402,50 @@ sudo rm -f /home/ehammoud/quota-test   # cleanup
 **Result: PASSED.** The write hit the 15 GB hard cap and was rejected; the
 developer cannot fill the root or any home filesystem.
 
+## 11.6 Per-user quota visibility (verified 2026-08-29)
+
+Each user can see their own usage/limits without admin help — the kernel
+tracks it, no `du`/`lsblk` needed:
+
+```bash
+quota -s     # run as the user: own usage vs soft/hard + grace timer
+du -sh ~     # optional cross-check of home size
+```
+
+Admin view:
+
+```bash
+sudo repquota -s /          # all users at once
+sudo quota -s -u ehammoud   # one user
+```
+
+Verified live on alpha:
+
+```bash
+$ sudo -u ehammoud quota -s
+Disk quotas for user ehammoud (uid 1002):
+     Filesystem   space   quota   limit   grace   files   quota   limit   grace
+/dev/mapper/ubuntu--vg-ubuntu--lv
+                    76K  10240M  15360M              19       0       0
+
+$ sudo -u jyao quota -s
+Disk quotas for user jyao (uid 1000):
+     Filesystem   space   quota   limit   grace   files   quota   limit   grace
+/dev/mapper/ubuntu--vg-ubuntu--lv
+                 8976M*  6144M  10240M   3days   88307       0       0
+```
+
+(`*` = over soft limit, grace timer running. The `tmpfs`/kubelet
+"Cannot stat/resolve" warnings on stderr are benign — quota only reports on
+the ext4 root.)
+
+Docs updated to match the applied policy (owner 6/10, dev 10/15 GiB) and to
+document this workflow:
+`docs/reference-design/03-build-the-host/filesystem-quotas-for-developer-homes/index.md`
+(+ the mirrored section in `sources/ubuntu-26.04-rke2-platform-proper-stack.md`,
+Phase 11). `scripts/system/apply-quotas.sh` header comment now states the real
+limits.
+
 ---
 
 **Infra encoding:**
