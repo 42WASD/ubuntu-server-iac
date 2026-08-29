@@ -13,6 +13,26 @@
   continue. If a command needs input (like the sudo password prompt), send it
   to the terminal and let the user authenticate interactively.
 
+## Password-based SSH / remote commands (sshpass)
+
+- When a remote host must be reached with a **password** (no key installed),
+  never ask for it in chat for the first connection — prompt the user to run
+  it interactively, or use key-based auth / `BatchMode` and let it fail
+  cleanly.
+- **Once the user has typed the password into the chat** (a later turn), you
+  may use `sshpass` for subsequent commands non-interactively. Read it into
+  an env var rather than inlining it:
+  ```bash
+  SSHPASS='<password-from-user>' sshpass -e ssh -o StrictHostKeyChecking=accept-new user@host 'command'
+  ```
+- `sshpass -e` (env var) over `sshpass -p '<pw>'` — keeps the password out of
+  `ps` output and shell history.
+- For recurring access, prefer installing a key (`ssh-copy-id`) so later
+  turns need no password at all (see the `~/.config/iac-secrets/` convention
+  — secrets live outside the repo).
+- Never echo the password back, never commit it, never store it in a file
+  inside the repo.
+
 ## Repository Layout & File Placement (Overarching Rule)
 
 - **Whenever creating or adding any new file, always stop and consider whether
