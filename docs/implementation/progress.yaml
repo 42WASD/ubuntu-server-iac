@@ -47,6 +47,7 @@
 05-gitops-bootstrap/install-argo-cd-exactly-once-by-hand: done
 05-gitops-bootstrap/root-gitops-application: done
 05-gitops-bootstrap/root-gitops-application/appprojects: done
+05-gitops-bootstrap/root-gitops-application/argocd-instance-config: done
 05-gitops-bootstrap/namespace-baseline: done
 05-gitops-bootstrap/priorityclasses: done
 05-gitops-bootstrap/resourcequota: done

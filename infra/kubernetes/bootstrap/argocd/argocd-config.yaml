@@ -1,0 +1,46 @@
+# Argo CD instance configuration — applied by hand (kubectl), NOT Argo-managed.
+#
+# Argo CD installs itself once by hand (Phase 19: the bootstrap paradox), so
+# its own ConfigMap lives outside the GitOps loop. This file is the SSOT for
+# the deliberate customizations on top of the stock install; re-apply after
+# any Argo CD reinstall or from a fresh clone with:
+#
+#   kubectl -n argocd apply -f infra/kubernetes/bootstrap/argocd/argocd-config.yaml
+#
+# Verify live state matches this file:
+#   kubectl -n argocd get cm argocd-cm -o yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cm
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-cm
+    app.kubernetes.io/part-of: argocd
+data:
+  # Health check for plain networking.k8s.io/Ingress resources (e.g. the
+  # tenant Traefik ingresses). Without this, Argo reports an Ingress as
+  # "Progressing" forever — the built-in health logic only covers the
+  # deprecated extensions/v1beta1 kind.
+  #
+  # On this on-prem cluster Traefik does NOT populate status.loadBalancer
+  # (no cloud LB), so the common LB-based Lua check would never turn
+  # Healthy. Health is instead asserted from the spec: an Ingress serves
+  # traffic as soon as Traefik programs the router (verified live:
+  # wasd.42base.com and meme.alpha.taild82ced.ts.net both serve 200 with
+  # an empty status.loadBalancer).
+  resource.customizations.health.networking.k8s.io_Ingress: |
+    hs = {}
+    if obj.metadata ~= nil and obj.metadata.deletionTimestamp ~= nil then
+      hs.status = "Progressing"
+      hs.message = "Ingress is being terminated"
+      return hs
+    end
+    if obj.spec ~= nil and obj.spec.rules ~= nil and #obj.spec.rules > 0 then
+      hs.status = "Healthy"
+      hs.message = "Ingress router programmed (on-prem Traefik: no LB status)"
+      return hs
+    end
+    hs.status = "Progressing"
+    hs.message = "Ingress has no rules"
+    return hs

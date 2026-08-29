@@ -103,6 +103,7 @@ parts:
         - root-gitops-application:
             subsections:
               - appprojects
+              - argocd-instance-config
         - namespace-baseline
         - priorityclasses
         - resourcequota

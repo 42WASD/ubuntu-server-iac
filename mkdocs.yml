@@ -144,6 +144,7 @@ nav:
     - Phase 21 — root GitOps application:
       - reference-design/05-gitops-bootstrap/root-gitops-application/index.md
       - AppProjects: reference-design/05-gitops-bootstrap/root-gitops-application/appprojects/index.md
+      - Argo CD instance configuration: reference-design/05-gitops-bootstrap/root-gitops-application/argocd-instance-config/index.md
     - Phase 22 — namespace baseline: reference-design/05-gitops-bootstrap/namespace-baseline/index.md
     - Phase 23 — PriorityClasses: reference-design/05-gitops-bootstrap/priorityclasses/index.md
     - Phase 24 — ResourceQuota: reference-design/05-gitops-bootstrap/resourcequota/index.md
