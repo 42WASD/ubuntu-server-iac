@@ -1,0 +1,3 @@
+[submodule "thirdparty/supermicro-fancontrol"]
+	path = thirdparty/supermicro-fancontrol
+	url = https://github.com/42WASD/supermicro-fancontrol.git
