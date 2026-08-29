@@ -52,7 +52,7 @@ sensors   # it8613 shows fan2 RPM + pwm2 under your load
 ```
 
 Expected: idle ~2400 RPM; under `stress-ng` CPU load (see the
-[System Stress Test](../../guides/operations/stress-test-guide.md)) the fan
+[System Stress Test](../../../guides/operations/stress-test-guide.md)) the fan
 ramps to ~6300 RPM at 66–68 °C and falls back afterwards.
 
 ## If a BMC module is added later
