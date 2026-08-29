@@ -16,6 +16,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "pytest>=8.0.0",
+    "pytest-testinfra>=10.0.0",
     "ruff>=0.5.0",
 ]
 
@@ -26,3 +27,7 @@ package = false
 # Run the SSOT validation suite. conftest.py adds scripts/docs to sys.path.
 testpaths = ["tests"]
 addopts = "-ra --strict-markers"
+markers = [
+    "doc_impact: live-state doc-impact probes (deselect with '-m \"not doc_impact\"')",
+    "quick: fast doc-impact battery (host-only, no network probes)",
+]

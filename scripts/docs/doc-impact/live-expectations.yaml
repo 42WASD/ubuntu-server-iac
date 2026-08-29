@@ -1,0 +1,171 @@
+# Live-state expectations — the single source of truth for doc-impact probes.
+#
+# Each entry asserts ONE documented claim about live host/cluster state.
+# The pytest engine (tests/test_doc_impact.py) interprets this file; adding a
+# check here is data, not code.
+#
+# Fields:
+#   id:         stable probe name (shows in pytest output)
+#   probe:      probe type (see engine): command|file_contains|service_active|
+#               swap_active|vg_present|kubectl_json|nodeport_owner|ssh
+#   expect:     expected value (type depends on probe)
+#   docs:       docs to fix if this drifts (paths relative to repo root;
+#               globs allowed)
+#   quick:      true = included in the fast battery (--quick)
+#   skip:       optional human note to disable a probe temporarily
+#
+# Mapping of probe -> how `expect` is compared:
+#   command        exact string match of stdout (stripped)
+#   file_contains  substring present in file
+#   service_active "active"/"inactive"
+#   swap_active    "active"/"inactive"
+#   vg_present     VG name exists in `vgs` output
+#   kubectl_json   expect: {jsonpath-into-dict -> expected}; see engine
+#   nodeport_owner expect: "namespace/name" owning that nodePort
+#   ssh            expect: {command-suffix -> expected-substring}; runs over
+#                  BatchMode SSH; auto-skips if the host is unreachable
+
+checks:
+  # ---------- Part III: build the host (Phase 8) ----------
+  - id: swap-enabled
+    probe: swap_active
+    expect: active          # re-enabled as safety net, ph08 §8.6
+    docs:
+      - docs/implementation/_runbook/03-build-the-host/phase-08-system-tuning.md
+      - docs/reference-design/03-build-the-host/system-tuning-and-resource-safety/disable-swap-initially/
+    quick: true
+
+  - id: ip-forward
+    probe: command
+    command: sysctl -n net.ipv4.ip_forward
+    expect: "1"
+    docs:
+      - docs/implementation/_runbook/03-build-the-host/phase-08-system-tuning.md
+    quick: true
+
+  - id: inotify-instances
+    probe: command
+    command: sysctl -n fs.inotify.max_user_instances
+    expect: "8192"
+    docs:
+      - docs/implementation/_runbook/03-build-the-host/phase-08-system-tuning.md
+      - docs/implementation/_runbook/03-build-the-host/phase-082-inotify-limits.md
+    quick: true
+
+  - id: inotify-watches
+    probe: command
+    command: sysctl -n fs.inotify.max_user_watches
+    expect: "524288"
+    docs:
+      - docs/implementation/_runbook/03-build-the-host/phase-08-system-tuning.md
+      - docs/implementation/_runbook/03-build-the-host/phase-082-inotify-limits.md
+    quick: true
+
+  - id: journald-maxuse
+    probe: file_contains
+    path: /etc/systemd/journald.conf.d/50-platform.conf
+    expect: SystemMaxUse=4G
+    docs:
+      - docs/implementation/_runbook/03-build-the-host/phase-08-system-tuning.md
+      - docs/implementation/_runbook/03-build-the-host/phase-084-journald-bound.md
+    quick: true
+
+  # ---------- Part III: storage (Phase 10) ----------
+  - id: vg-ubuntu-vg
+    probe: vg_present
+    expect: ubuntu-vg
+    docs:
+      - docs/implementation/_runbook/03-build-the-host/phase-10-storage.md
+    quick: true
+
+  - id: vg-k8s-nvme
+    probe: vg_present
+    expect: vg_k8s_nvme
+    docs:
+      - docs/implementation/_runbook/03-build-the-host/phase-10-storage.md
+      - docs/implementation/_runbook/03-build-the-host/phase-104-kubernetes-fast-vg.md
+      - docs/implementation/_runbook/07-persistent-storage/
+    quick: true
+
+  - id: vg-k8s-hdd
+    probe: vg_present
+    expect: vg_k8s_hdd
+    docs:
+      - docs/implementation/_runbook/03-build-the-host/phase-10-storage.md
+      - docs/implementation/_runbook/03-build-the-host/phase-103-kubernetes-bulk-vg.md
+    quick: true
+
+  # ---------- Part III: fan control (Phase 13) ----------
+  - id: fancontrol-active
+    probe: service_active
+    service: fancontrol
+    expect: active
+    docs:
+      - docs/implementation/_runbook/03-build-the-host/phase-13-cpu-fan-control-it87.md
+      - scripts/fancontrol/README.md
+    quick: true
+
+  # ---------- Part IV: RKE2 (Phase 14) ----------
+  - id: node-alpha-ready
+    probe: kubectl_json
+    resource: nodes
+    select: alpha
+    expect:
+      ready: "True"          # engine: ready = Ready condition status
+    docs:
+      - docs/implementation/_runbook/04-install-rke2-correctly/
+    quick: true
+
+  # ---------- Parts V-XI: Argo-managed platform ----------
+  - id: argo-apps-healthy
+    probe: kubectl_json
+    resource: applications -n argocd
+    all_healthy: true        # every Application health in {Healthy,Progressing,Suspended}
+    docs:
+      - docs/implementation/_runbook/05-gitops-bootstrap/
+      - docs/implementation/_runbook/06-policy-enforcement/
+      - docs/implementation/_runbook/07-persistent-storage/
+      - docs/implementation/_runbook/09-registry/
+      - docs/implementation/_runbook/11-public-web-path/
+    quick: false
+
+  # ---------- Part VII: storage classes -> VG mapping (Phase 32) ----------
+  - id: sc-nvme-fast-vg
+    probe: kubectl_json
+    resource: sc
+    select: nvme-fast
+    expect:
+      parameters.vgpattern: vg_k8s_nvme.*
+    docs:
+      - docs/implementation/_runbook/07-persistent-storage/01-41-phase-32-storageclasses.md
+    quick: false
+
+  - id: sc-hdd-bulk-vg
+    probe: kubectl_json
+    resource: sc
+    select: hdd-bulk
+    expect:
+      parameters.vgpattern: vg_k8s_hdd.*
+    docs:
+      - docs/implementation/_runbook/07-persistent-storage/01-41-phase-32-storageclasses.md
+    quick: false
+
+  # ---------- Part XIII: game edge (Phase 55/56) ----------
+  - id: nodeport-30079-owner
+    probe: nodeport_owner
+    nodePort: 30079
+    expect: prd-games-42wasd-admin/velocity
+    docs:
+      - docs/implementation/_runbook/13-game-networking-foundation/
+      - docs/reference-design/13-game-networking-foundation/game-server-orchestration-operator/minecraft-demo-deployment/
+    quick: false
+
+  - id: relay-vps-nat-persistent
+    probe: ssh
+    host: root@89.36.162.171
+    command: systemctl is-enabled mc-relay-nat.service
+    expect: enabled
+    docs:
+      - docs/implementation/_runbook/13-game-networking-foundation/02-64-phase-55-relay-bring-up.md
+      - docs/reference-design/13-game-networking-foundation/game-server-orchestration-operator/relay-bring-up/
+    quick: false

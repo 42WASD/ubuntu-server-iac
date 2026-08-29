@@ -70,3 +70,29 @@
   `cd projects && uv run mkdocs build --strict -f ../mkdocs.yml`
 - If you complete a phase, also bump its status in `docs/implementation/progress.yaml`.
 - See `/memories/repo/runbook-process.md` for the full workflow.
+
+## Doc-impact — check docs for staleness after live commands
+
+- **After any successful run of new/implementing commands** (anything that
+  installed, configured, created, renamed, scaled, or removed something on
+  the host or cluster), run a quick doc-impact check **before finishing the
+  turn**:
+
+  ```bash
+  cd projects
+  uv run pytest tests/test_doc_impact.py -q -m quick   # ~2s, host-only claims
+  uv run pytest tests/test_doc_impact.py -q            # full probe (incl. cluster + VPS)
+  ```
+
+  Expectations live in `scripts/docs/doc-impact/live-expectations.yaml` — one
+  declarative entry per documented claim (probe type, expected value, docs to
+  fix). Failing tests name the exact docs to update. This uses
+  pytest + testinfra (the standard server-state assertion tooling) instead of
+  hand-rolled bash.
+- **If it reports drift:** update the listed docs in the same turn (see
+  Runbook section above), then re-run until green.
+- **If a claim is wrong or a new persistent fact got documented** (new VG, new
+  service, new config path): edit `live-expectations.yaml` (add or adjust a
+  YAML entry — no code needed), then update the docs and commit both together.
+- Full doc-vs-reality sweeps (like the 2026-08-29 audit) should be recorded
+  as a runbook entry too, so the reconciliation itself is traceable.

@@ -36,3 +36,19 @@ def parts(repo: Path) -> list[dict]:
 @pytest.fixture(scope="session")
 def manifest_path(repo: Path) -> Path:
     return repo / "docs" / "reference-design" / "_sequence.yaml"
+
+def pytest_collection_modifyitems(config, items):
+    """Tag doc-impact tests with 'quick' per live-expectations.yaml so
+    `pytest -m quick` runs just the fast host-only battery."""
+    try:
+        from test_doc_impact import CHECKS  # module under tests/
+    except ImportError:
+        return
+    by_id = {c["id"]: c for c in CHECKS}
+    for item in items:
+        callspec = getattr(item, "callspec", None)
+        if callspec is None:
+            continue
+        check = callspec.params.get("check")
+        if check and by_id.get(check.get("id"), {}).get("quick"):
+            item.add_marker(pytest.mark.quick)

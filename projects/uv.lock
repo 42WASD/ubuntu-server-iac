@@ -634,6 +634,18 @@ wheels = [
 ]
 
 [[package]]
+name = "pytest-testinfra"
+version = "10.2.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pytest" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/33/15/b650133bb3eb3509704c7605348bec4205b6a399f7a79874ced6c30a3e15/pytest_testinfra-10.2.2.tar.gz", hash = "sha256:537fd5eb88da618c1f461248aa20594cf8d44512e8519b239837e83875e1e9cd", size = 76153, upload-time = "2025-03-30T09:06:02.224Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/1c/75/8b002ad110ae4a71bce9bb47020ee77176e27defe99ce6d7b62e52debeb9/pytest_testinfra-10.2.2-py3-none-any.whl", hash = "sha256:b785602b0aa868c858e4ef121a8cc0d13a81c04b74ec0364d70969540f8e7c31", size = 76912, upload-time = "2025-03-30T09:06:00.358Z" },
+]
+
+[[package]]
 name = "python-dateutil"
 version = "2.9.0.post0"
 source = { registry = "https://pypi.org/simple" }
@@ -867,6 +879,7 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "pytest" },
+    { name = "pytest-testinfra" },
     { name = "ruff" },
 ]
 
@@ -883,6 +896,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "pytest", specifier = ">=8.0.0" },
+    { name = "pytest-testinfra", specifier = ">=10.0.0" },
     { name = "ruff", specifier = ">=0.5.0" },
 ]
 
