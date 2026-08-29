@@ -117,7 +117,20 @@ def _fts_query(query: str) -> str:
 
 
 def search(query: str, top: int) -> list[dict]:
-    from rapidfuzz import fuzz  # type: ignore
+    # rapidfuzz is optional at runtime: without it, BM25 ranking still works
+    # (fuzzy boost is what catches renames/rewording, so install it for best
+    # recall — it ships in projects/ deps).
+    try:
+        from rapidfuzz import fuzz  # type: ignore
+
+        def fuzzy(a: str, b: str) -> float:
+            return fuzz.partial_ratio(a, b) / 100.0
+    except ImportError:
+        print("note: rapidfuzz not installed (cd projects && uv sync) — "
+              "running BM25-only", file=sys.stderr)
+
+        def fuzzy(a: str, b: str) -> float:
+            return 0.0
 
     q_low = query.lower()
     chunks: list[tuple[str, str, int, float]] = []  # (chunk_id, text, line, bm25)
@@ -182,7 +195,7 @@ def search(query: str, top: int) -> list[dict]:
 
     results: list[dict] = []
     for cid, text, line, s in chunks:
-        fz = fuzz.partial_ratio(q_low, text.lower()) / 100.0
+        fz = fuzzy(q_low, text.lower())
         combined = float(s) + 2.5 * fz
         results.append(
             {"chunk": cid, "line": line, "bm25": round(float(s), 3),
