@@ -13,7 +13,7 @@ this page records only the platform-facing deployment shape.
 | File | Purpose |
 |---|---|
 | `deployment.yaml` | single-replica `Recreate` Deployment, 2G heap |
-| `service.yaml` | **NodePort** 30079 → :25565 (game edge = UAE relay → WireGuard → NodePort) |
+| `service.yaml` | `ClusterIP` :25565 — **scaled to 0**; the game edge NodePort (30079) moved to the prod `velocity` proxy (see below) |
 | `networkpolicy.yaml` | allow ingress 25565 + outbound internet (jar download) |
 | `pvc.yaml` | 5Gi world volume on `nvme-fast` |
 
@@ -25,10 +25,12 @@ Argo Application:
 
 - **One replica + `Recreate`**: vanilla is a single in-memory process owning
   the world files — a new pod must never start before the old one is gone.
-- **NodePort via game edge**: external players hit the UAE relay VPS
-  (`:25565`), which DNATs into the WireGuard tunnel to the NodePort. The
-  Kyverno `restrict-exposure-and-image-tags` policy records the NodePort in
-  **Audit** mode (does not block).
+- **NodePort via game edge (now on prod Velocity)**: the demo originally held
+  NodePort 30079; the edge is now served by the prod `velocity` proxy in
+  `prd-games-42wasd-admin` (`25565:30079`). The UAE relay VPS DNATs public
+  `:25565` (and the whole 30000–30199 game range) into the WireGuard tunnel.
+  The Kyverno `restrict-exposure-and-image-tags` policy records game-range
+  NodePorts in **Audit** mode (does not block).
 - **Default-deny egress, with an explicit allow**: the games namespace is
   default-deny; the NetworkPolicy allows outbound internet for the jar
   download plus cluster DNS.

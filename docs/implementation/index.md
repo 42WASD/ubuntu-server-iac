@@ -846,13 +846,15 @@ Covered in detail by the parent runbook
 the Phase 8 runbook (`_runbook/03-build-the-host/phase-08-system-tuning.md`) §8.2.
 
 ```bash
-# Raise inotify watcher limits for RKE2/container workloads
-echo fs.inotify.max_user_instances=8192  | sudo tee /etc/sysctl.d/99-inotify.conf
-echo fs.inotify.max_user_watches=1048576 | sudo tee -a /etc/sysctl.d/99-inotify.conf
+# Deploy the inotify sysctl drop-in (source: scripts/system/)
+sudo cp 99-platform-inotify.conf /etc/sysctl.d/
 sudo sysctl --system
 ```
 
-Verified with `sysctl fs.inotify.max_user_instances fs.inotify.max_user_watches`.
+Live values on `alpha` (verified 2026-08-29):
+`fs.inotify.max_user_instances = 8192`,
+`fs.inotify.max_user_watches = 524288` (watches was already higher, so that
+line was a no-op — the important change was instances 1024 → 8192).
 
 </details>
 
@@ -895,9 +897,13 @@ sudo swapoff -a
 sudo sed -i 's|^/swap.img.*|# /swap.img was disabled for initial k8s deployment (Phase 8)|' /etc/fstab
 ```
 
-Verified: `swapon --show` empty; fstab entry commented with the reason inline.
-(Swap was re-enabled later as a deliberate feature after a host hard freeze —
-see parent §8.6.)
+Verified at Phase 8.1 time: `swapon --show` empty; fstab entry commented with
+the reason inline.
+
+**Current live state (re-verified 2026-08-29): swap is ACTIVE again** —
+re-enabled as a deliberate host safety net after a hard freeze caused by a
+heavy host-side build into RAM-backed `/tmp` with zero swap headroom (parent
+runbook §8.6). The reference page covers the full disable→re-enable cycle.
 
 </details>
 
@@ -1169,8 +1175,9 @@ existing-install decision).
 `alpha` came with Ubuntu already on LVM: the whole NVMe is one PV owned by
 `ubuntu-vg` (100G root, ~1.76T free), the HDD completely unformatted. Rather
 than repartition a live filesystem, LVs are carved from free extents of
-`ubuntu-vg`, and separate VGs are created on new partitions (`vg_k8s_hdd`,
-`vg_k8s_fast`). Verified topology recorded in parent §10.1.
+`ubuntu-vg` (including the 320G `rke2` LV), and separate VGs are created on
+new partitions (`vg_k8s_hdd`, `vg_k8s_nvme`). Verified topology recorded in
+parent §10.1.
 
 </details>
 
@@ -1185,13 +1192,15 @@ Covered in detail by the parent runbook
 the Phase 10 runbook (`_runbook/03-build-the-host/phase-10-storage.md`) (§10.1 inspection, the layout
 decision, and Checkpoint 7).
 
-The realized layout on `alpha`:
+The realized layout on `alpha` (verified live 2026-08-29):
 
-- `nvme0n1` (1.9T): OS PV `ubuntu-vg` (shrunk to 1150G) + new `k8s_fast`
-  partition → `vg_k8s_fast` for fast Kubernetes volumes.
-- `sda` (5.5T HDD): 60% partitioned `k8s_bulk` → `vg_k8s_hdd` (~3.27T) for
-  bulk volumes; ~2.2T left unallocated as emergency reserve.
-- Root LV stays 100G; quotas protect it (Phase 11).
+- `nvme0n1` (1.9T): OS PV `ubuntu-vg` (shrunk to ~1.12T, holding the 100G
+  `ubuntu-lv` root and the 320G `rke2` LV) + `nvme0n1p4` → `vg_k8s_nvme`
+  (754.6G, 538.6G free) for fast Kubernetes volumes.
+- `sda` (5.5T HDD): 60% partitioned `k8s_bulk` → `vg_k8s_hdd` (3.27T, all
+  free); ~2.2T left unallocated as emergency reserve.
+- StorageClasses map `nvme-fast`/`nvme-db` → `vgpattern: vg_k8s_nvme.*` and
+  `hdd-bulk` → `vg_k8s_hdd.*`.
 
 Status note: the `fresh-install-target` variant remains `blocked`/n-a for
 this host (Ubuntu is already installed); the existing-install path is what
@@ -1212,9 +1221,11 @@ the Phase 10 runbook (`_runbook/03-build-the-host/phase-10-storage.md`) (§10.2 
 
 Principle applied: only create dedicated filesystems/VGs once the backing
 storage is inspected and known (never guess disk topology). On `alpha` this
-meant `lsblk/pvs/vgs/lvs` first, then `vg_k8s_hdd` (HDD, 0–60%) and
-`vg_k8s_fast` (NVMe, after the PV/partition resize) — sizes verified with
-`vgs` before proceeding (Checkpoint 7).
+meant `lsblk/pvs/vgs/lvs` first, then the 320G `rke2` LV on `ubuntu-vg`
+(xfs, mounted at `/var/lib/rancher/rke2`), `vg_k8s_hdd` (HDD, 0–60%) and
+`vg_k8s_nvme` (NVMe, after the PV/partition resize) — sizes verified with
+`vgs` before proceeding (Checkpoint 7). Live check 2026-08-29: `rke2` LV
+320G at 8% usage, mounted `noatime`, noquota.
 
 </details>
 
@@ -1235,9 +1246,11 @@ sudo pvresize --setphysicalvolumesize 1150G /dev/nvme0n1p3
 sudo parted /dev/nvme0n1 unit MiB resizepart 3 1180800
 sudo parted /dev/nvme0n1 unit MiB mkpart primary 1180800MiB 100%
 sudo parted /dev/nvme0n1 name 4 k8s_fast
-sudo pvcreate /dev/nvme0n1p4 && sudo vgcreate vg_k8s_fast /dev/nvme0n1p4
+sudo pvcreate /dev/nvme0n1p4 && sudo vgcreate vg_k8s_nvme /dev/nvme0n1p4
 ```
 
+Live on `alpha` (verified 2026-08-29): `vg_k8s_nvme` 754.6G with 538.6G free;
+StorageClasses `nvme-fast`/`nvme-db` select it via `vgpattern: vg_k8s_nvme.*`.
 Owner-approved on a fresh server; every size verified with `pvs/vgs/lvs` and
 `parted unit MiB print` before each step.
 
@@ -3429,15 +3442,22 @@ Verified every tenant namespace has the expected Role + RoleBinding.
 
 ## 26.3 Verified with `kubectl auth can-i`
 
+> **Important:** impersonate the group **exactly as it appears in the
+> RoleBinding subjects** — `42WASD:tenant-42wasd-admin` (the Dex/OIDC groups
+> claim is prefixed with the org name). Impersonating the bare
+> `tenant-42wasd-admin` incorrectly returns `no` for everything and will send
+> you debugging the wrong layer.
+
 ```bash
+# re-verified live 2026-08-29 with the exact commands below
 kubectl auth can-i create deployments -n dev-42wasd-admin \
-  --as=system:serviceaccount --as-group=tenant-42wasd-admin   # yes
+  --as=devuser --as-group="42WASD:tenant-42wasd-admin"   # yes
 kubectl auth can-i create deployments -n prd-42wasd-admin \
-  --as=system:serviceaccount --as-group=tenant-42wasd-admin   # no
+  --as=devuser --as-group="42WASD:tenant-42wasd-admin"   # no
 kubectl auth can-i get pods -n prd-42wasd-admin \
-  --as=system:serviceaccount --as-group=tenant-42wasd-admin   # yes
+  --as=devuser --as-group="42WASD:tenant-42wasd-admin"   # yes
 kubectl auth can-i get secrets -n prd-42wasd-admin \
-  --as=system:serviceaccount --as-group=tenant-42wasd-admin   # no
+  --as=devuser --as-group="42WASD:tenant-42wasd-admin"   # no
 ```
 
 Dev group gets writes; prod/`mlops` get read-only and no secret access.
@@ -3456,9 +3476,11 @@ authorization only.
 The `tenant-developer` Role grants full CRUD on pods, services, endpoints,
 configmaps, PVCs, deployments/replicasets/statefulsets, jobs/cronjobs, plus
 `exec`/`portforward`, scoped to a single dev namespace. The RoleBinding binds
-the identity group (e.g. `tenant-42wasd-admin`) into that namespace.
+the identity group — subject name `42WASD:tenant-42wasd-admin` (the Dex/OIDC
+groups claim is org-prefixed) — into that namespace.
 
-Part of Phase 26 — RBAC, applied via Argo CD:
+Part of Phase 26 — RBAC, applied via Argo CD (`platform-rbac` app,
+sync-wave -5; live 2026-08-29: Synced/Healthy):
 
 ```bash
 kubectl -n argocd patch application platform-root \
@@ -3466,7 +3488,12 @@ kubectl -n argocd patch application platform-root \
 # -> platform-rbac  Synced  Healthy
 ```
 
-Verified the `dev-42wasd-admin` namespace has the expected Role + RoleBinding.
+Verified with impersonation using the exact group subject:
+
+```bash
+kubectl auth can-i create deployments -n dev-42wasd-admin \
+  --as=devuser --as-group="42WASD:tenant-42wasd-admin"   # yes
+```
 
 </details>
 
@@ -5490,7 +5517,17 @@ timeout 5 bash -c 'echo > /dev/tcp/10.43.76.169/25565 && echo "PORT 25565 OPEN"'
 The UAE relay VPS (`89.36.162.171`) forwards public `:25565` to the alpha
 NodePort over the existing WireGuard tunnel (`10.200.0.2`).
 
-**Boot-persistent pieces on the VPS:**
+**CURRENT STATE (re-verified live 2026-08-29) — ownership moved to prod:**
+nodePort **30079 is now owned by the prod `velocity` proxy** in
+`prd-games-42wasd-admin` (which fronts `paper-lobby`). The dev
+`minecraft-demo` tenant is **scaled to 0** (world PVC retained) and its
+Service reverted to **ClusterIP** — so this workload no longer holds 30079.
+The VPS DNAT was generalized to a **range pass-through 30000–30199 →
+10.200.0.2** (plus a 25565→30079 alias for back-compat), so new game servers
+only need a Service with a NodePort in range — no VPS iptables edit. Live
+check: `TCP 25565` via the relay is open and lands on Velocity.
+
+**Boot-persistent pieces on the VPS (verified live):**
 
 1. `/usr/local/bin/mc-relay-nat.sh` — idempotent script that adds the DNAT and
    MASQUERADE rules only if absent (safe to re-run).

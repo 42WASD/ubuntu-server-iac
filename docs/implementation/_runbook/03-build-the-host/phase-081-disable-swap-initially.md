@@ -14,6 +14,10 @@ sudo swapoff -a
 sudo sed -i 's|^/swap.img.*|# /swap.img was disabled for initial k8s deployment (Phase 8)|' /etc/fstab
 ```
 
-Verified: `swapon --show` empty; fstab entry commented with the reason inline.
-(Swap was re-enabled later as a deliberate feature after a host hard freeze —
-see parent §8.6.)
+Verified at Phase 8.1 time: `swapon --show` empty; fstab entry commented with
+the reason inline.
+
+**Current live state (re-verified 2026-08-29): swap is ACTIVE again** —
+re-enabled as a deliberate host safety net after a hard freeze caused by a
+heavy host-side build into RAM-backed `/tmp` with zero swap headroom (parent
+runbook §8.6). The reference page covers the full disable→re-enable cycle.

@@ -106,7 +106,17 @@ timeout 5 bash -c 'echo > /dev/tcp/10.43.76.169/25565 && echo "PORT 25565 OPEN"'
 The UAE relay VPS (`89.36.162.171`) forwards public `:25565` to the alpha
 NodePort over the existing WireGuard tunnel (`10.200.0.2`).
 
-**Boot-persistent pieces on the VPS:**
+**CURRENT STATE (re-verified live 2026-08-29) — ownership moved to prod:**
+nodePort **30079 is now owned by the prod `velocity` proxy** in
+`prd-games-42wasd-admin` (which fronts `paper-lobby`). The dev
+`minecraft-demo` tenant is **scaled to 0** (world PVC retained) and its
+Service reverted to **ClusterIP** — so this workload no longer holds 30079.
+The VPS DNAT was generalized to a **range pass-through 30000–30199 →
+10.200.0.2** (plus a 25565→30079 alias for back-compat), so new game servers
+only need a Service with a NodePort in range — no VPS iptables edit. Live
+check: `TCP 25565` via the relay is open and lands on Velocity.
+
+**Boot-persistent pieces on the VPS (verified live):**
 
 1. `/usr/local/bin/mc-relay-nat.sh` — idempotent script that adds the DNAT and
    MASQUERADE rules only if absent (safe to re-run).

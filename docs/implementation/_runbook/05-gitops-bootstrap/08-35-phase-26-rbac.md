@@ -44,15 +44,22 @@ Verified every tenant namespace has the expected Role + RoleBinding.
 
 ## 26.3 Verified with `kubectl auth can-i`
 
+> **Important:** impersonate the group **exactly as it appears in the
+> RoleBinding subjects** — `42WASD:tenant-42wasd-admin` (the Dex/OIDC groups
+> claim is prefixed with the org name). Impersonating the bare
+> `tenant-42wasd-admin` incorrectly returns `no` for everything and will send
+> you debugging the wrong layer.
+
 ```bash
+# re-verified live 2026-08-29 with the exact commands below
 kubectl auth can-i create deployments -n dev-42wasd-admin \
-  --as=system:serviceaccount --as-group=tenant-42wasd-admin   # yes
+  --as=devuser --as-group="42WASD:tenant-42wasd-admin"   # yes
 kubectl auth can-i create deployments -n prd-42wasd-admin \
-  --as=system:serviceaccount --as-group=tenant-42wasd-admin   # no
+  --as=devuser --as-group="42WASD:tenant-42wasd-admin"   # no
 kubectl auth can-i get pods -n prd-42wasd-admin \
-  --as=system:serviceaccount --as-group=tenant-42wasd-admin   # yes
+  --as=devuser --as-group="42WASD:tenant-42wasd-admin"   # yes
 kubectl auth can-i get secrets -n prd-42wasd-admin \
-  --as=system:serviceaccount --as-group=tenant-42wasd-admin   # no
+  --as=devuser --as-group="42WASD:tenant-42wasd-admin"   # no
 ```
 
 Dev group gets writes; prod/`mlops` get read-only and no secret access.

@@ -8,10 +8,12 @@ Covered in detail by the parent runbook
 the Phase 8 runbook (`_runbook/03-build-the-host/phase-08-system-tuning.md`) §8.2.
 
 ```bash
-# Raise inotify watcher limits for RKE2/container workloads
-echo fs.inotify.max_user_instances=8192  | sudo tee /etc/sysctl.d/99-inotify.conf
-echo fs.inotify.max_user_watches=1048576 | sudo tee -a /etc/sysctl.d/99-inotify.conf
+# Deploy the inotify sysctl drop-in (source: scripts/system/)
+sudo cp 99-platform-inotify.conf /etc/sysctl.d/
 sudo sysctl --system
 ```
 
-Verified with `sysctl fs.inotify.max_user_instances fs.inotify.max_user_watches`.
+Live values on `alpha` (verified 2026-08-29):
+`fs.inotify.max_user_instances = 8192`,
+`fs.inotify.max_user_watches = 524288` (watches was already higher, so that
+line was a no-op — the important change was instances 1024 → 8192).

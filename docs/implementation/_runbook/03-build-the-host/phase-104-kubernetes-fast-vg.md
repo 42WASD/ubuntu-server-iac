@@ -14,8 +14,10 @@ sudo pvresize --setphysicalvolumesize 1150G /dev/nvme0n1p3
 sudo parted /dev/nvme0n1 unit MiB resizepart 3 1180800
 sudo parted /dev/nvme0n1 unit MiB mkpart primary 1180800MiB 100%
 sudo parted /dev/nvme0n1 name 4 k8s_fast
-sudo pvcreate /dev/nvme0n1p4 && sudo vgcreate vg_k8s_fast /dev/nvme0n1p4
+sudo pvcreate /dev/nvme0n1p4 && sudo vgcreate vg_k8s_nvme /dev/nvme0n1p4
 ```
 
+Live on `alpha` (verified 2026-08-29): `vg_k8s_nvme` 754.6G with 538.6G free;
+StorageClasses `nvme-fast`/`nvme-db` select it via `vgpattern: vg_k8s_nvme.*`.
 Owner-approved on a fresh server; every size verified with `pvs/vgs/lvs` and
 `parted unit MiB print` before each step.

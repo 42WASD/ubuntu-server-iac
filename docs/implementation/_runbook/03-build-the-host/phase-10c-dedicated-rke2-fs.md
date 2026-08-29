@@ -10,6 +10,8 @@ the Phase 10 runbook (`_runbook/03-build-the-host/phase-10-storage.md`) (§10.2 
 
 Principle applied: only create dedicated filesystems/VGs once the backing
 storage is inspected and known (never guess disk topology). On `alpha` this
-meant `lsblk/pvs/vgs/lvs` first, then `vg_k8s_hdd` (HDD, 0–60%) and
-`vg_k8s_fast` (NVMe, after the PV/partition resize) — sizes verified with
-`vgs` before proceeding (Checkpoint 7).
+meant `lsblk/pvs/vgs/lvs` first, then the 320G `rke2` LV on `ubuntu-vg`
+(xfs, mounted at `/var/lib/rancher/rke2`), `vg_k8s_hdd` (HDD, 0–60%) and
+`vg_k8s_nvme` (NVMe, after the PV/partition resize) — sizes verified with
+`vgs` before proceeding (Checkpoint 7). Live check 2026-08-29: `rke2` LV
+320G at 8% usage, mounted `noatime`, noquota.
