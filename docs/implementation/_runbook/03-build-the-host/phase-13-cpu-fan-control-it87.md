@@ -69,9 +69,11 @@ therefore installs a template + boot-time generator:
 - `it87-load.service` — `modprobe it87 force_id=0x8613` at boot.
 - `fancontrol-gen.service` — runs the generator before `fancontrol.service`.
 
-Curve (EPYC 7742, Rome, TjMax ~77 °C, TDP 225 W): idle <60 °C → pwm 50
-(floor ~2420 RPM); ramp 60–74 °C; full speed ≥74 °C; `INTERVAL=5`.
-`MINSTOP >= MINPWM` is a fancontrol validation constraint (both = 50).
+Curve (EPYC 7742, Rome, TjMax ~77 °C, TDP 225 W): idle <65 °C → pwm 50
+(floor ~2420 RPM); ramp 65–74 °C; full speed ≥74 °C; `INTERVAL=5`;
+`AVERAGE=4` smooths Tctl over ~20 s so short spikes don't trigger fan
+jump-scares. `MINSTOP >= MINPWM` is a fancontrol validation constraint
+(both = 50).
 
 ```bash
 sudo bash scripts/fancontrol/setup-it87.sh            # install everything
@@ -80,8 +82,8 @@ sudo bash scripts/fancontrol/setup-it87.sh --check    # verify
 
 ## 13.5 Verification (live)
 
-Quiet floor: 57 °C → **2419 RPM @ pwm 50** (holds to 60 °C with the tuned
-curve; stable over repeated sampling).
+Quiet floor: **holds to 65 °C** with the tuned curve — Tctl 64.8 °C → 2410
+RPM @ pwm 50 (before re-tune, 61.4 °C was already creeping up the ramp).
 CPU stress (`stress-ng --cpu $(nproc) --cpu-method matrixprod`, per
 `docs/guides/operations/stress-test-guide.md`): Tctl stabilizes at 66–68 °C →
 fan ~5500–6000 RPM @ pwm 148–174; on cool-down it returns to the floor.
@@ -92,6 +94,11 @@ stress-ng --cpu $(nproc) --cpu-method matrixprod --timeout 45s --quiet &
 # t+5s: Tctl 68C -> fan 5578 RPM pwm 159
 # t+40s: Tctl 67C -> fan 5973 RPM pwm 174 (equilibrium)
 ```
+
+Re-tune 2026-08-31 (anti "jump-scare"): quiet floor raised 60→65 °C and
+`AVERAGE=4` added. Verified: Tctl 64.8 °C → 2410 RPM (floor holds); during a
+45 s stress burst the ramp is gradual — pwm 82 @ ~3426 RPM at t+15s, pwm 169
+@ ~5818 RPM at t+30s — no instant burst; cool-down returns to the floor.
 
 ## 13.6 Parked: IPMI daemon (pending BMC module)
 

@@ -12,16 +12,19 @@
 #   @K10@/temp1_input = CPU temp (k10temp Tctl — authoritative for the EPYC 7742)
 #
 # Curve (EPYC 7742, Rome, TjMax ~77°C; TDP 225W):
-#   idle/quiet : below 60°C -> pwm 50 (fan hardware floor ~2420 RPM)
-#   ramp       : 60 -> 74°C from floor to full speed
+#   idle/quiet : below 65°C -> pwm 50 (fan hardware floor ~2420 RPM)
+#   ramp       : 65 -> 74°C from floor to full speed
 #   full speed : >= 74°C (3°C headroom below TjMax)
 # INTERVAL=5 keeps the loop responsive at the top of the ramp.
+# AVERAGE=4 smooths Tctl over 4 readings (~20s) so short bursts/spikes do not
+# cause sudden fan-speed jump-scares; sustained load still ramps normally.
 INTERVAL=5
+AVERAGE=@IT87@/pwm2=4
 DEVPATH=@IT87@=devices/platform/it87.2608 @K10@=devices/pci0000:00/0000:00:18.3
 DEVNAME=@IT87@=it8613 @K10@=k10temp
 FCTEMPS=@IT87@/pwm2=@K10@/temp1_input
 FCFANS=@IT87@/pwm2=@IT87@/fan2_input
-MINTEMP=@IT87@/pwm2=60
+MINTEMP=@IT87@/pwm2=65
 MAXTEMP=@IT87@/pwm2=74
 MINPWM=@IT87@/pwm2=50
 MINSTART=@IT87@/pwm2=55

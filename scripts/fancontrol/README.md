@@ -21,13 +21,17 @@ chip is the only fan control surface exposed to the OS.
 
 | Band | Behavior |
 |------|----------|
-| < 60°C | PWM 50 → fan floor **~2420 RPM** (quiet idle) |
-| 60–74°C | Linear ramp floor → full |
+| < 65°C | PWM 50 → fan floor **~2420 RPM** (quiet idle) |
+| 65–74°C | Linear ramp floor → full |
 | ≥ 74°C | PWM 255 → **~6800 RPM** (full cooling) |
 
-Tuned "quiet for longer": the floor holds to 60°C and full speed engages at
-74°C (3°C under TjMax). Polling is 5 s. Verified live: idle 57°C/2419 RPM;
-CPU stress Tctl 66–68°C at ~5500–6000 RPM; cool-down returns to the floor.
+Tuned "quiet for longer": the floor holds to 65°C (idle Tctl is 57–65°C) and
+full speed engages at 74°C (3°C under TjMax). Polling is 5 s with
+`AVERAGE=4` (smoothing over the last 4 readings, ~20 s) so short Tctl spikes
+do not cause sudden fan-speed jump-scares — sustained load still ramps
+normally. Verified live: Tctl 64.8°C still at the 2410 RPM floor; a 45 s CPU
+stress burst ramps gradually (pwm 82 → 169 over ~30 s) and cools back to the
+floor.
 
 ### What PWM means here
 

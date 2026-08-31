@@ -31,14 +31,16 @@ This builds the `it87` DKMS module, installs two boot units
 
 | Band | Behavior |
 |------|----------|
-| < 60 °C | PWM 50 → fan hardware floor (~2420 RPM, quiet) |
-| 60–74 °C | linear ramp |
+| < 65 °C | PWM 50 → fan hardware floor (~2420 RPM, quiet) |
+| 65–74 °C | linear ramp |
 | ≥ 74 °C | full speed (~6800 RPM), 3 °C under TjMax |
 
-Tuned "quiet for longer": the quiet floor holds to 60 °C (the EPYC 7742 idles
-in the high-50s), and the ramp tops out at 74 °C with 3 °C of headroom under
-the Rome TjMax (~77 °C, TDP 225 W). Polling is 5 s so the top of the ramp is
-responsive.
+Tuned "quiet for longer": the quiet floor holds to 65 °C (idle Tctl on the
+EPYC 7742 sits at 57–65 °C), and the ramp tops out at 74 °C with 3 °C of
+headroom under the Rome TjMax (~77 °C, TDP 225 W). Polling is 5 s so the top
+of the ramp is responsive, and `AVERAGE=4` smooths the temperature over the
+last 4 readings (~20 s) so short Tctl spikes cannot cause sudden fan-speed
+jump-scares — sustained load still ramps normally.
 
 Constraints learned on this hardware:
 
@@ -56,10 +58,10 @@ journalctl -u fancontrol -f
 sensors   # it8613 shows fan2 RPM + pwm2 under your load
 ```
 
-Expected: quiet floor to ~60 °C; under `stress-ng` CPU load (see the
+Expected: quiet floor to ~65 °C; under `stress-ng` CPU load (see the
 [System Stress Test](../../../guides/operations/stress-test-guide.md)) Tctl
-stabilizes around 66–68 °C with the fan at ~5500–6000 RPM, and falls back to
-the floor afterwards.
+stabilizes around 66–68 °C with the fan at ~5500–6000 RPM (ramping gradually
+thanks to `AVERAGE=4`), and falls back to the floor afterwards.
 
 ## If a BMC module is added later
 
