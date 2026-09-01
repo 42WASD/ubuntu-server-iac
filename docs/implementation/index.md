@@ -1329,12 +1329,13 @@ Chosen policy (soft warning / hard ceiling):
 <table>
 <thead><tr><th>User</th><th>Role</th><th>Soft</th><th>Hard</th></tr></thead>
 <tbody>
-<tr><td>jyao</td><td>owner (management)</td><td>6 GB</td><td>10 GB</td></tr>
+<tr><td>jyao</td><td>owner (management)</td><td>10 GB</td><td>15 GB</td></tr>
 <tr><td>jyao-42admin, ehammoud, mayan, mtangalv</td><td>developer</td><td>10 GB</td><td>15 GB</td></tr>
 </tbody>
 </table>
 
-Total hard (5 users) ≈ 70 GB < 66 GB free — keeps room for system growth.
+Total hard (5 users) ≈ 75 GB; `/` has ~39 GB free at the 2026-09-01 raise —
+quotas are ceilings, not reservations, so this stays safe as system usage grows.
 
 ## 11.3 Enable user quotas on the root filesystem
 
@@ -1367,18 +1368,25 @@ Verified: `findmnt -no OPTIONS /` -> `rw,relatime,quota,usrquota`; `quotaon -p /
 
 ## 11.4 Apply the per-user limits
 
-`setquota` block limits are in **KILOBYTES** (1 block = 1 KiB), so 6 GB =
-6291456, 10 GB = 10485760, 15 GB = 15728640.
+`setquota` block limits are in **KILOBYTES** (1 block = 1 KiB), so 10 GB =
+10485760 and 15 GB = 15728640.
 
 ```bash
-# owner (management) — 6 / 10 GB
-sudo setquota -u jyao 6291456 10485760 0 0 /
+# owner (management) — 10 / 15 GB (raised from 6/10 on 2026-09-01)
+sudo setquota -u jyao 10485760 15728640 0 0 /
 
 # each developer — 10 / 15 GB
 for u in jyao-42admin ehammoud mayan mtangalv; do
   sudo setquota -u "$u" 10485760 15728640 0 0 /
 done
 ```
+
+> 2026-09-01 quota raise: the owner hit the old 10 GiB hard ceiling — writes
+> failed (`git rm` died with "Disk quota exceeded" on the index lock). Raised
+> with `sudo setquota -u jyao 10485760 15728640 0 0 /` and updated the SSOT
+> (`scripts/system/apply-quotas.sh`: OWNER_SOFT_GIB=10, OWNER_HARD_GIB=15) and
+> the reference doc to match. Verified: `quota -s` → 10240M soft, 15360M hard,
+> no grace timer.
 
 Verified (values match policy):
 
@@ -3151,10 +3159,12 @@ Created the platform and tenant namespace baseline as code, managed by Argo CD
 
 - `platform.yaml` — `kyverno`, `openebs`, `monitoring`, `registry`, `security`,
   `ingress`, `build` (label `platform.tier: platform`).
-- `tenants.yaml` — `dev-jya0`, `prd-jya0`, `dev-42wasd-admin`,
+- `tenants.yaml` — `dev-42wasd-admin`,
   `prd-42wasd-admin`, `mlops`, `dev-games-42wasd-admin`,
   `prd-games-42wasd-admin`, each labelled with `platform.tier: tenant` and Pod
   Security `restricted` (enforce/audit/warn).
+  (The original `dev-jya0`/`prd-jya0` entries were removed on 2026-09-01 — see
+  the decommission note at the end of this file.)
 
 `mlops` replaces the earlier per-tenant `ml-jya0`/`gpu-jya0` as a single shared
 ML namespace: models are heavy on GPU and are consumed concurrently by any
@@ -3180,6 +3190,34 @@ The tenant namespaces carry the `restricted` Pod Security labels; platform
 namespaces do not. The old `prod-jya0`/`ml-jya0`/`gpu-jya0`/`dev-42admin`/
 `prod-42admin`/`games-42admin` namespaces are removed by Argo CD's prune since
 they are no longer in the manifest.
+
+## 21.3 Decommission note (2026-09-01): jya0 tenant namespaces removed
+
+The `dev-jya0` and `prd-jya0` namespaces were deleted (tenant `jya0`
+deactivated). Both were empty — no workloads, PVCs or PVs — so removal was
+pure Git + Argo CD prune, no data migration needed:
+
+1. Removed `dev-jya0`/`prd-jya0` from `tenants.yaml` and deleted the
+   per-tenant platform manifests `quotas/jya0.yaml`, `limitranges/jya0.yaml`,
+   `networkpolicies/jya0.yaml`, `rbac/jya0.yaml` (they referenced the deleted
+   namespaces and would fail the Argo apps' sync otherwise).
+2. Removed `dev-jya0`/`prd-jya0` from the CCNP selector in
+   `networkpolicies/00-allow-kube-apiserver.yaml` (and its comment list).
+3. `platform-namespaces` / `platform-quotas` / `platform-limitranges` /
+   `platform-networkpolicies` / `platform-rbac` all run with
+   `automated.prune=true selfHeal=true`, so on the next refresh Argo CD
+   deleted the two namespaces and their in-namespace baseline objects
+   (default-deny, allow-cluster-dns, namespace-budget, tenant-developer/
+   tenant-reader Roles + RoleBindings).
+
+Deliberately NOT removed (kept per owner decision, 2026-09-01): the
+`tenant-jya0` Argo CD AppProject, the `tenant-jya0` Linux group, and the
+`tenant-jya0` team in the Dex GitHub connector — the tenant identity is
+retained so it can be re-enabled later.
+
+Note: the two namespaces were deleted the same day the owner's disk quota was
+raised (10/15 GiB — see phase-11 runbook); the old 10 GiB hard limit was
+blocking `git rm` index writes at the time.
 
 </details>
 
@@ -3292,6 +3330,9 @@ done
 The GPU ceiling is defined now; the physical GPU is added in a later phase.
 GPU is governed by quota + admission, not namespace splitting.
 
+2026-09-01: `quotas/jya0.yaml` (`dev-jya0`/`prd-jya0` budgets) deleted with
+the jya0 tenant — see the phase-21 decommission note.
+
 </details>
 
 - ✅ `done` — [Phase 25 — LimitRange](../reference-design/05-gitops-bootstrap/limitrange/index.md)
@@ -3355,6 +3396,9 @@ done
 
 Together with Phase 23's quota, a container that omits resource limits is
 now given a bounded default instead of unbounded consumption.
+
+2026-09-01: `limitranges/jya0.yaml` (`dev-jya0`/`prd-jya0` defaults) deleted
+with the jya0 tenant — see the phase-21 decommission note.
 
 </details>
 
@@ -3496,6 +3540,10 @@ but HTTP/2 TCP fallback works — acceptable.)
 to the specific tenant namespaces and keep the list in sync with the
 per-namespace default-deny NetworkPolicies.
 
+2026-09-01: `networkpolicies/jya0.yaml` deleted and `dev-jya0`/`prd-jya0`
+removed from the `00-allow-kube-apiserver.yaml` selector — see the phase-21
+decommission note.
+
 </details>
 
 - ✅ `done` — [Phase 27 — RBAC](../reference-design/05-gitops-bootstrap/rbac/index.md)
@@ -3566,6 +3614,11 @@ kubectl auth can-i get secrets -n prd-42wasd-admin \
 Dev group gets writes; prod/`mlops` get read-only and no secret access.
 Authentication (Phase 27) is handled separately via OIDC later; this phase is
 authorization only.
+
+2026-09-01: `rbac/jya0.yaml` (`tenant-developer`/`tenant-reader` Roles +
+RoleBindings for `42WASD:tenant-jya0`) deleted with the jya0 tenant — see the
+phase-21 decommission note. The `tenant-jya0` AppProject and Dex team are
+kept, so re-onboarding is a manifest restore + GitOps sync.
 
 </details>
 

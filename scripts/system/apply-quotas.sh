@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 # Phase 11 quota policy — source of truth.
-# Owner (management): 6 GiB soft / 10 GiB hard; developers: 10/15 GiB. Units GiB.
+# Owner (management): 10 GiB soft / 15 GiB hard — raised from 6/10 on
+# 2026-09-01 because the owner was pinned at the old 10 GiB hard ceiling.
+# Developers: 10/15 GiB. Units GiB.
 set -euo pipefail
 ROOT_FS="/"
-OWNER_SOFT_GIB=6
-OWNER_HARD_GIB=10
+OWNER_SOFT_GIB=10
+OWNER_HARD_GIB=15
 DEV_SOFT_GIB=10
 DEV_HARD_GIB=15
 gib_to_kb() { echo $(( $1 * 1024 * 1024 )); }

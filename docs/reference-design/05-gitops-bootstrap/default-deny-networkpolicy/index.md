@@ -71,10 +71,8 @@ spec:
         values:
           - prd-42wasd-admin
           - prd-games-42wasd-admin
-          - prd-jya0
           - dev-42wasd-admin
           - dev-games-42wasd-admin
-          - dev-jya0
           - mlops
   egress:
     - toEntities:

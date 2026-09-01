@@ -7,7 +7,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: storage-test
-  namespace: dev-jya0
+  namespace: dev-42wasd-admin
 spec:
   accessModes:
     - ReadWriteOnce
@@ -24,7 +24,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: storage-test
-  namespace: dev-jya0
+  namespace: dev-42wasd-admin
 spec:
   containers:
     - name: test
@@ -49,7 +49,7 @@ spec:
 Check:
 
 ```bash
-kubectl -n dev-jya0 get pvc,pv,pod
+kubectl -n dev-42wasd-admin get pvc,pv,pod
 sudo lvs
 ```
 

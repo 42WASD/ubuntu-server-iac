@@ -18,7 +18,7 @@ remote BuildKit
 Harbor
         |
         v
-dev-jya0
+dev-42wasd-admin
 ```
 
 Protect the BuildKit endpoint with:

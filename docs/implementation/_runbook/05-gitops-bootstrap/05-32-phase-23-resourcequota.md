@@ -50,3 +50,6 @@ done
 
 The GPU ceiling is defined now; the physical GPU is added in a later phase.
 GPU is governed by quota + admission, not namespace splitting.
+
+2026-09-01: `quotas/jya0.yaml` (`dev-jya0`/`prd-jya0` budgets) deleted with
+the jya0 tenant — see the phase-21 decommission note.

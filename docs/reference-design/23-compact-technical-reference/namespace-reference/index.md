@@ -12,10 +12,6 @@ security
 ingress
 build
 
-JYA0
-dev-jya0
-prd-jya0
-
 42WASD-ADMIN
 dev-42wasd-admin
 prd-42wasd-admin

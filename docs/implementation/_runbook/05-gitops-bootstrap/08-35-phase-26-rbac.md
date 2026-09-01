@@ -65,3 +65,8 @@ kubectl auth can-i get secrets -n prd-42wasd-admin \
 Dev group gets writes; prod/`mlops` get read-only and no secret access.
 Authentication (Phase 27) is handled separately via OIDC later; this phase is
 authorization only.
+
+2026-09-01: `rbac/jya0.yaml` (`tenant-developer`/`tenant-reader` Roles +
+RoleBindings for `42WASD:tenant-jya0`) deleted with the jya0 tenant — see the
+phase-21 decommission note. The `tenant-jya0` AppProject and Dex team are
+kept, so re-onboarding is a manifest restore + GitOps sync.

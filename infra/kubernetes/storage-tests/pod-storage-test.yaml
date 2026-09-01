@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: storage-test
-  namespace: dev-jya0
+  namespace: dev-42wasd-admin
 spec:
   securityContext:
     runAsNonRoot: true

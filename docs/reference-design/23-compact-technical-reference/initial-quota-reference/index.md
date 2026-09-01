@@ -4,8 +4,6 @@ Use these as starting ceilings, then tune from monitoring.
 
 | Namespace | CPU request | CPU limit | RAM request | RAM limit | Ephemeral | PVC | GPU |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| `dev-jya0` | 4 | 8 | 8Gi | 16Gi | 40Gi | 150Gi | 0 |
-| `prd-jya0` | 8 | 12 | 16Gi | 24Gi | 60Gi | 300Gi | approved |
 | `mlops` | 8 | 16 | 16Gi | 32Gi | 120Gi | 500Gi | shared approved |
 | `dev-42wasd-admin` | 4 | 8 | 8Gi | 16Gi | 40Gi | 100Gi | 0 |
 | `prd-42wasd-admin` | 6 | 12 | 12Gi | 24Gi | 60Gi | 200Gi | 0 |

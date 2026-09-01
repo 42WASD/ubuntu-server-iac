@@ -25,9 +25,10 @@
 #
 # We therefore scope this CCNP to ONLY the tenant namespaces that already
 # carry a `default-deny` NetworkPolicy and genuinely need the apiserver:
-#   - prd-42wasd-admin, prd-games-42wasd-admin, prd-jya0
-#   - dev-42wasd-admin, dev-games-42wasd-admin, dev-jya0
+#   - prd-42wasd-admin, prd-games-42wasd-admin
+#   - dev-42wasd-admin, dev-games-42wasd-admin
 #   - mlops
+# (dev-jya0 / prd-jya0 decommissioned 2026-09-01 — see phase-21 runbook.)
 # This matches the namespace labels used by the platform per-namespace
 # default-deny NetworkPolicies (platform-networkpolicies). Keep this list in
 # sync with those namespaces.
@@ -43,10 +44,8 @@ spec:
         values:
           - prd-42wasd-admin
           - prd-games-42wasd-admin
-          - prd-jya0
           - dev-42wasd-admin
           - dev-games-42wasd-admin
-          - dev-jya0
           - mlops
   egress:
     - toEntities:

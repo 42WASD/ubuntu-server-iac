@@ -134,3 +134,7 @@ but HTTP/2 TCP fallback works — acceptable.)
 **Lesson:** never use `endpointSelector: {}` for an egress-only CCNP. Scope
 to the specific tenant namespaces and keep the list in sync with the
 per-namespace default-deny NetworkPolicies.
+
+2026-09-01: `networkpolicies/jya0.yaml` deleted and `dev-jya0`/`prd-jya0`
+removed from the `00-allow-kube-apiserver.yaml` selector — see the phase-21
+decommission note.

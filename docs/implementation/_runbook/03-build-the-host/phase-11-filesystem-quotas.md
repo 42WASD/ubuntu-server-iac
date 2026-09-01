@@ -46,12 +46,13 @@ Chosen policy (soft warning / hard ceiling):
 <table>
 <thead><tr><th>User</th><th>Role</th><th>Soft</th><th>Hard</th></tr></thead>
 <tbody>
-<tr><td>jyao</td><td>owner (management)</td><td>6 GB</td><td>10 GB</td></tr>
+<tr><td>jyao</td><td>owner (management)</td><td>10 GB</td><td>15 GB</td></tr>
 <tr><td>jyao-42admin, ehammoud, mayan, mtangalv</td><td>developer</td><td>10 GB</td><td>15 GB</td></tr>
 </tbody>
 </table>
 
-Total hard (5 users) ≈ 70 GB < 66 GB free — keeps room for system growth.
+Total hard (5 users) ≈ 75 GB; `/` has ~39 GB free at the 2026-09-01 raise —
+quotas are ceilings, not reservations, so this stays safe as system usage grows.
 
 ## 11.3 Enable user quotas on the root filesystem
 
@@ -84,18 +85,25 @@ Verified: `findmnt -no OPTIONS /` -> `rw,relatime,quota,usrquota`; `quotaon -p /
 
 ## 11.4 Apply the per-user limits
 
-`setquota` block limits are in **KILOBYTES** (1 block = 1 KiB), so 6 GB =
-6291456, 10 GB = 10485760, 15 GB = 15728640.
+`setquota` block limits are in **KILOBYTES** (1 block = 1 KiB), so 10 GB =
+10485760 and 15 GB = 15728640.
 
 ```bash
-# owner (management) — 6 / 10 GB
-sudo setquota -u jyao 6291456 10485760 0 0 /
+# owner (management) — 10 / 15 GB (raised from 6/10 on 2026-09-01)
+sudo setquota -u jyao 10485760 15728640 0 0 /
 
 # each developer — 10 / 15 GB
 for u in jyao-42admin ehammoud mayan mtangalv; do
   sudo setquota -u "$u" 10485760 15728640 0 0 /
 done
 ```
+
+> 2026-09-01 quota raise: the owner hit the old 10 GiB hard ceiling — writes
+> failed (`git rm` died with "Disk quota exceeded" on the index lock). Raised
+> with `sudo setquota -u jyao 10485760 15728640 0 0 /` and updated the SSOT
+> (`scripts/system/apply-quotas.sh`: OWNER_SOFT_GIB=10, OWNER_HARD_GIB=15) and
+> the reference doc to match. Verified: `quota -s` → 10240M soft, 15360M hard,
+> no grace timer.
 
 Verified (values match policy):
 

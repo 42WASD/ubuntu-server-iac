@@ -58,3 +58,6 @@ done
 
 Together with Phase 23's quota, a container that omits resource limits is
 now given a bounded default instead of unbounded consumption.
+
+2026-09-01: `limitranges/jya0.yaml` (`dev-jya0`/`prd-jya0` defaults) deleted
+with the jya0 tenant — see the phase-21 decommission note.

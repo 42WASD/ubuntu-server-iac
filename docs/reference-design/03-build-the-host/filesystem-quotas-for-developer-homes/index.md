@@ -16,8 +16,10 @@ Applied policy (GiB, set by `scripts/system/apply-quotas.sh`):
 
 ```text
 owner (jyao, management account):
-  soft limit:  6 GiB  (grace period: 7 days)
-  hard limit: 10 GiB  (writes fail once exceeded)
+  soft limit: 10 GiB  (grace period: 7 days)
+  hard limit: 15 GiB  (writes fail once exceeded)
+  # Raised from 6/10 GiB on 2026-09-01: the owner hit the old 10 GiB hard
+  # ceiling and writes started failing (repo dir + .cache + workspace state).
 
 normal developer:
   soft limit: 10 GiB
