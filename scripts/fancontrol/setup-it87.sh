@@ -42,6 +42,8 @@ verify() {
     fi
     systemctl is-active fancontrol >/dev/null 2>&1 && echo "  OK: fancontrol active" \
         || { echo "  FAIL: fancontrol not active"; ok=0; }
+    systemctl is-enabled fancontrol-gen.service >/dev/null 2>&1 && echo "  OK: fancontrol-gen enabled (boot-time hwmon regen)" \
+        || { echo "  FAIL: fancontrol-gen not enabled — fancontrol breaks after reboot (hwmon drift)"; ok=0; }
     [[ $ok -eq 1 ]] && echo "VERIFY OK" || exit 1
 }
 
@@ -78,6 +80,10 @@ systemctl enable --now it87-load.service
 msg "Installing fancontrol + generating config"
 apt-get install -y -qq fancontrol
 /usr/local/sbin/generate-fancontrol.sh /etc/fancontrol.conf.template /etc/fancontrol
+# Generator MUST be enabled: hwmon indices swap between boots, so a stale
+# /etc/fancontrol makes fancontrol fail with "Device path has changed" after
+# every reboot (hit for real 2026-09-07).
+systemctl enable fancontrol-gen.service
 systemctl enable fancontrol
 systemctl restart fancontrol
 

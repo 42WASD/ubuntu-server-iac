@@ -100,6 +100,27 @@ Re-tune 2026-08-31 (anti "jump-scare"): quiet floor raised 60→65 °C and
 45 s stress burst the ramp is gradual — pwm 82 @ ~3426 RPM at t+15s, pwm 169
 @ ~5818 RPM at t+30s — no instant burst; cool-down returns to the floor.
 
+### 2026-09-07 outage: fancontrol dead after reboot (hwmon drift)
+
+Host rebooted 03:04 UTC; hwmon indices swapped (it8613→hwmon1, k10temp→hwmon2)
+and `fancontrol` crash-looped on the stale `DEVPATH` pinning ("Device path has
+changed", restart counter 5 → failed). Root cause: **`fancontrol-gen.service`
+was installed but never enabled** — `setup-it87.sh` only installed it, so the
+boot-time regeneration that exists precisely for this never ran. Fans ran
+unmanaged at ~5357 RPM until manual recovery.
+
+```bash
+# Recovery (regenerate with current indices + restart):
+sudo /usr/local/sbin/generate-fancontrol.sh /etc/fancontrol.conf.template /etc/fancontrol
+sudo systemctl restart fancontrol
+# Fix: enable the generator so future reboots self-heal
+sudo systemctl enable fancontrol-gen.service
+```
+
+Verified post-fix: `active`, tuned curve loaded (MINTEMP=65, AVERAGE=4),
+Tctl 55.4 °C → 2428 RPM floor. `setup-it87.sh` now enables
+`fancontrol-gen.service` and `verify --check` asserts it.
+
 ## 13.6 Parked: IPMI daemon (pending BMC module)
 
 `scripts/fancontrol/fan-daemon.service`, `install.sh`, `fanctl.sh` and the
