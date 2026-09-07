@@ -247,7 +247,33 @@ refresh (7.0.0-30-generic pending reboot).
 **Intent:** confirm automatic security updates are on, reboots controlled.
 
 Covered by the `base` role (template deployed in Phase 2). Policy:
-security-updates auto, reboot only in the 03:00 maintenance window.
+security-updates auto, **reboots never automatic** — the reboot is an
+explicit maintenance action driven by `/var/run/reboot-required`.
+
+**2026-09-07 policy change — `Automatic-Reboot "false"`.** The host had
+`Automatic-Reboot "true"` + time 03:00; unattended-upgrades installed a
+kernel on 09-06 and auto-rebooted the node at 03:00 on 09-07, which killed
+`fancontrol` (hwmon drift) and bounced every workload unannounced. Why the
+auto-reboot default is bad on a single-node platform:
+
+- no HA: an unchosen reboot = full-cluster outage (RKE2, storage, games);
+- `Automatic-Reboot-Time` makes the surprise predictable in when, not
+  whether — it can still hit a backup or long job;
+- boot-order fragility: hwmon indices swap between boots; services can come
+  up broken with nobody watching (exactly what happened);
+- patch install (low risk) and kernel restart (highest-risk routine op)
+  should not share one boolean.
+
+```bash
+# Applied on alpha 2026-09-07:
+sudo sed -i 's/^Unattended-Upgrade::Automatic-Reboot "true";/Unattended-Upgrade::Automatic-Reboot "false";/' \
+  /etc/apt/apt.conf.d/50unattended-upgrades
+apt-config dump | grep 'Automatic-Reboot '   # -> "false"
+```
+
+The `base` role template now ships `Automatic-Reboot "false"` by default.
+New rule of record: when `/var/run/reboot-required` appears, reboot
+explicitly in a maintenance window, then run `systemctl --failed`.
 
 **Checkpoint (verified):** `systemctl --failed`, `timedatectl`, `aa-status` all
 clean.
@@ -1697,7 +1723,10 @@ on 2026-09-06 06:05 UTC `unattended-upgrades` installed a new kernel
 `/etc/apt/apt.conf.d/50unattended-upgrades` — scheduled a clean reboot for
 03:00 UTC, executed via logind countdown. Not a crash or power loss. The
 it87 DKMS module built fine against the new kernel; the reboot simply
-exposed the missing `fancontrol-gen` enablement below.
+exposed the missing `fancontrol-gen` enablement below. **Aftermath:** this
+incident drove the platform-wide decision to disable automatic reboots
+entirely (`Automatic-Reboot "false"`, Phase 2.1 runbook + `base` role) —
+on a single-node platform an unchosen reboot is a full-cluster outage.
 
 Host rebooted 03:04 UTC; hwmon indices swapped (it8613→hwmon1, k10temp→hwmon2)
 and `fancontrol` crash-looped on the stale `DEVPATH` pinning ("Device path has

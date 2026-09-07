@@ -6,8 +6,12 @@ Unattended-Upgrade::Allowed-Origins {
 	"${distro_id}:${distro_codename}-updates";
 };
 
-// Do not automatically reboot outside of the maintenance window.
-Unattended-Upgrade::Automatic-Reboot "true";
+// Reboots are NEVER automatic: a surprise reboot on a single-node platform
+// takes down the whole cluster (RKE2, storage, games) at a time nobody chose.
+// 2026-09-07: an auto-reboot at 03:00 killed fancontrol via hwmon drift and
+// bounced every workload. Updates install automatically; the reboot is an
+// explicit maintenance action driven by /var/run/reboot-required.
+Unattended-Upgrade::Automatic-Reboot "false";
 Unattended-Upgrade::Automatic-Reboot-Time "{{ unattended_reboot_time }}";
 Unattended-Upgrade::Remove-Unused-Dependencies "{{ 'true' if unattended_remove_unused_dependencies else 'false' }}";
 

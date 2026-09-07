@@ -18,18 +18,43 @@ Recommended policy:
 ```text
 automatic security updates: yes
 
-automatic reboot:
-  not blindly during work hours
+automatic reboot: NO
 ```
 
-For kernel/NVIDIA/RKE2 hosts, prefer:
+**Why automatic reboots are disabled (policy, not preference):**
 
-```text
-security package installs automatically
-reboot is explicit/maintenance-window controlled
+- **Single node = no HA.** A reboot nobody chose is a full-platform outage:
+  RKE2, pods, persistent storage, and every hosted service go down at a time
+  nobody scheduled work around. On a multi-node cluster a rolling reboot is
+  routine; here it is an incident.
+- **Reboot time ≠ maintenance window.** `Automatic-Reboot-Time "03:00"` only
+  makes the surprise predictable in *when*, not in *whether* — it can hit
+  during a backup, a long-running job, or days of uptime you relied on.
+- **Boot-order fragility is real.** Kernel updates change hardware module
+  load order; services can come up broken after an unattended reboot
+  (2026-09-07: fancontrol died after an auto-reboot because hwmon indices
+  swapped and its boot-time generator wasn't enabled).
+- **Updates and reboots have different risk profiles.** Installing security
+  patches automatically is low-risk and reversible; restarting the kernel is
+  the single riskiest routine operation on the host. They should not be
+  gated by the same boolean.
+- **No warning surface.** Auto-reboot gives at most a logind console
+  countdown at 03:00 — nobody is watching. A manual reboot starts from
+  `/var/run/reboot-required`, is announced, and happens when you can watch
+  services come back.
+
+Operating procedure:
+
+```bash
+# Notice the flag (check after login / in monitoring):
+cat /var/run/reboot-required 2>/dev/null && echo "reboot needed"
+# Reboot explicitly in a maintenance window, then verify:
+sudo reboot
+systemctl --failed   # after boot
 ```
 
-because a driver/kernel mismatch may require a reboot.
+The kernel/NVIDIA/RKE2 rule stays as-is — security package installs are
+automatic, reboots are explicit and maintenance-window controlled.
 
 ## Checkpoint 2
 

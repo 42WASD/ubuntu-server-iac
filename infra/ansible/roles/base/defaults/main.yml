@@ -74,7 +74,9 @@ base_swappiness: 60
   - nftables
 
 # unattended-upgrades policy (Phase 2 / Phase 2.1).
-# security-only + explicit/controlled reboots (kernel/NVIDIA/RKE2 hosts must not
-# be rebooted blindly during work hours).
+# Security updates install automatically; reboots are NEVER automatic
+# (single-node platform: an unchosen reboot = full-cluster outage). Reboot
+# manually in a maintenance window when /var/run/reboot-required appears.
+# unattended_reboot_time retained only as documentation of the window.
 unattended_reboot_time: "03:00"
 unattended_remove_unused_dependencies: true

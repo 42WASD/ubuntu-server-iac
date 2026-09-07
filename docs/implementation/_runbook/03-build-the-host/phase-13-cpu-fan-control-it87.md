@@ -109,7 +109,10 @@ on 2026-09-06 06:05 UTC `unattended-upgrades` installed a new kernel
 `/etc/apt/apt.conf.d/50unattended-upgrades` — scheduled a clean reboot for
 03:00 UTC, executed via logind countdown. Not a crash or power loss. The
 it87 DKMS module built fine against the new kernel; the reboot simply
-exposed the missing `fancontrol-gen` enablement below.
+exposed the missing `fancontrol-gen` enablement below. **Aftermath:** this
+incident drove the platform-wide decision to disable automatic reboots
+entirely (`Automatic-Reboot "false"`, Phase 2.1 runbook + `base` role) —
+on a single-node platform an unchosen reboot is a full-cluster outage.
 
 Host rebooted 03:04 UTC; hwmon indices swapped (it8613→hwmon1, k10temp→hwmon2)
 and `fancontrol` crash-looped on the stale `DEVPATH` pinning ("Device path has
