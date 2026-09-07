@@ -1690,6 +1690,15 @@ Re-tune 2026-08-31 (anti "jump-scare"): quiet floor raised 60→65 °C and
 
 ### 2026-09-07 outage: fancontrol dead after reboot (hwmon drift)
 
+Cause of the reboot itself (traced via journal + unattended-upgrades log):
+on 2026-09-06 06:05 UTC `unattended-upgrades` installed a new kernel
+(`linux-image-generic`), found `/var/run/reboot-required`, and — per
+`Automatic-Reboot "true"` / `Automatic-Reboot-Time "03:00"` in
+`/etc/apt/apt.conf.d/50unattended-upgrades` — scheduled a clean reboot for
+03:00 UTC, executed via logind countdown. Not a crash or power loss. The
+it87 DKMS module built fine against the new kernel; the reboot simply
+exposed the missing `fancontrol-gen` enablement below.
+
 Host rebooted 03:04 UTC; hwmon indices swapped (it8613→hwmon1, k10temp→hwmon2)
 and `fancontrol` crash-looped on the stale `DEVPATH` pinning ("Device path has
 changed", restart counter 5 → failed). Root cause: **`fancontrol-gen.service`
