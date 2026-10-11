@@ -162,6 +162,17 @@ reload `sysctl`, and restart `systemd-journald`. Swap is bootstrap-time
 host-side builds writing to tmpfs, with **zero swap headroom**, exhausted
 reclaimable RAM and the kernel could not make progress → hard freeze.
 
+> **2026-10-11 update — likely primary cause was a failing DIMM.** While
+> investigating a separate memory problem we found a firmware **BERT** record
+> (`fru_text: DIMM Locate: P0H0`, `severity: fatal`,
+> `error_type: 15, physical memory map-out event`) dated to exactly this boot
+> (boot ended 2026-08-26 06:44:40, kernel log not flushed). Channel H (slot
+> **MM2**) was mapped out as a result. An extra **case standoff** beneath MM2
+> was shorting the board; it was removed on 2026-10-11 and the channel
+> restored (128 GiB). So the tmpfs/RAM-pressure path **contributed**, but the
+> fatal DRAM error is the more probable trigger for this specific lockup. See
+> `_runbook/18-day-2-operations/` (DIMM channel-H failure).
+
 **Why re-enable now (deliberate decision):** the Phase 8.1 disable was meant to
 be temporary — "re-enable later as a deliberate feature". The cluster is now
 validated and stable. Pod memory accounting is unaffected (pods run in their

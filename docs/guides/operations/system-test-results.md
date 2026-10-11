@@ -8,7 +8,7 @@ This page is the **authoritative reference** for all measured test results on th
 |-----------|------|
 | Host | `alpha` (HUANANZHI H12D-8D motherboard, single socket populated) |
 | CPU | AMD EPYC 7742 — 64 cores / 128 threads, 2.25 GHz base, ~3.4 GHz boost |
-| RAM | 16 GB DDR4-2133 ECC RDIMM × 7 (SK Hynix `HMA42GR7MFR4N-TF`), 112 GB installed / ~107 GB usable |
+| RAM | 16 GB DDR4-2133 ECC RDIMM × 8 (SK Hynix `HMA42GR7MFR4N-TF`), 128 GB installed / ~123 GB usable |
 | GPU 0 | NVIDIA RTX 3090 (24 GB GDDR6X) — top PCIe slot (`0000:81:00.0`) |
 | GPU 1 | NVIDIA RTX 3090 (24 GB GDDR6X) — `0000:C4:00.0` |
 | PSU | 1200 W |
@@ -22,7 +22,7 @@ This page is the **authoritative reference** for all measured test results on th
 |-----------|--------|
 | CPU cores | ✅ All 64 cores / 128 threads online & enabled |
 | GPUs | ✅ Both RTX 3090 detected, drivers healthy |
-| Memory | ⚠️ **7 of 8 slots populated** — MM2 / Channel H is empty (see below) |
+| Memory | ✅ **All 8 slots populated** — 128 GB, 8-channel (channel H restored 2026-10-11, see below) |
 
 ---
 
@@ -75,12 +75,21 @@ Run: `stress-ng --vm` using the **`all`** method set (includes the classic fault
 |--------|--------|
 | Stressor | `vm` |
 | Memory patterns | `all` |
-| Workers | 8 |
+| Workers | 8 × 10 GB (80 GB total) |
 | Result | **PASSED** — 0 errors, 0 failures, 0 crashes |
-| Bogo operations | ~70.2 million |
-| Duration | 5 min |
+| Bogo operations | ~58.5 million |
+| Duration | 4 min |
 
-**Memory configuration (important):**
+Re-run on **2026-10-11** after channel H was restored (full 8-stick / 8-channel
+configuration). `stress-ng --vm 8 --vm-bytes 10G --vm-method all --timeout 240s`:
+
+```text
+stress-ng: metrc: vm  58475455  240.45s  ...  243191.83 bogo ops/s
+stress-ng: info:  passed: 8: vm (8)
+stress-ng: info:  failed: 0
+```
+
+**Memory configuration (verified 2026-10-11 — all 8 slots):**
 
 | Slot | Channel | Status |
 |------|---------|--------|
@@ -91,12 +100,87 @@ Run: `stress-ng --vm` using the **`all`** method set (includes the classic fault
 | MM8 | Channel E | ✅ 16 GB |
 | MM6 | Channel F | ✅ 16 GB |
 | MM4 | Channel G | ✅ 16 GB |
-| **MM2** | **Channel H** | **❌ EMPTY** |
+| **MM2** | **Channel H** | ✅ **16 GB** (restored 2026-10-11) |
 
-!!! warning "One stick is missing"
-    The board has **8 slots** but only **7 are populated**. **MM2 / Channel H is empty**, so the system has **112 GB installed (~107 GB usable)** instead of the full **128 GB / 8-channel** config. The exact replacement part is an **SK Hynix `HMA42GR7MFR4N-TF` 16 GB DDR4-2133 2Rx4 ECC Registered RDIMM**. See the [hardware notes in the performance guide](system-performance.md) for how to source it. Memory runs in **7-channel** mode until it is added.
+!!! note "Channel H history (2026-10-11)"
+    Channel H (slot **MM2**) was **dead from the machine's first boot**: an extra
+    **case standoff** mounted beneath the MM2 slot was shorting the board, so the
+    firmware logged a fatal DRAM error and **mapped the channel out** — the system
+    ran **7-channel / 112 GB** instead of 128 GB. Removing the standoff and clearing
+    CMOS restored all 8 channels / **128 GB**. The exact replacement part, should a
+    stick ever need swapping, is an **SK Hynix `HMA42GR7MFR4N-TF` 16 GB DDR4-2133
+    2Rx4 ECC Registered RDIMM**. Full diagnosis in
+    `_runbook/18-day-2-operations/` (DIMM channel-H failure).
 
-**ECC note:** the memory is multi-bit ECC, so it can *detect and correct* errors. The passed pattern test confirms the 7 present sticks are fault-free.
+**ECC note:** the memory is multi-bit ECC, so it can *detect and correct* errors. The passed pattern test confirms the sticks are fault-free; the earlier channel-H outage was a **board-level short, not a bad DIMM**. EDAC counters after the full stress + bandwidth suite: `ce_count=0`, `ue_count=0`.
+
+---
+
+## 3b. Memory Bandwidth Benchmark (8-channel, 2026-10-11)
+
+Measured with a purpose-built **STREAM-style** benchmark
+(`scripts/stress/stream-bench.c`, OpenMP, best-of-5 reps, 4 GiB per array =
+12 GiB working set, all 128 threads).
+
+!!! warning "Measure outside the Phase 9 CPU quota"
+    The Phase 9 developer limits cap the owner slice at **8 cores**
+    (`CPUQuota=800%`), which throttles a memory benchmark to ~6 GiB/s and makes
+    the result meaningless. Run the benchmark **outside** the user slice:
+
+    ```bash
+    gcc -O3 -fopenmp -march=native scripts/stress/stream-bench.c -o stream-bench -lm
+    sudo systemd-run --scope --slice=system -p CPUQuota=12800% \
+      env OMP_NUM_THREADS=128 OMP_PROC_BIND=spread ./stream-bench 4096
+    ```
+
+### Sequential (streaming) bandwidth — all 128 threads
+
+| Kernel | Operation | Bandwidth |
+|--------|-----------|-----------|
+| Copy | `c = a` | **67.1 GiB/s** (68,660 MiB/s) |
+| Scale | `b = scalar × c` | **66.6 GiB/s** (68,236 MiB/s) |
+| Add | `c = a + b` | **74.3 GiB/s** (76,065 MiB/s) |
+| Triad | `a = b + scalar × c` | **75.3 GiB/s** (77,085 MiB/s) |
+
+The **Triad** figure is the standard STREAM headline number: **~75 GiB/s**.
+
+### Random-access bandwidth — all 128 threads
+
+Cache-hostile permutation walk over 4 GiB (each element touched once per rep):
+
+| Kernel | Operation | Bandwidth |
+|--------|-----------|-----------|
+| RandR | random read | **7.6 GiB/s** useful payload (~15 GiB/s raw traffic) |
+| RandW | random write (scattered stores) | **5.1 GiB/s** |
+| RandRW | random read-modify-write | **5.3 GiB/s** |
+
+Random access is **~10× slower** than streaming — expected, because a random
+8-byte access wastes a full 64-byte cache line, and the DRAM page/bank locality
+that streaming relies on is gone. This is the number that matters for
+pointer-chasing workloads (graph/LLM KV-cache, hash tables), not the streaming
+figure.
+
+### Single-thread baseline (for scaling context)
+
+| Kernel | 1 thread | 128 threads | Scaling |
+|--------|----------|-------------|---------|
+| Copy | 17.9 GiB/s | 67.1 GiB/s | 3.7× |
+| Triad | 20.2 GiB/s | 75.3 GiB/s | 3.7× |
+| RandR | 0.8 GiB/s | 7.6 GiB/s | 9.7× |
+
+A single EPYC 7742 core already extracts ~18–20 GiB/s — about **25% of the full
+75 GiB/s** — so most memory-bound work saturates with a handful of cores.
+
+### Reference: vendor expectation
+
+The EPYC 7742 (8-channel DDR4-3200 capable, but this system runs **DDR4-2133**)
+has a theoretical peak of `8 channels × 8 bytes × 2 (DDR) × 2133 MT/s`
+= **~273 GB/s ≈ 254 GiB/s**. Measured streaming **75 GiB/s** is ~**30% of
+theoretical peak**, which is normal for real STREAM on DDR4-2133 with a single
+socket and the low clock this part runs (2.25 GHz base). The 8-channel
+configuration is confirmed working — a 7-channel config would be ~12% lower.
+
+---
 
 ---
 
@@ -143,7 +227,7 @@ Lowering to 260 W:
 | Memory pattern test | ✅ 0 errors, all patterns passed |
 | Power supply validation | ✅ ~700 W worst case, ~30% headroom |
 | Thermal | ⚠️ CPU hits 95°C limit & throttles (normal); GPU1 at 84°C (airflow) |
-| Hardware inventory | ⚠️ MM2 memory slot empty (1 of 8 sticks missing) |
+| Hardware inventory | ✅ All 8 memory slots populated (128 GB, 8-channel) |
 
 ---
 

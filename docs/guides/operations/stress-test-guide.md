@@ -19,7 +19,7 @@ Your **worst-case sustained draw** with **260W** GPU caps (the current setting):
 | GPU 0 (RTX 3090) | 260 W |
 | GPU 1 (RTX 3090) | 260 W |
 | CPU (EPYC 7742) | ~225 W |
-| RAM (107 GB) | ~40 W |
+| RAM (128 GB) | ~45 W |
 | Motherboard / NVMe / fans | ~60 W |
 | **Total worst-case** | **~845 W** |
 

@@ -70,6 +70,18 @@ checks:
       - docs/implementation/_runbook/03-build-the-host/phase-084-journald-bound.md
     quick: true
 
+  # ---------- Part III: memory (8-channel, restored 2026-10-11) ----------
+  - id: mem-total-128gib
+    probe: command
+    command: bash scripts/system/mem-total-gib.sh
+    expect: "123"          # 8 × 16 GiB installed; ~123 GiB usable
+    docs:
+      - infra/inventory/host_vars/alpha.yml
+      - docs/guides/operations/system-test-results.md
+      - docs/guides/operations/system-performance.md
+      - docs/implementation/_runbook/18-day-2-operations/00-01-dimm-channel-h-failure.md
+    quick: true
+
   # ---------- Part III: storage (Phase 10) ----------
   - id: vg-ubuntu-vg
     probe: vg_present

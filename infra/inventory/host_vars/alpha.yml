@@ -9,7 +9,12 @@ os_expected: Ubuntu 26.04 LTS
 hardware:
   cpu_cores: 64           # AMD EPYC 7742, 128 threads / 1 socket
   cpu_threads: 128
-  memory_gib: 112         # installed (7 × 16 GiB); ~107 GiB usable
+  # 8 × 16 GiB = 128 GiB installed, 8-channel. NOTE: channel H (slot MM2) was
+  # dead from first boot until 2026-10-11 — an extra case standoff beneath the
+  # MM2 slot shorted the board, so firmware mapped the channel out and the
+  # machine ran 7-channel / 112 GiB. Standoff removed + CMOS clear restored it.
+  # See _runbook/18-day-2-operations/ (DIMM channel-H failure).
+  memory_gib: 128         # installed (8 × 16 GiB); ~123 GiB usable
   swap_gib: 8
   gpu_count: 2
   gpu_model: NVIDIA GeForce RTX 3090 (GA102)

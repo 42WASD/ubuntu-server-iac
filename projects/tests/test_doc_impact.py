@@ -50,10 +50,16 @@ CHECKS = _load_checks()
 
 
 def _run(cmd: list[str], timeout: int = 30) -> tuple[int, str]:
-    """Run a command, return (rc, stdout+stderr). Never raises."""
+    """Run a command, return (rc, stdout+stderr). Never raises.
+
+    Runs from the repo root so relative paths in probes (e.g.
+    ``bash scripts/system/mem-total-gib.sh``) resolve regardless of the
+    caller's working directory.
+    """
     try:
         p = subprocess.run(
-            cmd, capture_output=True, text=True, timeout=timeout, check=False
+            cmd, capture_output=True, text=True, timeout=timeout, check=False,
+            cwd=str(REPO),
         )
         return p.returncode, (p.stdout + p.stderr).strip()
     except (subprocess.TimeoutExpired, FileNotFoundError, OSError) as e:

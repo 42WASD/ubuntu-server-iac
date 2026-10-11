@@ -7,7 +7,7 @@ This page documents the **measured real-world performance** of the server (`alph
 | Component | Spec |
 |-----------|------|
 | CPU | AMD EPYC 7742 — 64 cores / 128 threads, 2.25 GHz base, ~3.4 GHz boost |
-| RAM | 7 × 16 GB DDR4-2133 ECC (SK Hynix) — 107 GB usable, multi-bit ECC |
+| RAM | 8 × 16 GB DDR4-2133 ECC (SK Hynix) — 128 GB installed, ~123 GB usable, multi-bit ECC |
 | GPU 0 | NVIDIA RTX 3090 (24 GB GDDR6X), top PCIe slot |
 | GPU 1 | NVIDIA RTX 3090 (24 GB GDDR6X) |
 | PSU | 1200 W |
@@ -44,15 +44,43 @@ The table below shows **sustained averages** during a full 180-second simultaneo
 
 ## Memory Performance & Validation
 
-The 7 memory sticks were validated with a comprehensive stress test:
+The memory was validated with a comprehensive stress test:
 
-- **Config:** 7 × 16 GB DDR4-2130 ECC, running on 8 channels (channels A–G populated, H empty), 112 GB installed / ~107 GB usable.
-- **Validation:** `stress-ng --vm` with the `all` memory-pattern set (including the classic fault-detection patterns: `galpat`, `rowhammer`, `walk`, `prime`, `checkerboard`, `move-inv`) across ~90 GB of the installed RAM.
+- **Config:** 8 × 16 GB DDR4-2133 ECC, all 8 channels (A–H) populated, 128 GB installed / ~123 GB usable.
+- **Validation:** `stress-ng --vm` with the `all` memory-pattern set (including the classic fault-detection patterns: `galpat`, `rowhammer`, `walk`, `prime`, `checkerboard`, `move-inv`) across the installed RAM.
 - **Result:** **PASSED** — 0 errors, 0 failures across all memory patterns.
+
+!!! note "Channel H was restored on 2026-10-11"
+    From first boot until 2026-10-11 the machine ran **7-channel / 112 GB**: an
+    extra **case standoff beneath the MM2 slot** was shorting the board, so
+    firmware logged a fatal DRAM error and mapped channel H out. Removing the
+    standoff + clearing CMOS restored all 8 channels. The original "0 errors"
+    pass therefore validated 7 sticks; a re-run now covers all 8.
 
 ### Why this matters
 
 Memory errors are silent and cumulative: a single bad DIMM can corrupt data and produce intermittent application crashes that are very hard to diagnose. Running the full set of bit-pattern tests across **all** installed memory confirms every stick is fault-free. This is especially important on an ECC system — the ECC can *detect* and *correct* errors, but a truly defective stick should be caught and replaced before it causes corrupted results or repeated ECC-corrected events under real workload.
+
+### Measured bandwidth
+
+STREAM-style benchmark on the full 8-channel configuration (all 128 threads,
+4 GiB/array), 2026-10-11:
+
+| Access pattern | Bandwidth |
+|----------------|-----------|
+| Streaming **Triad** (`a = b + s×c`) | **~75 GiB/s** |
+| Streaming Copy / Scale | ~67 GiB/s |
+| **Random read** (cache-hostile) | **~7.6 GiB/s** |
+| **Random write** (scattered) | **~5.1 GiB/s** |
+| Random read-modify-write | ~5.3 GiB/s |
+
+Random access is ~10× slower than streaming (an 8-byte random access wastes a
+full 64-byte cache line and loses DRAM page locality). For memory-bound work
+this is the number that matters. A single core already reaches ~20 GiB/s
+(≈25% of peak), so most workloads saturate with a few cores.
+
+See [System Test Results](system-test-results.md) §3b for the full method,
+per-kernel numbers, and the CPU-quota caveat when benchmarking.
 
 ## Power-Limit Trade-off (300 W vs 260 W)
 
@@ -77,7 +105,7 @@ This system is **stable and well-provisioned**:
 
 - **Compute:** Both RTX 3090s sustain full load indefinitely with zero errors.
 - **CPU:** All 128 threads run at ~2.6–2.8 GHz sustained; thermals are the only limiter (expected, normal).
-- **Memory:** All 7 sticks pass comprehensive pattern testing — no faults.
+- **Memory:** All 8 sticks pass comprehensive pattern testing — no faults, full 8-channel.
 - **Power:** The 1200 W PSU has ~30% headroom at worst case, so it is **more than adequate**.
 
 See the [Stress Testing Guide](stress-test-guide.md) for the full procedure to reproduce these measurements.

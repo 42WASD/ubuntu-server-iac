@@ -101,7 +101,7 @@ os_expected: Ubuntu 26.04 LTS
 
 hardware:
   cpu_cores: 64
-  memory_gib: 128
+  memory_gib: 128       # 8 × 16 GiB, 8-channel — record what is ACTUALLY detected
   gpu_count: 2
 
 storage_plan:

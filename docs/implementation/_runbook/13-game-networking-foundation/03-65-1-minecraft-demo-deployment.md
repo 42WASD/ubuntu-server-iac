@@ -241,6 +241,7 @@ TPS from last 1m, 5m, 15m: 20.0, 20.0, 20.0
 
 # Java process (PID 434): -Xmx2G, RSS 2.4 GB (at heap cap, healthy)
 # alpha host: 107 GiB RAM (95 GiB available), load 0.8–2.4
+#   (sampled 2026-08-2x, before channel H was restored; now 123 GiB)
 # CPU governor: schedutil @ 1.5 GHz, max 2.25 GHz (idle 0.2–1.5%)
 # Disk (nvme): ~19 w/s, await ~2 ms, %util 4%  -> no storage pressure
 ```

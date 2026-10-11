@@ -163,10 +163,17 @@ sudo nvme list 2>/dev/null || true
 Saved to `~/platform-audit/alpha-baseline.txt`.
 
 **What it produced:** `infra/inventory/host_vars/alpha.yml` — sanitized facts:
-64 cores / 128 threads, 112 GiB RAM, 8 GiB swap, 2× RTX 3090, NVMe 1.9T
-(Samsung PM9A1, OS root) + HDD 5.5T (ST6000NM0115, unallocated), LAN
-`enp193s0` `192.168.8.240` (now static; was `192.168.8.132` on DHCP),
-Tailscale `100.112.202.47`.
+64 cores / 128 threads, 112 GiB RAM (7 of 8 channels — see note), 8 GiB swap,
+2× RTX 3090, NVMe 1.9T (Samsung PM9A1, OS root) + HDD 5.5T (ST6000NM0115,
+unallocated), LAN `enp193s0` `192.168.8.240` (now static; was `192.168.8.132`
+on DHCP), Tailscale `100.112.202.47`.
+
+> **2026-10-11 correction:** the machine was inventoried with **112 GiB** because
+> channel H (slot **MM2**) was dead from first boot — an extra **case standoff**
+> beneath the MM2 slot shorted the board and firmware mapped the channel out.
+> Standoff removed + CMOS clear restored **128 GiB / 8-channel**. The inventory
+> SSOT now reads `memory_gib: 128`. See
+> `_runbook/18-day-2-operations/` (DIMM channel-H failure).
 
 **Checkpoint 1 (verified):** identified the root device, both GPUs on PCIe, LVM
 usage, free space, and the LAN NIC.
@@ -795,6 +802,17 @@ reload `sysctl`, and restart `systemd-journald`. Swap is bootstrap-time
 (tmpfs, `size=50%` = ~54G) with **swap disabled**. Root cause: heavy interactive
 host-side builds writing to tmpfs, with **zero swap headroom**, exhausted
 reclaimable RAM and the kernel could not make progress → hard freeze.
+
+> **2026-10-11 update — likely primary cause was a failing DIMM.** While
+> investigating a separate memory problem we found a firmware **BERT** record
+> (`fru_text: DIMM Locate: P0H0`, `severity: fatal`,
+> `error_type: 15, physical memory map-out event`) dated to exactly this boot
+> (boot ended 2026-08-26 06:44:40, kernel log not flushed). Channel H (slot
+> **MM2**) was mapped out as a result. An extra **case standoff** beneath MM2
+> was shorting the board; it was removed on 2026-10-11 and the channel
+> restored (128 GiB). So the tmpfs/RAM-pressure path **contributed**, but the
+> fatal DRAM error is the more probable trigger for this specific lockup. See
+> `_runbook/18-day-2-operations/` (DIMM channel-H failure).
 
 **Why re-enable now (deliberate decision):** the Phase 8.1 disable was meant to
 be temporary — "re-enable later as a deliberate feature". The cluster is now
@@ -5920,6 +5938,7 @@ TPS from last 1m, 5m, 15m: 20.0, 20.0, 20.0
 
 # Java process (PID 434): -Xmx2G, RSS 2.4 GB (at heap cap, healthy)
 # alpha host: 107 GiB RAM (95 GiB available), load 0.8–2.4
+#   (sampled 2026-08-2x, before channel H was restored; now 123 GiB)
 # CPU governor: schedutil @ 1.5 GHz, max 2.25 GHz (idle 0.2–1.5%)
 # Disk (nvme): ~19 w/s, await ~2 ms, %util 4%  -> no storage pressure
 ```
