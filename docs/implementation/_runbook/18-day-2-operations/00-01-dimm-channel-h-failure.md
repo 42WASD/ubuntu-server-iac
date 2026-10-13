@@ -131,6 +131,32 @@ RAM-backed `/tmp` with swap disabled. That path contributed, but the **fatal
 DRAM error is the more probable trigger** — see the annotation in
 `_runbook/03-build-the-host/phase-08-system-tuning.md` §8.6.
 
+### Boot-by-boot BERT timeline (proof the fix worked)
+
+The fatal `P0H0` record appeared at **every boot** from the earliest capture
+until the fix, then stopped. Evidence lives in **rsyslog archives** — journald
+was configured with `MaxRetentionSec=14day` (Phase 8), so Aug kernel logs were
+pruned. Source: `/var/log/kern.log.4.gz` (Aug 23–30), `.3.gz` (Aug 30–Sep 6),
+`.2.gz` (Sep 6–13).
+
+| Boot | BERT fatal `P0H0` | Kernel `Memory:` total | e820 `remove [mem 0x28090000000-…]` |
+|------|-------------------|------------------------|--------------------------------------|
+| 2026-08-24 03:04 | ✗ fatal | 98,680,396 K (~94.1 GiB) | ✗ present |
+| 2026-08-26 09:29 | ✗ fatal | 98,685,132 K | ✗ present |
+| 2026-09-07 03:04 | ✗ fatal | 98,679,912 K | ✗ present |
+| 2026-09-10 05:49 | ✗ fatal | 98,678,240 K | ✗ present |
+| 2026-10-11 12:42 → 14:33 | ✗ fatal | ~98,675,000 K | ✗ present |
+| **2026-10-11 15:37 → now** | **✓ gone** | **114,139,852 K (~108.9 GiB)** | **✓ gone** |
+
+Every pre-fix boot excluded the channel-H range from e820; the `Memory:` total
+grew by exactly **15.46 GB** ≈ one 16 GB DIMM on the first post-fix boot. The
+machine ran on **7 channels for ~7 weeks** before the standoff was removed.
+Current BERT table: 48 bytes = header only (no record). EDAC `mc0 ce/ue = 0/0`.
+
+**Journald caveat:** `MaxRetentionSec=14day` means journald alone won't hold
+older boots — always check `/var/log/kern.log*.gz` (rsyslog) for pre-two-week
+evidence.
+
 ---
 
 ## Post-fix validation (2026-10-11)

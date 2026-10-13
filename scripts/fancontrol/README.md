@@ -48,6 +48,7 @@ pulses. 50 ≈ 20% duty (this fan's spin floor, ~2420 RPM), 255 = 100% duty.
 | `generate-fancontrol.sh` | Rewrites hwmon indices into the template at boot |
 | `it87-load.service` | Loads it87 with `force_id=0x8613` at boot |
 | `fancontrol-gen.service` | Regenerates `/etc/fancontrol` before fancontrol starts |
+| `fancontrol.service.d/10-order.conf` | Drop-in: `Requires`/`After` the generator |
 
 > **BMC/IPMI path removed (2026-10-13).** The IPMI-based daemon (forked
 > `supermicro-fancontrol`, vendored as a `thirdparty/` submodule) was never
@@ -82,3 +83,29 @@ hwmon indices → `/etc/fancontrol`) → `fancontrol.service` (regulates).
 
 The generator exists because **hwmon indices swap between boots** (it87 loads
 asynchronously), which breaks fancontrol's stock `DEVPATH` pinning.
+
+Two hardening details, both added after observing real boot failures:
+
+- **The generator polls** (0.5 s interval, 15 s budget) instead of failing on
+  the first look. `k10temp` is routinely absent on the very first attempt at
+  boot, which made the unit exit 1 and log a spurious
+  `Failed to start fancontrol-gen.service` on *every* boot before systemd's
+  restart succeeded.
+- **`10-order.conf`** makes `fancontrol.service` `Requires=`+`After=` the
+  generator. The stock unit only declares `After=lm-sensors.service`, so
+  nothing guaranteed the config was regenerated before fancontrol read it —
+  and nothing stopped fancontrol from starting against a **stale** `/etc/fancontrol`
+  if the generator failed. The drop-in closes both holes.
+
+## Boot-log hygiene
+
+- **`/etc/modules-load.d/it87.conf` must not contain `force_id`.** That file
+  takes bare module names; `it87 force_id=0x8613` is read as one module named
+  `it87 force_id=0x8613` and fails with
+  `Failed to find module 'it87 force_id=0x8613'` on every boot. The module is
+  loaded by `it87-load.service` (`modprobe it87 force_id=0x8613`), so that file
+  is redundant — delete it if present:
+
+  ```bash
+  sudo rm -f /etc/modules-load.d/it87.conf
+  ```

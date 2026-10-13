@@ -117,6 +117,40 @@ checks:
       - scripts/fancontrol/README.md
     quick: true
 
+  # ---------- Part XVIII: boot-log hygiene (2026-10-13 audit) ----------
+  - id: fancontrol-order-dropin
+    probe: file_contains
+    path: /etc/systemd/system/fancontrol.service.d/10-order.conf
+    expect: Requires=fancontrol-gen.service
+    docs:
+      - scripts/fancontrol/README.md
+      - docs/implementation/_runbook/18-day-2-operations/00-02-boot-log-hygiene.md
+    quick: true
+
+  - id: no-openipmi-package
+    probe: command
+    command: bash scripts/system/absent-if-not-installed.sh openipmi
+    expect: absent
+    docs:
+      - docs/implementation/_runbook/18-day-2-operations/00-02-boot-log-hygiene.md
+    quick: true
+
+  - id: no-wekan-snap
+    probe: command
+    command: bash scripts/system/absent-if-not-snap.sh wekan
+    expect: absent
+    docs:
+      - docs/implementation/_runbook/18-day-2-operations/00-02-boot-log-hygiene.md
+    quick: true
+
+  - id: wifi-dongle-unmanaged
+    probe: file_contains
+    path: /etc/systemd/network/zzzz-dracut-default.network
+    expect: Unmanaged=yes
+    docs:
+      - docs/implementation/_runbook/18-day-2-operations/00-02-boot-log-hygiene.md
+    quick: true
+
   # ---------- Part IV: RKE2 (Phase 14) ----------
   - id: node-alpha-ready
     probe: kubectl_json

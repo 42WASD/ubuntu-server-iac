@@ -7,7 +7,8 @@
 #   3. Installs fancontrol.conf.template + fancontrol-gen.service
 #      (regenerates /etc/fancontrol with current hwmon indices at boot —
 #       indices swap between boots, so static configs go stale)
-#   4. Enables fancontrol.service
+#   4. Installs a fancontrol.service drop-in ordering it after the generator
+#   5. Enables fancontrol.service
 #
 # Usage:
 #   sudo bash scripts/fancontrol/setup-it87.sh          # full setup
@@ -44,6 +45,8 @@ verify() {
         || { echo "  FAIL: fancontrol not active"; ok=0; }
     systemctl is-enabled fancontrol-gen.service >/dev/null 2>&1 && echo "  OK: fancontrol-gen enabled (boot-time hwmon regen)" \
         || { echo "  FAIL: fancontrol-gen not enabled — fancontrol breaks after reboot (hwmon drift)"; ok=0; }
+    [[ -f /etc/systemd/system/fancontrol.service.d/10-order.conf ]] && echo "  OK: fancontrol ordered after generator (drop-in installed)" \
+        || { echo "  FAIL: fancontrol.service.d/10-order.conf missing — fancontrol may start on a stale config"; ok=0; }
     [[ $ok -eq 1 ]] && echo "VERIFY OK" || exit 1
 }
 
@@ -69,6 +72,9 @@ fi
 msg "Installing systemd units"
 install -m 644 "$SRC_DIR/it87-load.service"       /etc/systemd/system/
 install -m 644 "$SRC_DIR/fancontrol-gen.service"  /etc/systemd/system/
+install -d -m 755 /etc/systemd/system/fancontrol.service.d
+install -m 644 "$SRC_DIR/fancontrol.service.d/10-order.conf" \
+        /etc/systemd/system/fancontrol.service.d/
 install -m 755 "$SRC_DIR/generate-fancontrol.sh"  /usr/local/sbin/
 install -m 644 "$SRC_DIR/fancontrol.conf.template" /etc/fancontrol.conf.template
 systemctl daemon-reload

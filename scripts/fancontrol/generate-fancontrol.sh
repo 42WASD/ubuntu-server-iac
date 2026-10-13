@@ -36,8 +36,28 @@ resolve() { # resolve <device-name-in-template> -> current hwmonN
     return 1
 }
 
-IT87=$(resolve it8613) || { echo "ERROR: it8613 hwmon not found" >&2; exit 1; }
-K10=$(resolve k10temp) || { echo "ERROR: k10temp hwmon not found" >&2; exit 1; }
+# At boot the hwmon devices may not have finished registering yet, so poll
+# briefly instead of failing on the first look. Observed: k10temp is routinely
+# missing on the very first attempt, which made fancontrol-gen.service exit 1
+# and emit a spurious "Failed to start" on every boot (systemd's restart then
+# succeeded). Retrying in-process keeps the unit green.
+resolve_retry() { # resolve_retry <device-name> [timeout-seconds]
+    local want="$1" timeout="${2:-15}" deadline=$(( SECONDS + ${2:-15} )) val
+    while :; do
+        if val=$(resolve "$want"); then
+            echo "$val"
+            return 0
+        fi
+        if (( SECONDS >= deadline )); then
+            echo "ERROR: $want hwmon not found after ${timeout}s" >&2
+            return 1
+        fi
+        sleep 0.5
+    done
+}
+
+IT87=$(resolve_retry it8613) || exit 1
+K10=$(resolve_retry k10temp) || exit 1
 
 echo "it8613=$IT87 k10temp=$K10"
 

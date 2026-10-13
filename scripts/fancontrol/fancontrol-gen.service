@@ -17,6 +17,9 @@ ConditionPathExists=/etc/fancontrol.conf.template
 
 [Service]
 Type=oneshot
+# The generator polls for the hwmon devices to appear (they register
+# asynchronously at boot); give it room to outlast that window.
+TimeoutStartSec=60
 ExecStart=/usr/local/sbin/generate-fancontrol.sh /etc/fancontrol.conf.template /etc/fancontrol
 
 [Install]
