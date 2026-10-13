@@ -48,7 +48,14 @@ pulses. 50 ≈ 20% duty (this fan's spin floor, ~2420 RPM), 255 = 100% duty.
 | `generate-fancontrol.sh` | Rewrites hwmon indices into the template at boot |
 | `it87-load.service` | Loads it87 with `force_id=0x8613` at boot |
 | `fancontrol-gen.service` | Regenerates `/etc/fancontrol` before fancontrol starts |
-| `fan-daemon.service`, `install.sh`, `fanctl.sh` | IPMI/BMC daemon (UNUSED — parked until a BMC module is installed) |
+
+> **BMC/IPMI path removed (2026-10-13).** The IPMI-based daemon (forked
+> `supermicro-fancontrol`, vendored as a `thirdparty/` submodule) was never
+> usable on this host — the optional AST2500 BMC module is not installed — and
+> was never installed on the host (`fan-daemon` service `not-found`, no
+> `/usr/local/bin/fan-daemon.py`). The submodule, `install.sh`, `fanctl.sh` and
+> `fan-daemon.service` have been deleted. If a BMC module is added later,
+> re-vendor the upstream project (`jvdillon/supermicro-fancontrol`) then.
 
 ## Install
 

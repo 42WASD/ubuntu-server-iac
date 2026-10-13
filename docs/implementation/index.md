@@ -1638,10 +1638,9 @@ through reboot cycles since the driver install.
 
 **Intent:** quiet CPU fan at idle, full speed under stress, entirely from the
 OS. The HUANANZHI H12D-8D (`alpha`) shipped **without the optional BMC
-module**, so IPMI fan control (and the vendored
-`42WASD/supermicro-fancontrol` daemon in `thirdparty/`) is not usable.
-Control is instead provided by the **ITE IT8613E** Super I/O chip via the
-out-of-tree `it87` driver + `fancontrol`.
+module**, so IPMI fan control is not usable. Control is instead provided by the
+**ITE IT8613E** Super I/O chip via the out-of-tree `it87` driver +
+`fancontrol`.
 
 ## 13.1 Hardware findings (recorded so they are not re-derived)
 
@@ -1765,17 +1764,108 @@ Verified post-fix: `active`, tuned curve loaded (MINTEMP=65, AVERAGE=4),
 Tctl 55.4 °C → 2428 RPM floor. `setup-it87.sh` now enables
 `fancontrol-gen.service` and `verify --check` asserts it.
 
-## 13.6 Parked: IPMI daemon (pending BMC module)
+## 13.6 Removed: IPMI daemon + thirdparty submodule (2026-10-13)
 
-`scripts/fancontrol/fan-daemon.service`, `install.sh`, `fanctl.sh` and the
-`thirdparty/supermicro-fancontrol` submodule implement IPMI-based control for
-the **forked Supermicro daemon** (CPU-only curve tuned for the 7742). They are
-**unused until the optional AST2500 BMC module is installed**; the daemon
-validated cleanly against curve-spec parsing (zones `[0,1]` detected) but
-cannot reach a BMC. If the module is ever added: install it, then
-`sudo bash scripts/fancontrol/install.sh`.
+The IPMI path was evaluated and then **removed entirely**. It had been vendored
+as a `thirdparty/supermicro-fancontrol` submodule (fork of
+`jvdillon/supermicro-fancontrol`) with wrapper scripts
+(`fan-daemon.service`, `install.sh`, `fanctl.sh`) implementing a CPU-only curve
+for the 7742. It was **never usable** on this host — no BMC module means no
+`/dev/ipmi*` — and was **never installed** (verified: `fan-daemon` service
+`not-found`, no `/usr/local/bin/fan-daemon.py`).
 
-## 13.7 Infra encoding
+Deleted on 2026-10-13:
+
+```bash
+git submodule deinit -f thirdparty/supermicro-fancontrol
+git rm -f thirdparty/supermicro-fancontrol
+git rm scripts/fancontrol/{install.sh,fanctl.sh,fan-daemon.service}
+# .gitmodules removed (it only held this one submodule)
+# the 42WASD/supermicro-fancontrol fork was deleted from the org
+```
+
+If the optional AST2500 BMC module is ever installed, re-vendor the upstream
+project and re-add an IPMI control path — nothing is parked in-tree now.
+
+## 13.7 BIOS fan curve (board firmware)
+
+The board BIOS has its own fan curve, configured on 2026-10-13 once a monitor
+was available. Recorded here because BIOS and OS control **cannot both act at
+once**:
+
+| BIOS setting | Value |
+|---|---|
+| Fan off temperature limit | 45 |
+| Fan start temperature limit | 65 |
+| Fan full speed temperature limit | 79 |
+| Fan start PWM | 65 |
+| PWM slope setting | 4 PWM |
+
+See §13.8 for how this compares to the `fancontrol` curve and why it is
+currently **overridden** by the OS.
+
+## 13.8 BIOS curve vs the fancontrol curve
+
+**Which one is active?** `fancontrol`, while the OS is running. `fancontrol`
+drives `pwm2` in **software/manual** mode:
+
+```bash
+$ cat /sys/class/hwmon/hwmon3/pwm2_enable
+1                     # 1 = manual/software; >=2 = automatic (hardware) control
+$ sensors | grep pwm2
+pwm2:  25%  (freq = 23437 Hz)  MANUAL CONTROL
+```
+
+Setting `pwm2_enable=1` hands the channel to software, so the **BIOS curve is
+overridden** for as long as `fancontrol` runs. The BIOS curve governs only the
+window before the OS service starts (boot) — and would take over again if
+`fancontrol` were disabled/stopped.
+
+### Side-by-side
+
+| Aspect | BIOS curve | `fancontrol` curve |
+|---|---|---|
+| Off / stop below | 45 °C | 65 °C (`MINTEMP`) |
+| Start ramping | 65 °C | 65 °C (`MINTEMP`) |
+| Full speed at | **79 °C** | **74 °C** (`MAXTEMP`) |
+| Duty at ramp start | **65/255 ≈ 25%** (`MINPWM=65`) | 50/255 ≈ 20% (`MINPWM=50`) |
+| Ramp shape | **4 PWM** slope setting | linear floor→full |
+| Smoothing | none (firmware) | `AVERAGE=4` (~20 s) |
+| Poll interval | firmware | 5 s |
+| Temp source | board sensor | `k10temp` **Tctl** |
+
+### What differs, and why
+
+1. **Full speed is 5 °C earlier in `fancontrol` (74 vs 79 °C).** The Rome
+   **TjMax is ~77 °C** (this part: EPYC 7742, TDP 225 W). The BIOS value of
+   **79 °C is *above* TjMax** — the CPU would be throttling before the fan ever
+   reached full speed. `fancontrol`'s 74 °C keeps 3 °C of headroom. This is the
+   single most important difference and the main reason the OS curve exists.
+2. **The quiet floor is much lower in the BIOS (45 vs 65 °C).** With the BIOS
+   curve the fan stays at/near stop until 45 °C. On this host idle Tctl sits at
+   **57–65 °C**, so the BIOS curve would already be **ramping at idle** — which
+   is exactly the noise problem `fancontrol` was tuned to fix.
+3. **The BIOS starts ramping at a slightly higher duty (25% vs 20%).** BIOS
+   `Fan start PWM = 65` ≈ 25% duty; the fan's hardware floor is ~2420 RPM below
+   duty 50 (`fancontrol` `MINPWM=50` ≈ 20%), so the two floors are close but the
+   BIOS one is marginally more aggressive/audible.
+4. **Smoothing.** `fancontrol` averages 4 × 5 s polls (~20 s) so short Tctl
+   spikes don't cause fan jump-scares. The BIOS curve has no such damping —
+   another source of the noise bursts that motivated the OS tuning.
+5. **Sensor.** The BIOS uses the board's own thermal sensor; `fancontrol` reads
+   `k10temp` **Tctl**, the CPU's authoritative junction temperature. These are
+   not the same number, so the two curves are not directly comparable at the
+   same displayed temperature.
+
+### Recommendation
+
+Leave `fancontrol` as the active controller — it is strictly safer (full speed
+below TjMax) and quieter (floor held to 65 °C). Keep the BIOS curve only as the
+pre-OS fallback; the values recorded above are fine for that role. If you ever
+disable `fancontrol`, be aware the BIOS curve will resume and its 79 °C full-speed
+point is **above TjMax**.
+
+## 13.9 Infra encoding
 
 - `scripts/fancontrol/` — setup script, template, generator, units, README.
 - `/etc/modules-load.d/it87.conf` → `it87 force_id=0x8613`

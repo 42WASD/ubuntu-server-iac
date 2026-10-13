@@ -65,6 +65,17 @@ thanks to `AVERAGE=4`), and falls back to the floor afterwards.
 
 ## If a BMC module is added later
 
-The IPMI path is prepared but parked: `scripts/fancontrol/install.sh` +
-`fan-daemon.service` (forked Supermicro daemon, CPU-only curve). The
-`thirdparty/supermicro-fancontrol` submodule documents the IPMI raw commands.
+The IPMI path was evaluated and then **removed** (2026-10-13): the fork of
+`jvdillon/supermicro-fancontrol` was vendored as a `thirdparty/` submodule but
+was never usable on this host (no BMC module → no `/dev/ipmi*`), and was never
+installed. The submodule and its wrapper scripts have been deleted. To adopt
+IPMI control later, add the BMC SO-DIMM module and re-vendor the upstream
+project.
+
+## BIOS vs OS fan control
+
+The board BIOS has its own fan curve (see the runbook for the exact settings).
+Both cannot be active at once: `fancontrol` drives `pwm2` in **software/manual**
+mode (`pwm2_enable=1`), which overrides the BIOS curve while the OS is running.
+The BIOS curve therefore only governs the period before the OS takes over
+(boot), and would take over again if `fancontrol` were disabled.
