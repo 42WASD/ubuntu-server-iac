@@ -1789,11 +1789,13 @@ project and re-add an IPMI control path — nothing is parked in-tree now.
 
 ## 13.7 BIOS fan curve (board firmware)
 
-The board BIOS has its own fan curve, configured on 2026-10-13 once a monitor
-was available. Recorded here because BIOS and OS control **cannot both act at
-once**:
+The board BIOS (**AMI Aptio Setup Utility**, BIOS 2.20.1275) has its own fan
+curve, configured on 2026-10-13 once a monitor was available. Recorded here
+because BIOS and OS control **cannot both act at once**.
 
-| BIOS setting | Value |
+### Values as set in the BIOS UI
+
+| BIOS field | Value set |
 |---|---|
 | Fan off temperature limit | 45 |
 | Fan start temperature limit | 65 |
@@ -1801,8 +1803,83 @@ once**:
 | Fan start PWM | 65 |
 | PWM slope setting | 4 PWM |
 
-See §13.8 for how this compares to the `fancontrol` curve and why it is
-currently **overridden** by the OS.
+### Values as actually programmed into the IT8613E (ground truth)
+
+The BIOS curve is not opaque — the `it87` driver exposes the auto-point
+registers, so the programmed curve can be read back **from the OS**:
+
+```bash
+h=$(for d in /sys/class/hwmon/hwmon*; do [ "$(cat $d/name)" = it8613 ] && echo $d; done)
+for f in pwm2_auto_point1_temp pwm2_auto_point2_temp pwm2_auto_point3_temp \
+         pwm2_auto_start pwm2_auto_slope pwm2_enable; do echo "$f = $(cat $h/$f)"; done
+```
+
+```text
+pwm2_auto_point1_temp = 45000   -> 45 C   (off limit)
+pwm2_auto_point2_temp = 55000   -> 55 C   (start-PWM reached)
+pwm2_auto_point3_temp = 79000   -> 79 C   (100% speed)
+pwm2_auto_start       = 65      -> 65/255 = 25% duty
+pwm2_auto_slope       = 32
+pwm2_enable           = 2       -> automatic (hardware) control
+```
+
+> **UI vs register discrepancy:** three of the four UI values map 1:1
+> (off 45 → point1, full 79 → point3, start PWM 65 → `auto_start`), but the UI
+> **start limit 65** is stored as **point2 = 55 °C**. Re-check that field and
+> save with F10 — it may not have been applied, or this Aptio build maps it
+> elsewhere.
+
+### What "PWM slope = 4" actually means
+
+**It is NOT "4 PWM per °C".** Two pieces of evidence:
+
+1. The UI value **4 is stored as register value 32** (a ×8 scale) — so it is not
+   a direct PWM-per-degree step.
+2. Deriving the real ramp rate from the three points:
+   `(255 − 65) / (79 − 55) = 7.9` PWM/°C ≈ **8 PWM per °C** (~3 % duty per °C).
+
+So the UI "4" corresponds to roughly **8 PWM/°C**, i.e. the unit is about
+**2 PWM per °C per UI step** (slope 1 ≈ 2 PWM/°C, slope 4 ≈ 8 PWM/°C; higher =
+steeper).
+
+The important structural point: **the three temperature points dominate the
+curve shape.** The slope only controls how sharply it climbs between
+"start PWM" and "full speed". A 24 °C span (55→79) at 8 PWM/°C gives a long,
+gentle ramp.
+
+Linear model between point2 and point3:
+
+| Temp | PWM | Duty |
+|---|---|---|
+| 55 °C | 65 | 25 % |
+| 60 °C | 105 | 41 % |
+| 65 °C | 144 | 57 % |
+| 70 °C | 184 | 72 % |
+| 74 °C | 215 | 84 % |
+| 79 °C | 255 | 100 % |
+
+### Empirical check (2026-10-13)
+
+Briefly switching `pwm2` to automatic mode exercised the BIOS curve live:
+
+```bash
+echo 2 | sudo tee $h/pwm2_enable    # automatic -> BIOS curve
+sleep 25; cat $h/pwm2 $h/fan2_input
+echo 1 | sudo tee $h/pwm2_enable    # back to manual
+sudo systemctl restart fancontrol   # let fancontrol reclaim the channel
+```
+
+```text
+BIOS auto @ Tctl 57.1 C  ->  pwm 65 (25%),  2973 RPM
+fancontrol @ Tctl 57.8 C ->  pwm 50 (20%),  2376 RPM   (restored)
+```
+
+At 57 °C the BIOS curve sat exactly at the start PWM and had **not begun
+ramping** — consistent with the ramp being gated at the start limit rather than
+at point2 = 55 °C.
+
+> **Always restore afterwards.** Leaving `pwm2_enable=2` hands control to the
+> BIOS curve and `fancontrol` will keep writing to a channel it no longer owns.
 
 ## 13.8 BIOS curve vs the fancontrol curve
 
@@ -1826,13 +1903,17 @@ window before the OS service starts (boot) — and would take over again if
 | Aspect | BIOS curve | `fancontrol` curve |
 |---|---|---|
 | Off / stop below | 45 °C | 65 °C (`MINTEMP`) |
-| Start ramping | 65 °C | 65 °C (`MINTEMP`) |
+| Start ramping | 65 °C (UI) / 55 °C (reg) | 65 °C (`MINTEMP`) |
 | Full speed at | **79 °C** | **74 °C** (`MAXTEMP`) |
-| Duty at ramp start | **65/255 ≈ 25%** (`MINPWM=65`) | 50/255 ≈ 20% (`MINPWM=50`) |
-| Ramp shape | **4 PWM** slope setting | linear floor→full |
+| Duty at ramp start | **65/255 ≈ 25%** | 50/255 ≈ 20% |
+| Ramp rate | ~8 PWM/°C | linear floor→full over 9 °C |
 | Smoothing | none (firmware) | `AVERAGE=4` (~20 s) |
 | Poll interval | firmware | 5 s |
-| Temp source | board sensor | `k10temp` **Tctl** |
+| Temp source | board sensor (`temp1`) | `k10temp` **Tctl** |
+
+Sensor correspondence is close on this board — measured **within ~1 °C**
+(`temp1` 57.0 °C vs `Tctl` 57.8 °C), so BIOS thresholds transfer directly from
+the fancontrol numbers without a fudge factor.
 
 ### What differs, and why
 
@@ -1841,29 +1922,65 @@ window before the OS service starts (boot) — and would take over again if
    **79 °C is *above* TjMax** — the CPU would be throttling before the fan ever
    reached full speed. `fancontrol`'s 74 °C keeps 3 °C of headroom. This is the
    single most important difference and the main reason the OS curve exists.
-2. **The quiet floor is much lower in the BIOS (45 vs 65 °C).** With the BIOS
-   curve the fan stays at/near stop until 45 °C. On this host idle Tctl sits at
-   **57–65 °C**, so the BIOS curve would already be **ramping at idle** — which
-   is exactly the noise problem `fancontrol` was tuned to fix.
+2. **The BIOS quiet floor starts lower (45 °C off, 55 °C reg start).** On this
+   host idle Tctl sits at **57–65 °C**, so the BIOS curve is already part-way
+   up the ramp at idle — exactly the noise problem `fancontrol` was tuned to fix
+   (`MINTEMP` raised 55→60→65).
 3. **The BIOS starts ramping at a slightly higher duty (25% vs 20%).** BIOS
-   `Fan start PWM = 65` ≈ 25% duty; the fan's hardware floor is ~2420 RPM below
-   duty 50 (`fancontrol` `MINPWM=50` ≈ 20%), so the two floors are close but the
-   BIOS one is marginally more aggressive/audible.
+   `Fan start PWM = 65` ≈ 25%; the fan's hardware floor is ~2420 RPM below duty
+   50 (`fancontrol` `MINPWM=50` ≈ 20%), so the two floors are close but the BIOS
+   one is marginally more aggressive/audible.
 4. **Smoothing.** `fancontrol` averages 4 × 5 s polls (~20 s) so short Tctl
    spikes don't cause fan jump-scares. The BIOS curve has no such damping —
    another source of the noise bursts that motivated the OS tuning.
-5. **Sensor.** The BIOS uses the board's own thermal sensor; `fancontrol` reads
-   `k10temp` **Tctl**, the CPU's authoritative junction temperature. These are
-   not the same number, so the two curves are not directly comparable at the
-   same displayed temperature.
+5. **Sensor.** The BIOS uses the board's thermistor (`temp1`); `fancontrol` reads
+   `k10temp` **Tctl**. They track within ~1 °C here, but they are not identical.
 
-### Recommendation
+### Recommended BIOS values (make the fallback safe)
 
-Leave `fancontrol` as the active controller — it is strictly safer (full speed
-below TjMax) and quieter (floor held to 65 °C). Keep the BIOS curve only as the
-pre-OS fallback; the values recorded above are fine for that role. If you ever
-disable `fancontrol`, be aware the BIOS curve will resume and its 79 °C full-speed
-point is **above TjMax**.
+Goal: if `fancontrol` ever fails, the BIOS curve should still be **safe**.
+Change only what matters:
+
+| BIOS field | Currently | **Set to** | Why |
+|---|---|---|---|
+| Fan off temperature limit | 45 | **45** (keep) | harmless; idle sits above it |
+| Fan start temperature limit | 65 | **65** (keep) | matches `MINTEMP` |
+| **Fan full speed temperature limit** | **79** | **74** ⚠️ | **79 °C is above TjMax (~77 °C)** |
+| Fan start PWM | 65 | **50** (or **20** if %) | match the 20 % floor |
+| PWM slope setting | 4 | **4** (keep) | ~8 PWM/°C, close enough |
+
+**The one change that genuinely matters is 79 → 74** (use 72 for extra margin).
+Everything else is cosmetic.
+
+> **`Fan start PWM` unit caveat:** `fancontrol`'s `50` is out of **255** (= 20 %).
+> If the BIOS field is 0–255 use **50**; if it is a percentage use **20**.
+> Verify after applying: `sensors | grep fan2` should read **~2400–2700 RPM**
+> (the fan's hardware floor). If it lands much higher, the field is a percentage
+> — halve the value.
+
+> **Don't chase silence in the BIOS.** There is no `AVERAGE` equivalent, so the
+> firmware reacts instantly to spikes. Optimise the fallback for **safety**,
+> not quiet.
+
+### At-home checklist
+
+1. Enter BIOS (Aptio; DEL/F2 at POST).
+2. Set **Fan full speed temperature limit = 74**.
+3. Optionally set **Fan start PWM = 50** (or 20 if the field is a %).
+4. Save with **F10**, reboot.
+5. Verify from the OS:
+
+   ```bash
+   h=$(for d in /sys/class/hwmon/hwmon*; do [ "$(cat $d/name)" = it8613 ] && echo $d; done)
+   cat $h/pwm2_auto_point3_temp     # expect 74000
+   cat $h/pwm2_auto_start           # expect 50 (or 51 for 20%)
+   cat $h/pwm2_enable               # expect 1 -> fancontrol still owns it
+   sensors | grep -E 'fan2|pwm2'    # floor ~2400-2700 RPM
+   systemctl is-active fancontrol   # active
+   ```
+
+6. If the fan sounds wrong, `sudo systemctl restart fancontrol` reclaims the
+   channel.
 
 ## 13.9 Infra encoding
 

@@ -74,8 +74,23 @@ project.
 
 ## BIOS vs OS fan control
 
-The board BIOS has its own fan curve (see the runbook for the exact settings).
-Both cannot be active at once: `fancontrol` drives `pwm2` in **software/manual**
-mode (`pwm2_enable=1`), which overrides the BIOS curve while the OS is running.
-The BIOS curve therefore only governs the period before the OS takes over
-(boot), and would take over again if `fancontrol` were disabled.
+The board BIOS has its own fan curve. Both cannot be active at once:
+`fancontrol` drives `pwm2` in **software/manual** mode (`pwm2_enable=1`), which
+overrides the BIOS curve while the OS is running. The BIOS curve therefore only
+governs the period before the OS takes over (boot), and would take over again
+if `fancontrol` were disabled.
+
+The BIOS curve is **readable from the OS** via the driver's auto-point
+registers, so it can be audited rather than guessed:
+
+```bash
+h=$(for d in /sys/class/hwmon/hwmon*; do [ "$(cat $d/name)" = it8613 ] && echo $d; done)
+cat $h/pwm2_auto_point{1,2,3}_temp $h/pwm2_auto_start $h/pwm2_auto_slope $h/pwm2_enable
+```
+
+Key safety rule: the BIOS **full-speed temperature must stay below the CPU's
+TjMax** (~77 °C for this Rome EPYC 7742). A BIOS value of 79 °C — above TjMax —
+means the CPU throttles before the fan reaches full speed. Keep it at **74 °C**
+to match the `fancontrol` curve. Full decode, slope explanation and the at-home
+change checklist are in
+`_runbook/03-build-the-host/phase-13-cpu-fan-control-it87.md` §13.7–13.8.
