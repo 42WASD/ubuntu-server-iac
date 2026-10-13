@@ -191,6 +191,13 @@ pwm2_auto_slope       = 32
 pwm2_enable           = 2       -> automatic (hardware) control
 ```
 
+> **⚠️ `pwm2_auto_start` is only trustworthy in AUTO mode.** While
+> `pwm2_enable=1` (manual) the driver does **not** report the BIOS-programmed
+> value for this register — it mirrors the *live* `pwm2` value instead.
+> Observed on 2026-10-13: it read `50`, then `89`, then `255` as `pwm2` changed.
+> Read it with `pwm2_enable=2` if you need the true BIOS value; otherwise
+> distrust it. The other four registers (point1/2/3, slope) are stable.
+
 > **UI vs register discrepancy:** three of the four UI values map 1:1
 > (off 45 → point1, full 79 → point3, start PWM 65 → `auto_start`), but the UI
 > **start limit 65** is stored as **point2 = 55 °C**. Re-check that field and
@@ -233,8 +240,6 @@ Briefly switching `pwm2` to automatic mode exercised the BIOS curve live:
 ```bash
 echo 2 | sudo tee $h/pwm2_enable    # automatic -> BIOS curve
 sleep 25; cat $h/pwm2 $h/fan2_input
-echo 1 | sudo tee $h/pwm2_enable    # back to manual
-sudo systemctl restart fancontrol   # let fancontrol reclaim the channel
 ```
 
 ```text
@@ -245,6 +250,35 @@ fancontrol @ Tctl 57.8 C ->  pwm 50 (20%),  2376 RPM   (restored)
 At 57 °C the BIOS curve sat exactly at the start PWM and had **not begun
 ramping** — consistent with the ramp being gated at the start limit rather than
 at point2 = 55 °C.
+
+!!! danger "Restoring manual mode is NOT a simple `echo 1` — this broke the fan"
+    Going `pwm2_enable=1` directly **fails silently**: the write reports success
+    but reads back `0`, because the driver refuses manual mode while
+    `pwm2 == 255`. `fancontrol` then crash-loops:
+
+    ```text
+    Error enabling PWM on /sys/class/hwmon/hwmon3/pwm2
+    Aborting, restoring fans...
+    Start request repeated too quickly.   -> failed
+    ```
+
+    and leaves the fan **stuck at full speed (~7600 RPM)**. Reloading `it87`
+    (`rmmod`/`modprobe`) does **not** fix it.
+
+    **Working restore** — write a low `pwm2` *first*, then enable manual:
+
+    ```bash
+    sudo sh -c "echo 50 > $h/pwm2; echo 1 > $h/pwm2_enable"
+    sudo systemctl reset-failed fancontrol && sudo systemctl start fancontrol
+    # verify
+    systemctl is-active fancontrol      # active
+    cat $h/pwm2_enable                  # 1
+    cat $h/fan2_input                   # ~2400 RPM
+    ```
+
+    **Therefore: do not toggle `pwm2_enable=2` on the live host** unless you are
+    ready to run this recovery. The failure is *safe* (full speed) but loud, and
+    the fan stays unmanaged until fixed.
 
 > **Always restore afterwards.** Leaving `pwm2_enable=2` hands control to the
 > BIOS curve and `fancontrol` will keep writing to a channel it no longer owns.
@@ -340,15 +374,19 @@ Everything else is cosmetic.
 
    ```bash
    h=$(for d in /sys/class/hwmon/hwmon*; do [ "$(cat $d/name)" = it8613 ] && echo $d; done)
-   cat $h/pwm2_auto_point3_temp     # expect 74000
-   cat $h/pwm2_auto_start           # expect 50 (or 51 for 20%)
+   cat $h/pwm2_auto_point3_temp     # expect 74000  <- proves the change saved
    cat $h/pwm2_enable               # expect 1 -> fancontrol still owns it
    sensors | grep -E 'fan2|pwm2'    # floor ~2400-2700 RPM
    systemctl is-active fancontrol   # active
    ```
 
+   Do **not** use `pwm2_auto_start` to verify — it is only reliable in auto mode
+   (see §13.7). `pwm2_auto_point3_temp` is the dependable check that the BIOS
+   change took effect.
+
 6. If the fan sounds wrong, `sudo systemctl restart fancontrol` reclaims the
-   channel.
+   channel. If `fancontrol` reports *"Error enabling PWM"*, use the recovery
+   procedure in §13.7 (write a low `pwm2` first, then `pwm2_enable=1`).
 
 ## 13.9 Infra encoding
 
