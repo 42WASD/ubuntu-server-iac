@@ -9,3 +9,4 @@ resources:
   - restrict-exposure-and-image-tags.yaml
   - restrict-storage-priority-gpu.yaml
   - require-approved-registry-in-prod.yaml
+  - require-pinned-minecraft-server-jar.yaml

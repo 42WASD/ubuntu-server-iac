@@ -1,0 +1,51 @@
+# Idempotency guard for itzg/minecraft-server workloads (the paper-lobby boot
+# race, 2026-10-13). With TYPE=PAPER the image's start-deployPaper ALWAYS calls
+# the PaperMC API (fill.papermc.io) to resolve the build on every container
+# start, even when the jar already exists in /data. On host reboot the pod
+# starts before CoreDNS/Cilium are serving, the DNS lookup fails ("No route to
+# host") and the init exits 1 -> CrashLoopBackOff until the network settles.
+#
+# Setting PAPER_CUSTOM_JAR to a jar already persisted in /data makes the script
+# export SERVER directly and SKIP the entire download block -> no network
+# needed at startup, fully idempotent across reboots.
+#
+# This policy requires exactly that: any itzg/minecraft-server container whose
+# TYPE is a remotely-resolved distribution (PAPER/FOLIA/PUFFERFISH/PURPUR) must
+# also set PAPER_CUSTOM_JAR (a pinned, pre-downloaded jar path). Audit mode
+# (same convention as the other Phase-29 policies): flag first, enforce later.
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-pinned-minecraft-server-jar
+  annotations:
+    policies.kyverno.io/title: Require pinned Minecraft server jar
+    policies.kyverno.io/category: Reliability, GitOps
+    policies.kyverno.io/severity: medium
+spec:
+  background: true
+  validationFailureAction: Audit
+  rules:
+    - name: pinned-jar-for-remote-paper-types
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      validate:
+        message: >-
+          itzg/minecraft-server with a remotely-resolved TYPE (PAPER/FOLIA/
+          PUFFERFISH/PURPUR) must set PAPER_CUSTOM_JAR to a pre-downloaded jar
+          in /data. Otherwise the container downloads the server jar at startup
+          and CrashLoopBackOffs when the network/DNS is not ready (host reboot).
+        cel:
+          expressions:
+            # For every itzg/minecraft-server container, if any env var sets a
+            # remotely-resolved TYPE, then some env var must set PAPER_CUSTOM_JAR.
+            - expression: >-
+                object.spec.containers.all(c,
+                  !c.image.matches('(^|/)itzg/minecraft-server') ||
+                  !c.?env.orValue([]).exists(e, e.name == 'TYPE' &&
+                    e.value in ['PAPER', 'FOLIA', 'PUFFERFISH', 'PURPUR']) ||
+                  c.?env.orValue([]).exists(e, e.name == 'PAPER_CUSTOM_JAR'
+                    && e.value != '')
+                )

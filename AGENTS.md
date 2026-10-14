@@ -44,6 +44,31 @@
   already has domain subfolders: `docs/`, `gpu/`, `stress/`, `vpn/`) and place
   the file to match the established convention.
 
+## GitOps & Workload Idempotency (Generic Rule)
+
+- **Every manifest under GitOps must be declarative, idempotent, and
+  boot-safe.** Before adding or editing a Deployment/StatefulSet/CronJob, ask:
+  "does this start cleanly on a fresh node reboot, with no network/DNS yet and
+  no manual step?" If not, fix the manifest — don't rely on ordering luck.
+- **Never let startup depend on a remote fetch.** If a container downloads,
+  resolves, or pulls an artifact (jar, plugin, schema, index, model) at start
+  time, it will CrashLoopBackOff on reboot when the network/DNS isn't ready
+  (pods race CoreDNS/Cilium). Persist the artifact on a PVC and pin the exact
+  version/path so startup needs no network. (Seen 2026-10-13: itzg/minecraft
+  `TYPE=PAPER` re-resolved the build from the PaperMC API every start → pin the
+  persisted jar via `PAPER_CUSTOM_JAR` instead.)
+- **No shadow state.** If a value was hand-patched onto a live resource (env
+  var, annotation, label), it is NOT real until it is written verbatim into the
+  committed manifest. Reconcile live drift into git; never the reverse.
+- **Immutable fields need recreation, not patches.** `serviceName`,
+  `claimName`, selectors etc. can't be updated in place — delete + recreate
+  (keep PVCs with `--cascade=orphan`), and make sure the manifest's referenced
+  objects (ServiceAccount, Service, certs/SANs) exist and match first.
+- **Prefer a generic guard over a one-off.** When you fix a class of problem,
+  codify it once (a Kyverno policy, a CI check, or a probe) so the next
+  workload can't silently reintroduce it — and write the rule down, not just
+  the specific instance.
+
 ## Python Environment
 
 - **Always use `uv` to manage Python virtual environments and dependencies.**
