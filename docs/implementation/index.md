@@ -3733,6 +3733,196 @@ pushed — Argo reads the git remote, not the working tree.
 - Prefer `jqPathExpressions` with `[]` wildcards for arrays whose length
   varies between objects.
 
+---
+
+# Appendix — changing an immutable-ish field under Server-Side Apply (2026-11-06)
+
+**Problem:** switching the `security/dex` Deployment from `RollingUpdate` to
+`Recreate` could not be applied by Argo, and the sync retried forever:
+
+```text
+Deployment.apps "dex" is invalid: spec.strategy.rollingUpdate: Forbidden:
+may not be specified when strategy `type` is 'Recreate'
+```
+
+`kubectl apply --dry-run=server` of the same manifest **succeeded**, and a
+manual `kubectl replace`-style change worked. So the manifest was valid and the
+cluster was healthy — only *Argo's* apply path was stuck.
+
+## Root cause: SSA deletion is ownership-gated
+
+The Application runs `ServerSideApply=true`. Asking for `Recreate` requires
+**deleting** `spec.strategy.rollingUpdate`. Under Server-Side Apply a field can
+only be removed by a manager that *already owns it*. `managedFields` showed it
+did not:
+
+```bash
+kubectl -n security get deploy dex -o json --show-managed-fields \
+| python3 -c '
+import sys, json
+d = json.load(sys.stdin)
+for mf in d["metadata"]["managedFields"]:
+    fv = mf.get("fieldsV1", {}).get("f:spec", {})
+    if fv:
+        print(mf["manager"], mf["operation"], "owns spec.strategy:", "f:strategy" in fv)
+'
+```
+
+```text
+argocd-controller   Apply   owns spec.strategy: False
+kubectl-rollout     Update  owns spec.strategy: False
+```
+
+So applying
+
+```yaml
+strategy:
+  type: Recreate
+  rollingUpdate: null
+```
+
+did exactly half the job: SSA **gained** ownership of the leaf it set
+(`type: Recreate`) but **could not delete** a field it never owned, leaving the
+invalid pair `Recreate + rollingUpdate`. Kubernetes rejects the object, the sync
+fails, and Argo retries in a loop.
+
+> **Key misconception to unlearn:** `field: null` in a manifest does **not**
+> mean "remove this field" to Server-Side Apply. Deletion is gated on
+> ownership, not on the value you send. This is the single most common reason a
+> "just set it to null" fix silently does nothing under `ServerSideApply=true`.
+
+## The standard fix: `Replace=true`
+
+Argo CD's documented escape hatch. `Replace=true` makes Argo use
+`kubectl replace` / `kubectl create` (a full-object PUT) instead of a patch, so
+field ownership stops mattering and fields absent from the manifest are truly
+gone.
+
+Set it on the **one resource** that needs it, as an annotation:
+
+```yaml
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-options: Replace=true
+```
+
+It can also be set app-wide (`spec.syncPolicy.syncOptions`), but that is the
+wrong default here — see "Choosing the option" below.
+
+### Why per-resource and not Application-wide
+
+| Option | Scope in this repo | Verdict |
+|---|---|---|
+| `Replace=true` **on the resource** | only `dex` | **chosen** |
+| `Replace=true` app-wide | every resource in `platform-dex` | too blunt — discards partial-apply semantics everywhere |
+| `Force=true,Replace=true` | n/a | **rejected**: delete + recreate the Deployment = real outage |
+| `ServerSideApply=false` app-wide | every resource | rejected — gives up SSA for one bad field |
+| `kubectl delete` the Deployment to "reset" ownership | n/a | works, but leaves live state diverged from Git and is not reproducible |
+
+`Replace` rewrites the object in place; `Force` deletes and recreates it. For a
+PVC-backed single-writer database that is the difference between a rollout and
+an outage.
+
+## Choosing the option — decision order
+
+When Argo cannot converge a field, work down this list. Stop at the first that
+is genuinely correct; do not reach for the destructive ones to make a red
+status go green.
+
+1. **Is the live object wrong, or is Git wrong?** Fix Git if Git is wrong.
+   Hand-patching live is never the fix — `selfHeal: true` will revert it (see
+   below).
+2. **`ignoreDifferences` / `RespectIgnoreDifferences`** — when the field is
+   *legitimately* set by a controller or webhook (Kyverno defaulting, CRD
+   conversion, HPA-owned `replicas`). This is a *comparison* fix and changes
+   nothing live.
+3. **`Replace=true` (per-resource)** — when you must remove/patch a field you do
+   not own. Ownership-agnostic, in-place, non-destructive.
+4. **Recreate the object** (delete + let Argo re-create) — resets ownership
+   entirely. Acceptable for stateless objects; verify PVCs/state first.
+5. **`Force=true`** — last resort, only where a brief absence is harmless.
+
+Also relevant and used elsewhere in this repo: `Prune=false`,
+`Prune=confirm`, `Delete=false`, `SkipDryRunOnMissingResource=true`,
+`ApplyOutOfSyncOnly=true`.
+
+## Second half of the bug: RWO means one *mount*, not one pod
+
+`Recreate` was not cosmetic. `dex` owns a `ReadWriteOnce` PVC, and on this
+cluster (OpenEBS local-LVM) RWO means **one mount**, not "one pod per node". The
+default `RollingUpdate` with `replicas: 1` computes:
+
+```text
+maxUnavailable: 25%  ->  0.25 replicas  ->  rounds DOWN to 0
+```
+
+Zero pods may be unavailable, so the scheduler starts the replacement while the
+old pod still holds the volume, and the mount is refused:
+
+```text
+MountVolume.SetUp failed for volume "pvc-f2c681c5-..." :
+rpc error: code = Internal desc = verifyMount: device already mounted at
+[/var/lib/kubelet/pods/4d84eea2-.../volumes/kubernetes.io~csi/pvc-f2c681c5-.../mount]
+```
+
+The new pod hangs in `ContainerCreating`, the old one keeps crash-looping, and
+the rollout deadlocks at `Progressing` — **two** pods, neither serving. This is
+the same failure already recorded for ATM10SKY in the games repo.
+
+`Recreate` is the only correct strategy for any single-writer workload on RWO
+storage (SQLite, a Minecraft world dir, a database data dir). It is also the
+semantically correct choice: two `dex` processes must never open the same
+`dex.db`.
+
+## What NOT to do — `kubectl` live against an auto-synced app
+
+While debugging this, manifests were applied live before being committed. The
+Application runs `automated: {prune: true, selfHeal: true}`, so Argo reconciled
+back to the last commit and **pruned** the new objects within ~60 s:
+
+```text
+OperationStarted: Initiated automated sync to '62f4f863993d...'
+Partial sync operation succeeded
+```
+
+```text
+$ kubectl -n prd-games-42wasd-admin get svc mc-router
+Error from server (NotFound): services "mc-router" not found
+```
+
+A live `kubectl apply` against a self-healing Application is a *temporary*
+state, not a deployment. Commit → push → let Argo apply (or trigger a sync).
+This is the same class of surprise as `platform-root` reverting hand-patched
+Application objects.
+
+Corollary: when a NodePort moves between Services, the ports are **exclusively
+allocated**, and Argo may apply them in an unlucky order:
+
+```text
+Service "mc-router" is invalid: spec.ports[0].nodePort: Invalid value:
+30079: provided port is already allocated
+```
+
+That is transient — the second sync succeeds once the old owner is gone. Do not
+"fix" it by picking a random new port.
+
+## Preparation: check ownership before you fight a sync
+
+```bash
+# who owns the field Argo refuses to change?
+kubectl -n <ns> get <kind> <name> -o json --show-managed-fields \
+| python3 -c '
+import sys, json
+d = json.load(sys.stdin)
+for mf in d["metadata"]["managedFields"]:
+    keys = list(mf.get("fieldsV1", {}).keys())
+    print(mf["manager"], "|", mf["operation"], "|", keys[:5])
+'
+```
+
+If `argocd-controller` with `op=Apply` does not list the field you are trying to
+remove, `ServerSideApply` cannot do it and you need `Replace=true`.
+
 </details>
 
 - ✅ `done` — [Phase 22 — namespace baseline](../reference-design/05-gitops-bootstrap/namespace-baseline/index.md)
