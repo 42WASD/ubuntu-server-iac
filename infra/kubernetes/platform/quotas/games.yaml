@@ -1,6 +1,11 @@
 # Game namespaces quota — deliberately conservative starting ceilings.
 
-# prd-games-42wasd-admin (canonical): tune upward once game workloads land.
+# prd-games-42wasd-admin (canonical): tuned upward for the modded ATM10SKY
+# server (2026-11-06). That pack (322 mods, NeoForge 21.1.250) needs an 8 GiB
+# JVM heap, which means a 12 GiB container limit once metaspace/GC/native
+# overhead is added — the previous 16Gi limits.memory ceiling had only 3 GiB
+# free and the 8Gi LimitRange cap would have rejected the pod outright.
+# Node has 114 CPU / ~91 GiB allocatable, so these remain modest.
 apiVersion: v1
 kind: ResourceQuota
 metadata:
@@ -8,16 +13,16 @@ metadata:
   namespace: prd-games-42wasd-admin
 spec:
   hard:
-    requests.cpu: "4"
-    limits.cpu: "8"
-    requests.memory: 8Gi
-    limits.memory: 16Gi
-    requests.ephemeral-storage: 20Gi
-    limits.ephemeral-storage: 40Gi
-    requests.storage: 200Gi
-    pods: "30"
-    services: "10"
-    persistentvolumeclaims: "8"
+    requests.cpu: "8"
+    limits.cpu: "16"
+    requests.memory: 16Gi
+    limits.memory: 32Gi
+    requests.ephemeral-storage: 30Gi
+    limits.ephemeral-storage: 60Gi
+    requests.storage: 300Gi
+    pods: "40"
+    services: "12"
+    persistentvolumeclaims: "12"
     configmaps: "40"
     secrets: "25"
 ---

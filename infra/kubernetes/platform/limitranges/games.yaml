@@ -1,6 +1,10 @@
 # Game namespaces LimitRange — conservative defaults matching their quotas.
 
-# prd-games-42wasd-admin (canonical): tune upward once game workloads land.
+# prd-games-42wasd-admin (canonical): max.memory raised to 16Gi for the modded
+# ATM10SKY server (2026-11-06). That pack needs an 8 GiB heap, i.e. a 12 GiB
+# container limit; the previous 8Gi max would have had the apiserver REJECT the
+# pod regardless of quota. The quota's limits.memory (32Gi) is the aggregate
+# ceiling that actually bounds total consumption.
 apiVersion: v1
 kind: LimitRange
 metadata:
@@ -18,8 +22,8 @@ spec:
         memory: 1Gi
         ephemeral-storage: 2Gi
       max:
-        cpu: "4"
-        memory: 8Gi
+        cpu: "6"
+        memory: 16Gi
         ephemeral-storage: 20Gi
 ---
 # dev-games-42wasd-admin (ephemeral staging): intentionally small.
