@@ -23,6 +23,34 @@ spec:
     server: https://kubernetes.default.svc
     namespace: kyverno
 
+  # Two classes of permanent, harmless drift on this Helm-sourced app:
+  #
+  # 1. The CEL-era CRDs (*.policies.kyverno.io) render with EMPTY
+  #    `metadata.labels: {}` and `metadata.annotations: {}` (empty maps) from
+  #    the chart. The apiserver stores them with those keys absent, and it
+  #    defaults `spec.conversion.strategy: None`. Argo diffs empty-map vs
+  #    absent on all 11 CRDs forever, even though `kubectl diff` reports no
+  #    change. Verified by structurally diffing the chart-rendered CRD against
+  #    the live object: the only differing paths are
+  #    metadata.{labels,annotations} and spec.conversion (plus server-managed
+  #    metadata/status, which Argo already ignores).
+  #
+  # 2. `platform-kyverno-migrate-resources` is a Helm `post-upgrade` hook Job.
+  #    Argo has no status for it, and Completed Jobs are immutable, so it can
+  #    never be marked Synced.
+  ignoreDifferences:
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      jqPathExpressions:
+        - '.metadata.labels'
+        - '.metadata.annotations'
+        - '.spec.conversion'
+    - group: batch
+      kind: Job
+      name: platform-kyverno-migrate-resources
+      jqPathExpressions:
+        - '.status'
+
   syncPolicy:
     automated:
       prune: true

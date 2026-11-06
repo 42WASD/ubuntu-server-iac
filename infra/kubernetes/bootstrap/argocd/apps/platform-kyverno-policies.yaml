@@ -16,6 +16,31 @@ spec:
   destination:
     server: https://kubernetes.default.svc
 
+  # Kyverno's admission webhook DEFAULTS several fields onto ClusterPolicy at
+  # admission time. They are not in our manifests (we only declare the fields
+  # that matter), so Argo's live-vs-git compare sees spec drift on every policy
+  # forever, even though `kubectl diff` against the rendered manifests reports
+  # NO changes. Ignore exactly the webhook-defaulted paths.
+  #
+  # jqPathExpressions are used instead of jsonPointers so the `rules[*]` array
+  # entries are matched by wildcard across policies with a different rule count
+  # (disallow-privileged-host-settings has 5 rules, require-resource-limits 1).
+  ignoreDifferences:
+    - group: kyverno.io
+      kind: ClusterPolicy
+      jqPathExpressions:
+        # top-level webhook defaults
+        - '.spec.admission'
+        - '.spec.emitWarning'
+        # per-rule webhook defaults
+        - '.spec.rules[].skipBackgroundRequests'
+        - '.spec.rules[].validate.allowExistingViolations'
+        - '.spec.rules[].validate.cel.generate'
+        - '.spec.rules[].mutate.allowExistingViolations'
+        - '.spec.rules[].generate.generateExisting'
+        - '.spec.rules[].generate.synchronize'
+        - '.status'
+
   syncPolicy:
     automated:
       prune: true
