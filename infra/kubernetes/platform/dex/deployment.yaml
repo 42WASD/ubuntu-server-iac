@@ -32,7 +32,14 @@ spec:
     # the app sits at Progressing. Recreate tears the old pod down first, which
     # is the only correct behaviour for a single-writer SQLite database anyway
     # (two Dex processes must never open the same dex.db).
+    #
+    # NOTE: `rollingUpdate:` must be explicitly emptied. The live object
+    # carries the old `rollingUpdate: {maxSurge, maxUnavailable}` block, and
+    # Kubernetes rejects Recreate + rollingUpdate together:
+    #   spec.strategy.rollingUpdate: Forbidden: may not be specified when
+    #   strategy `type` is 'Recreate'
     type: Recreate
+    rollingUpdate: null
   template:
     metadata:
       labels:
