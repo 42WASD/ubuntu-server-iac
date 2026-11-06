@@ -12,6 +12,37 @@ metadata:
   namespace: security
   labels:
     app: dex
+  annotations:
+    # ── Why Replace=true (the standard Argo CD escape hatch) ────────────────
+    #
+    # Switching a Deployment from RollingUpdate to Recreate requires *removing*
+    # spec.strategy.rollingUpdate. Under the Application-level
+    # `ServerSideApply=true`, Argo cannot do that, and the sync fails forever:
+    #
+    #   Deployment.apps "dex" is invalid: spec.strategy.rollingUpdate:
+    #   Forbidden: may not be specified when strategy `type` is 'Recreate'
+    #
+    # Root cause is server-side-apply field ownership. `spec.strategy` is not in
+    # argocd-controller's managedFields, so when Argo applies
+    # `{type: Recreate, rollingUpdate: null}` it:
+    #   - GAINS ownership of the leaf it sets  -> strategy.type = Recreate
+    #   - CANNOT delete a field it does not own -> rollingUpdate survives
+    # yielding the invalid combination Recreate + rollingUpdate. Writing
+    # `rollingUpdate: null` does not help; SSA deletion only applies to fields
+    # the applier already owns.
+    #
+    # `Replace=true` makes Argo use `kubectl replace` (a full-object PUT)
+    # instead of a patch, so field ownership is irrelevant — the object is
+    # replaced wholesale and absent fields are genuinely removed. Per the Argo
+    # docs it takes precedence over ServerSideApply=true.
+    #
+    # Applied per-resource, NOT app-wide: Replace is a blunt instrument and
+    # enabling it for the whole Application would blind Argo to every other
+    # partial-apply nicety it currently relies on.
+    #
+    # (Force=true is deliberately NOT used — it would delete+recreate the
+    # Deployment and cause a real outage rather than an in-place replace.)
+    argocd.argoproj.io/sync-options: Replace=true
 spec:
   replicas: 1
   selector:
