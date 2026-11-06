@@ -17,6 +17,22 @@ spec:
   selector:
     matchLabels:
       app: dex
+  strategy:
+    # Recreate, not the default RollingUpdate.
+    #
+    # Dex owns a ReadWriteOnce PVC (dex-data), and on this cluster RWO means
+    # "one MOUNT", not "one pod per node". A RollingUpdate with maxSurge starts
+    # the replacement while the old pod still holds the volume, so OpenEBS
+    # local-LVM refuses the second attach and the new pod hangs forever:
+    #
+    #   MountVolume.SetUp failed ... verifyMount: device already mounted at
+    #   [...]/pvc-f2c681c5-.../mount
+    #
+    # Meanwhile the old pod keeps crash-looping, so the rollout deadlocks and
+    # the app sits at Progressing. Recreate tears the old pod down first, which
+    # is the only correct behaviour for a single-writer SQLite database anyway
+    # (two Dex processes must never open the same dex.db).
+    type: Recreate
   template:
     metadata:
       labels:
