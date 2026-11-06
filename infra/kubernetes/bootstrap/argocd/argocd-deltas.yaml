@@ -1,0 +1,77 @@
+# Argo CD post-install deltas — applied BY HAND after the upstream install.
+#
+# WHY THIS FILE EXISTS
+# Argo CD installs itself outside GitOps (the bootstrap paradox, Phase 19): the
+# upstream `install.yaml` is applied with kubectl, so the objects it creates are
+# NOT owned by any Application and `platform-root` will never reconcile them.
+# Any customization on top of stock therefore has nowhere to live unless we
+# keep it here explicitly.
+#
+# Apply order, on a reinstall or a fresh clone:
+#   1. kubectl apply -n argocd --server-side --force-conflicts \
+#        -f https://raw.githubusercontent.com/argoproj/argo-cd/<ver>/manifests/install.yaml
+#   2. kubectl -n argocd apply -f infra/kubernetes/bootstrap/argocd/argocd-config.yaml
+#   3. kubectl -n argocd apply -f infra/kubernetes/bootstrap/argocd/argocd-deltas.yaml
+#
+# Everything here is idempotent (strategic-merge patch semantics via apply).
+#
+# DO NOT add a delta here that a GitOps-managed manifest could own instead.
+# This file is only for objects Argo CD itself creates and nobody else manages.
+---
+# ── argocd-dex-server must not run as a HUMAN uid ────────────────────────────
+#
+# Stock Argo CD runs argocd-dex-server as UID 1001. On alpha that is a HUMAN
+# account (`jyao-42admin`), and `/` is ext4 mounted `quota,usrquota`. Dex's
+# emptyDir (/tmp, /tls) lives under /var/lib/kubelet on `/`, so its TLS
+# certificate write was charged to that person's 10 GiB home quota.
+#
+# When the quota's grace period expired, every write failed with EDQUOT and the
+# container crashed on every start:
+#
+#   fatal: could not write TLS certificate: write /tmp/tls.crt:
+#          disk quota exceeded
+#
+# It accumulated 4,961 restarts before being traced, and a reboot could never
+# have fixed it (the usage is persistent; recreating emptyDir frees the wrong
+# space). See the runbook 03-build-the-host/phase-11-filesystem-quotas.md §11.9.
+#
+# UID 10000 is this platform's dedicated workload identity. The same convention
+# is applied to every other workload — see the reference design
+# 03-build-the-host/filesystem-quotas-for-developer-homes ("workloads must
+# never run as a human UID").
+#
+# Note: this Deployment is STATELESS (dex is "not configured" — no SSO here, and
+# it stores nothing on disk), so no PVC ownership dance is required. If Dex is
+# ever given a persistent store, note that it would then also need
+# strategy: Recreate once a ReadWriteOnce volume is involved.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argocd-dex-server
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-dex-server
+    app.kubernetes.io/part-of: argocd
+spec:
+  template:
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10000
+        runAsGroup: 10000
+        fsGroup: 10000
+      containers:
+        - name: dex
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10000
+            runAsGroup: 10000
+            # Preserved from the stock manifest; repeated here so this file
+            # states the complete intended security posture of the container
+            # rather than relying on the reader diffing against upstream.
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault

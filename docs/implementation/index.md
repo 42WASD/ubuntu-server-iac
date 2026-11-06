@@ -3386,6 +3386,27 @@ kubectl apply -n argocd --server-side --force-conflicts \
 Applied CRDs, ServiceAccounts, RBAC, ConfigMaps, Secrets, Services,
 Deployments, a StatefulSet (`argocd-application-controller`), and NetworkPolicies.
 
+## 19.2.1 Post-install deltas (required)
+
+The upstream `install.yaml` cannot be edited in place, and these objects are not
+owned by any Application — so any customization on top of stock has to live in a
+file we apply by hand. That file is the SSOT for the deltas:
+
+```bash
+kubectl -n argocd apply -f infra/kubernetes/bootstrap/argocd/argocd-config.yaml
+kubectl -n argocd apply -f infra/kubernetes/bootstrap/argocd/argocd-deltas.yaml
+```
+
+`argocd-deltas.yaml` currently carries one mandatory change:
+`argocd-dex-server` runs as **UID 10000**, not the upstream 1001. UID 1001 on
+this host is the human `jyao-42admin`, and Dex's `emptyDir` writes land under
+`/var/lib/kubelet` on the quota-enabled ext4 root — so stock Dex crash-looped
+**4,961** times with `write /tmp/tls.crt: disk quota exceeded` once that
+person's soft limit grace expired. Full diagnosis in
+`03-build-the-host/phase-11-filesystem-quotas.md` §11.9.
+
+Skipping this step on a reinstall re-introduces the crash loop.
+
 ## 19.3 Wait and verify
 
 ```bash
