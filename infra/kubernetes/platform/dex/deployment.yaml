@@ -24,14 +24,32 @@ spec:
     spec:
       serviceAccountName: dex
       securityContext:
-        # Dex runs as UID 1000 (non-root). fsGroup 1000 makes the kubelet set
-        # group ownership on the SQLite PVC so Dex can write its DB.
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
+        # UID/GID 10000 = dedicated workload identity. Do NOT use 1000: that is
+        # the human `jyao` account, and `/` is mounted ext4 `quota,usrquota`.
+        # Dex's emptyDir (/tmp, and any spill) lives on `/`, so writes were
+        # charged to a person's 10 GiB home quota and killed the container with
+        # EDQUOT the moment that quota was full — the same class of failure as
+        # the paper-lobby "bad IO" crash loop (see the games incident runbook).
+        #
+        # `dex-data` (SQLite) is on nvme-fast, which has NO quota, so the DB was
+        # never the direct cause; fsGroup 10000 exists so the kubelet keeps the
+        # volume group-writable after the UID change.
+        runAsUser: 10000
+        runAsGroup: 10000
+        fsGroup: 10000
       containers:
         - name: dex
           image: ghcr.io/dexidp/dex:v2.45.1
+          # Match the pod securityContext — the image defaults to uid 1001.
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10000
+            runAsGroup: 10000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
           args:
             - dex
             - serve

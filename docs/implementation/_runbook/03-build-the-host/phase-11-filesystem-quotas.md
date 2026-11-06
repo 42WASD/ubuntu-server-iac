@@ -180,3 +180,141 @@ limits.
   KiB + user list), tasks/main.yml (enable usrquota in fstab, quotacheck, quotaon,
   setquota loop), wired into `site.yml`.
 - The manually-applied commands above mirror exactly what the role/script render.
+---
+
+## 11.9 Incident (2026-11-06) — argocd-dex-server crash loop = UID 1001 quota
+
+Found during a pre-reboot audit: `argocd/argocd-dex-server` had accumulated
+**4,961 restarts**. The failure was not memory, not TLS, and not the network:
+
+```text
+{"level":"fatal","msg":"could not write TLS certificate:
+ write /tmp/tls.crt: disk quota exceeded","time":"2026-11-06T23:20:20Z"}
+```
+
+This is the **same class of failure** as the games "bad IO" crash loop
+(Phase 8 incident recovery in the games repo), one UID over. It is worth
+recording because the symptom ("disk quota exceeded") reads like a
+disk-full
+problem, and the disk was 53% free.
+
+### Cause
+
+Dex generates a self-signed TLS cert into `/tmp`, which is an **emptyDir** and
+therefore lives under `/var/lib/kubelet/pods/...` on `/` — the ext4 root LV
+mounted `rw,relatime,quota,usrquota`.
+
+The upstream Argo CD manifest runs `argocd-dex-server` as **UID 1001**. On this
+host UID 1001 is not a service account at all — it is a **human**:
+
+```text
+$ getent passwd 1001
+jyao-42admin:x:1001:1006:...
+```
+
+And that human was over quota with the grace period expired:
+
+```text
+$ sudo repquota -u /
+User            used    soft    hard  grace    used  soft  hard  grace
+jyao-42admin +- 14203876 10485760 15728640  none   49319     0     0
+                  ^^ 13.5 GiB used vs a 10 GiB soft limit, grace = none
+```
+
+`grace: none` is the key detail. Once the soft-limit grace expires, every
+further write by that UID fails with `EDQUOT` — so Dex could never write its
+TLS cert, and restart-looped forever. A reboot cannot fix this: the quota
+usage is *persistent*, and `emptyDir` being recreated only frees space that was
+never the problem.
+
+The 13.5 GiB was a `42wasd-mc` clone under `/home/jyao-42admin/42wasd-mc`
+(13 GiB) plus `.vscode-server` (1.1 GiB) — a developer checkout, not workload
+data.
+
+### Second instance, same bug
+
+`security/dex` (the GitOps-managed one) was running as **UID 1000** = the
+`jyao` human account, with `fsGroup: 1000`. It had not died only because
+`jyao`'s own quota still had headroom (4.99M / 10.4M blocks). It was a latent
+time bomb: the moment `jyao`'s quota filled, that Dex would fail identically.
+
+### Fix
+
+Both Dex instances moved to the dedicated workload UID **10000**:
+
+- `argocd-dex-server` is **hand-installed** (the Argo CD bootstrap paradox), so
+  it is not in Git. Patched directly:
+
+  ```bash
+  kubectl -n argocd patch deploy argocd-dex-server --type strategic -p \
+    '{"spec":{"template":{"spec":{"securityContext":{"runAsUser":10000,"runAsGroup":10000,"fsGroup":10000},"containers":[{"name":"dex","securityContext":{"runAsUser":10000,"runAsGroup":10000}}]}}}}'
+  ```
+
+- `security/dex` **is** GitOps-managed, so the change went into
+  `infra/kubernetes/platform/dex/deployment.yaml` (pod *and* container
+  securityContext) and reaches the cluster via Argo.
+
+The `dex-data` PVC (SQLite on `nvme-fast`, xfs, **no quota**) held
+`dex.db` owned by `1000:1000`. It was re-chowned to `10000:10000` after taking
+a backup:
+
+```bash
+sudo cp -p "$MOUNT/dex.db" /var/backups/dex.db.$(date +%Y%m%d-%H%M%S)
+sudo chown -R 10000:10000 "$MOUNT"
+```
+
+`nvme-fast` declares no `fsGroupPolicy`, so it defaults to
+`ReadWriteOnceWithFSType` and the kubelet re-chowns the volume to `fsGroup`
+on mount — the manual chown made the handoff deterministic rather than relying
+on that.
+
+Verified:
+
+```text
+$ kubectl -n argocd get pod -l app.kubernetes.io/name=dex-server \
+    -o jsonpath='{.items[0].spec.containers[0].securityContext.runAsUser}
+                 restarts={.items[0].status.containerStatuses[0].restartCount}'
+10000 restarts=0
+
+$ kubectl -n argocd logs -l app.kubernetes.io/name=dex-server --tail=4
+{"level":"info","msg":"Generating self-signed TLS certificate for this session"}
+{"level":"info","msg":"dex is not configured"}
+```
+
+### Rule reinforced
+
+**No workload may run as a human UID (1000, 1001, …).** Humans get quota
+buckets with a grace period that can expire; workloads must not share that
+fate. Every pod should use `runAsUser: 10000` (or an image-provided non-human
+UID like 999/65532/65534).
+
+Audit command used to find these:
+
+```bash
+kubectl get pods -A -o json | python3 -c '
+import sys, json, collections
+b = collections.defaultdict(list)
+for p in json.load(sys.stdin)["items"]:
+    ns, nm = p["metadata"]["namespace"], p["metadata"]["name"]
+    for u in {p["spec"].get("securityContext", {}).get("runAsUser"),
+              p["spec"]["containers"][0].get("securityContext", {}).get("runAsUser")}:
+        if u is not None:
+            b[u].append(f"{ns}/{nm}")
+for u in sorted(b):
+    flag = "  <== HUMAN ACCOUNT" if u in (1000, 1001) else ""
+    print(f"  uid {u:>6}: {len(b[u]):>2} pod(s){flag}")
+'
+```
+
+Remaining human-UID pods after this fix:
+
+```text
+uid 1000: kube-system/rke2-metrics-server      (RKE2 Helm-managed, no writes)
+uid 1000: kube-system/rke2-snapshot-controller (RKE2 Helm-managed, no writes)
+```
+
+Both are RKE2-packaged system charts that write little or nothing to `/`. They
+are left alone deliberately: they are not in our GitOps source of truth, and
+overriding a vendor chart's UID invites a fight on every RKE2 upgrade. If
+either ever starts failing with `EDQUOT`, the fix is to drop a
+`runAsUser: 10000` patch into a GitOps overlay rather than hand-editing.

@@ -200,7 +200,14 @@ checks:
   - id: nodeport-30079-owner
     probe: nodeport_owner
     nodePort: 30079
-    expect: prd-games-42wasd-admin/velocity
+    # Changed 2026-11-06: 30079 belongs to the mc-router edge, not Velocity.
+    # Velocity and atm10sky were demoted to ClusterIP so the reference
+    # design's "backends remain private" boundary is enforced rather than
+    # merely documented. mc-router dispatches on the hostname in the
+    # Minecraft handshake:
+    #   mc-oompas.42base.com  -> atm10sky
+    #   minecraft.42base.com  -> velocity
+    expect: prd-games-42wasd-admin/mc-router
     docs:
       - docs/implementation/_runbook/13-game-networking-foundation/
       - docs/reference-design/13-game-networking-foundation/game-server-orchestration-operator/minecraft-demo-deployment/
